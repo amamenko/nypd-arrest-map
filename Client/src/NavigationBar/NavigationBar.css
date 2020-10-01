@@ -1,0 +1,196 @@
+.navigation_bar_container {
+  height: 6vh;
+  position: relative;
+  z-index: 99999999999;
+}
+
+.nypd_arrest_map_logo_container {
+  position: absolute;
+  left: 1rem;
+  top: 1rem;
+  z-index: 10;
+}
+
+.overview_tooltip {
+  height: 100%;
+  background: white;
+  color: black;
+  max-height: 10vh;
+  position: relative;
+  z-index: -1;
+}
+
+.overview_tooltip.legend_tooltip {
+  margin-left: 0.5rem;
+}
+
+.overview_tooltip > .tippy-arrow::before {
+  display: none;
+}
+
+.overview_tooltip_content {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
+  height: max-content;
+  overflow-y: visible;
+  padding: 0.5rem;
+  padding-right: 2.5rem;
+  position: relative;
+  z-index: -1;
+}
+
+.overview_tooltip_content p {
+  padding: 0;
+  margin: 0;
+  font-size: 0.6rem;
+}
+
+.burger_tooltip {
+  background: white;
+  color: black;
+}
+
+.tippy-arrow::before {
+  color: white !important;
+}
+
+.tippy_content {
+  color: black;
+}
+
+.nypd_arrest_map_logo_container p {
+  display: inline-block;
+  font-weight: 600;
+  margin: 0 auto;
+  margin-right: 0.3rem;
+  font-size: calc(0.3rem + 2vh);
+}
+
+.nypd_arrest_map_logo_container p:first-child {
+  color: rgb(93, 188, 210);
+}
+
+.nypd_arrest_map_logo_container p:nth-child(2) {
+  color: rgb(255, 255, 255);
+}
+
+.nypd_arrest_map_logo_container p:last-child {
+  color: #f9c124;
+}
+
+.nav_item {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  cursor: pointer;
+}
+
+.nav_item p {
+  display: inline-block;
+}
+
+.nav_item_content_container {
+  background: rgb(227, 227, 227);
+  width: 100%;
+  height: auto;
+  max-height: 50vh;
+  overflow: auto;
+  cursor: pointer;
+}
+
+input[type="checkbox"] {
+  cursor: pointer;
+  transform: scale(1.5);
+  margin-right: 1.5rem;
+}
+
+.unfetched_year_button {
+  cursor: pointer;
+}
+
+.unfetched_year_button:hover {
+  color: rgb(43, 120, 43) !important;
+}
+
+.year_download_icon {
+  transform: scale(1.5);
+  cursor: pointer;
+  margin-right: 1.5rem;
+}
+
+.nav_item_content_container p {
+  color: #000;
+  font-weight: 500;
+  /* Keeps individual options on their own line when collapsing/uncollapsing */
+  display: block;
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+  line-height: 2rem;
+}
+
+.filter_identifier {
+  color: #000;
+  font-weight: 600;
+}
+
+.is-closed,
+.is-open {
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+  display: flex;
+  align-items: center;
+  background: rgb(255, 255, 255);
+  border-bottom: 1px solid rgb(155, 155, 155);
+  outline: none;
+}
+
+.is-closed:active,
+.is-open:active {
+  background: rgb(225, 225, 225);
+}
+
+.Collapsible__contentOuter {
+  padding-left: 1.5rem;
+  background: rgb(227, 227, 227);
+}
+
+.apply_filters_button {
+  color: #fff;
+  cursor: pointer;
+  margin-left: 1.5rem;
+  margin-right: 1.5rem;
+  margin-bottom: 10vh;
+  margin-top: 20vh;
+  font-size: 0.7rem;
+  min-height: 3rem;
+  outline: none;
+}
+
+.apply_filters_button:focus {
+  outline: 1px solid black;
+}
+
+.spacer {
+  display: flex !important;
+  flex: 1;
+}
+
+.spacer:focus {
+  outline: none;
+}
+
+@media only screen and (min-width: 1200px) {
+  .overview_tooltip_content p {
+    font-size: 0.7rem;
+  }
+}
+
+@media only screen and (min-width: 2000px) {
+  .overview_tooltip_content p {
+    font-size: 1rem;
+  }
+}

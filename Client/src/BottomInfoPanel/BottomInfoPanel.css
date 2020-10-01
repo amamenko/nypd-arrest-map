@@ -1,0 +1,214 @@
+.bottom_info_panel_container {
+  height: 25vh;
+  background: rgb(211, 211, 211);
+  position: absolute;
+  bottom: 0;
+  width: 100vw;
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-start;
+  padding-left: 1rem;
+  overflow: hidden;
+}
+
+.bottom_info_section_title {
+  font-weight: 600;
+  overflow-wrap: break-word;
+  width: 100rem;
+}
+
+.filters_applied {
+  height: 33%;
+  overflow: auto;
+  overflow-x: visible;
+  background: rgb(215, 215, 215);
+  margin-top: 1.5rem;
+}
+
+.no_filters_applied_statement {
+  text-align: center;
+}
+
+.filters_applied h2 {
+  font-size: 0.7rem;
+  text-align: center;
+}
+
+.filters_applied p {
+  font-size: 0.7rem;
+  line-height: 0.2rem;
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+}
+
+.map_legend_items_container {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+}
+
+.map_legend_container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 0rem;
+  padding-left: 3rem;
+  padding-right: 3rem;
+}
+
+.map_legend_element {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.map_legend_container p {
+  font-size: 0.6rem;
+  margin-left: 0.5rem;
+  margin-right: 0.5rem;
+}
+
+.map_legend_container p:first-child {
+  text-align: center;
+  font-weight: 600;
+}
+
+.bottom_info_list {
+  margin: auto;
+  height: 10vh;
+  overflow-y: scroll;
+  /* background: white; */
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+
+.bottom_info_main_info_box {
+  width: 15vw !important;
+  position: absolute;
+  left: 0;
+  z-index: 99999999;
+  height: 100%;
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+  border-right: 1px solid black;
+  background: rgb(240, 240, 240);
+  overflow: hidden;
+}
+
+.bottom_info_panel_info_box {
+  max-width: 15vw;
+}
+
+.carousel_container {
+  width: 100%;
+  position: relative;
+}
+
+.bottom_info_panel_info_box:not(:first-child) {
+  display: flex;
+  flex: 1;
+  height: 100%;
+  flex-direction: row;
+}
+
+.bottom_info_carousel_container {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+}
+
+.bottom_info_pie_container {
+  width: 85%;
+  height: 100%;
+  margin-top: -2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.bottom_info_panel_info_box:first-child {
+  padding-right: 1.5rem;
+}
+
+.bottom_info_panel_info_box:not(:first-child) {
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+  border-left: 1px solid black;
+  height: 100%;
+}
+
+.bottom_info_panel_info_box > div > p:not(:first-child) {
+  line-height: 0.3rem;
+}
+
+.carousel_left_arrow {
+  position: absolute;
+  left: 20vw;
+  top: 0;
+  bottom: 0;
+  margin: 0;
+  height: 70%;
+  z-index: 5;
+  cursor: pointer;
+}
+
+.carousel_right_arrow {
+  position: absolute;
+  right: 5vw;
+  top: 0;
+  bottom: 0;
+  margin: 0;
+  height: 70%;
+  z-index: 5;
+  cursor: pointer;
+}
+
+.graph_options_container {
+  text-align: center;
+}
+
+.graph_options_container p {
+  font-size: 0.7rem;
+  font-weight: 500;
+}
+
+@media only screen and (max-width: 767px) {
+  .bottom_info_panel_container {
+    display: none;
+  }
+}
+
+@media only screen and (min-width: 1200px) {
+  .map_legend_container p {
+    font-size: 0.7rem;
+    margin-left: 0rem;
+    margin-right: 0rem;
+  }
+}
+
+@media only screen and (min-width: 1600px) {
+  .bottom_info_panel_container {
+    height: 22vh;
+  }
+
+  .carousel_right_arrow,
+  .carousel_left_arrow {
+    height: 70%;
+  }
+
+  .map_legend_container p:not(:first-child) {
+    padding-left: 1vw;
+    padding-right: 1vw;
+  }
+}
+
+@media only screen and (min-width: 2200px) {
+  .bottom_info_panel_container {
+    height: 16vh;
+  }
+}
