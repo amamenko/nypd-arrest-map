@@ -177,6 +177,11 @@
   font-weight: 500;
 }
 
+.graph_options_container > div {
+  white-space: nowrap !important;
+  overflow: hidden !important;
+}
+
 @media only screen and (max-width: 767px) {
   .bottom_info_panel_container {
     display: none;

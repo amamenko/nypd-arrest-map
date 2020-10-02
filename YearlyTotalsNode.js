@@ -1,4 +1,4 @@
-const yearlyTotals = {
+module.exports = {
   2006: 371932,
   2007: 403229,
   2008: 401526,
@@ -15,5 +15,3 @@ const yearlyTotals = {
   2019: 214616,
   2020: 74783,
 };
-
-module.exports = yearlyTotals;

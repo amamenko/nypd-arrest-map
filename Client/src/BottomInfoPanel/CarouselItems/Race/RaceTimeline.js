@@ -30,7 +30,7 @@ const RaceTimeline = (props) => {
     <div
       className="bottom_info_panel_info_box"
       onDragStart={(e) => e.preventDefault()}
-      style={{ visibility: graphOption === "trends" ? "visible" : "hidden" }}
+      style={{ display: graphOption === "trends" ? "block" : "none" }}
     >
       <p className="bottom_info_section_title">Race Trends</p>
       <div className="bottom_info_pie_container">
@@ -95,7 +95,7 @@ const RaceTimeline = (props) => {
           }
           options={{
             backgroundColor: "transparent",
-            width: 650,
+            width: 500,
             chartArea: { width: "50%", height: "50%" },
           }}
         />

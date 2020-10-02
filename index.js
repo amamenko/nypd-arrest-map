@@ -5,10 +5,12 @@ const server = require("http").createServer();
 const { Storage } = require("@google-cloud/storage");
 const compression = require("compression");
 const oboe = require("oboe");
-const yearlyTotals = require("./YearlyTotals");
+const yearlyTotals = require("./YearlyTotalsNode");
 const { StringDecoder } = require("string_decoder");
 const decoder = new StringDecoder("utf8");
 const LZString = require("lz-string");
+
+require("dotenv").config();
 
 // compress responses
 app.use(compression());
@@ -30,11 +32,11 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 
-require("dotenv").config();
-
 const port = 4000;
 
-const storage = new Storage({ keyFilename: "nypd-arrest-map-details.json" });
+const storage = new Storage({
+  credentials: require("./nypd-arrest-map-details.js"),
+});
 
 const wss = new WebSocket({ server });
 

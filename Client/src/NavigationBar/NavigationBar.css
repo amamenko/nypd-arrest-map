@@ -4,6 +4,10 @@
   z-index: 99999999999;
 }
 
+label {
+  cursor: pointer;
+}
+
 .nypd_arrest_map_logo_container {
   position: absolute;
   left: 1rem;

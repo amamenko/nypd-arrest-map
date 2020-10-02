@@ -9,7 +9,7 @@ const Category = (props) => {
     <div
       className="bottom_info_panel_info_box"
       onDragStart={(e) => e.preventDefault()}
-      style={{ visibility: graphOption === "overview" ? "visible" : "hidden" }}
+      style={{ display: graphOption === "overview" ? "block" : "none" }}
     >
       <p className="bottom_info_section_title">Breakdown by Category</p>
       <div className="bottom_info_pie_container">

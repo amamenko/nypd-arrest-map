@@ -1,0 +1,55 @@
+.modal {
+  font-size: 1.2rem;
+  line-height: 1.5rem;
+}
+.navigation_bar_container,
+[data-tippy-root] {
+  z-index: 20 !important;
+}
+.popup-content p,
+.pop_up_icons_container {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  font-weight: 500;
+}
+.pop_up_icons_container svg {
+  font-size: 3rem;
+  margin-left: 1rem;
+  margin-right: 1rem;
+}
+.popup-content {
+  background-color: rgb(191, 195, 212) !important;
+  border: 1px solid #9a9595 !important;
+}
+.modal > .header {
+  width: 100%;
+  border-bottom: 1px solid gray;
+  font-size: 18px;
+  text-align: center;
+  padding: 5px;
+}
+.modal > .content {
+  width: 100%;
+  padding: 10px 5px;
+}
+.modal > .actions {
+  width: 100%;
+  padding: 10px 5px;
+  margin: auto;
+  text-align: center;
+}
+.modal > .close {
+  cursor: pointer;
+  position: absolute;
+  display: block;
+  padding: 2px 5px;
+  line-height: 20px;
+  right: -10px;
+  top: -10px;
+  font-size: 24px;
+  background: #ffffff;
+  border-radius: 18px;
+  border: 1px solid #cfcece;
+}

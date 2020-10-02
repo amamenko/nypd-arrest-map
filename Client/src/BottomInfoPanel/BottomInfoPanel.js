@@ -195,7 +195,7 @@ const BottomInfoPanel = (props) => {
               pointColor="rgb(0, 0, 128)"
               value="trends"
             >
-              Trends Over Time
+              Trends
             </RadioButton>
           </RadioGroup>
         </div>
@@ -219,79 +219,83 @@ const BottomInfoPanel = (props) => {
             0: { items: 4 },
           }}
           preservePosition={true}
-          items={
-            graphOption === "overview"
-              ? [
-                  <Category
-                    filteredArrestCategory={filteredArrestCategory}
-                    graphOption={graphOption}
-                  />,
-                  <AgeGroup
-                    filteredAgeGroup={filteredAgeGroup}
-                    filteredAgeGroupData={filteredAgeGroupData}
-                    graphOption={graphOption}
-                  />,
-                  <Race
-                    filteredRaceUniqueValues={filteredRaceUniqueValues}
-                    filteredRaceArr={filteredRaceArr}
-                    graphOption={graphOption}
-                  />,
-                  <Gender
-                    filteredUniqueDates={filteredUniqueDates}
-                    filteredSexUniqueValues={filteredSexUniqueValues}
-                    filteredSexArr={filteredSexArr}
-                    graphOption={graphOption}
-                  />,
-                  <Borough
-                    filteredBoroughUniqueValues={filteredBoroughUniqueValues}
-                    filteredBoroughArr={filteredBoroughArr}
-                    graphOption={graphOption}
-                  />,
-                  <TopOffenses
-                    filteredOffenseDescriptionArr={
-                      filteredOffenseDescriptionArr
-                    }
-                    filteredOffenseDescriptionUniqueValues={
-                      filteredOffenseDescriptionUniqueValues
-                    }
-                    graphOption={graphOption}
-                  />,
-                ]
-              : [
-                  <CategoryTimeline
-                    filteredTimelineCategoryData={filteredTimelineCategoryData}
-                    filteredUniqueDates={filteredUniqueDates}
-                    filteredArrestCategory={filteredArrestCategory}
-                    graphOption={graphOption}
-                    filteredUniqueCategory={filteredUniqueCategory}
-                    uniqueValues={uniqueValues}
-                  />,
-                  <AgeGroupTimeline
-                    filteredAgeGroupData={filteredAgeGroupData}
-                    filteredUniqueDates={filteredUniqueDates}
-                    filteredTimelineAgeGroupData={filteredTimelineAgeGroupData}
-                    graphOption={graphOption}
-                  />,
-                  <BoroughTimeline
-                    filteredBoroughUniqueValues={filteredBoroughUniqueValues}
-                    filteredUniqueDates={filteredUniqueDates}
-                    filteredTimelineBoroughData={filteredTimelineBoroughData}
-                    graphOption={graphOption}
-                  />,
-                  <RaceTimeline
-                    filteredRaceUniqueValues={filteredRaceUniqueValues}
-                    filteredUniqueDates={filteredUniqueDates}
-                    filteredTimelineRaceData={filteredTimelineRaceData}
-                    graphOption={graphOption}
-                  />,
-                  <GenderTimeline
-                    filteredUniqueDates={filteredUniqueDates}
-                    filteredSexUniqueValues={filteredSexUniqueValues}
-                    filteredTimelineSexData={filteredTimelineSexData}
-                    graphOption={graphOption}
-                  />,
-                ]
-          }
+          items={[
+            <Category
+              key="overview"
+              filteredArrestCategory={filteredArrestCategory}
+              graphOption={graphOption}
+            />,
+            <AgeGroup
+              key="overview"
+              filteredAgeGroup={filteredAgeGroup}
+              filteredAgeGroupData={filteredAgeGroupData}
+              graphOption={graphOption}
+            />,
+            <Race
+              key="overview"
+              filteredRaceUniqueValues={filteredRaceUniqueValues}
+              filteredRaceArr={filteredRaceArr}
+              graphOption={graphOption}
+            />,
+            <Gender
+              key="overview"
+              filteredUniqueDates={filteredUniqueDates}
+              filteredSexUniqueValues={filteredSexUniqueValues}
+              filteredSexArr={filteredSexArr}
+              graphOption={graphOption}
+            />,
+            <Borough
+              key="overview"
+              filteredBoroughUniqueValues={filteredBoroughUniqueValues}
+              filteredBoroughArr={filteredBoroughArr}
+              graphOption={graphOption}
+            />,
+            <TopOffenses
+              key="overview"
+              filteredOffenseDescriptionArr={filteredOffenseDescriptionArr}
+              filteredOffenseDescriptionUniqueValues={
+                filteredOffenseDescriptionUniqueValues
+              }
+              graphOption={graphOption}
+            />,
+            <CategoryTimeline
+              key="trends"
+              filteredTimelineCategoryData={filteredTimelineCategoryData}
+              filteredUniqueDates={filteredUniqueDates}
+              filteredArrestCategory={filteredArrestCategory}
+              graphOption={graphOption}
+              filteredUniqueCategory={filteredUniqueCategory}
+              uniqueValues={uniqueValues}
+            />,
+            <AgeGroupTimeline
+              key="trends"
+              filteredAgeGroupData={filteredAgeGroupData}
+              filteredUniqueDates={filteredUniqueDates}
+              filteredTimelineAgeGroupData={filteredTimelineAgeGroupData}
+              graphOption={graphOption}
+            />,
+            <BoroughTimeline
+              key="trends"
+              filteredBoroughUniqueValues={filteredBoroughUniqueValues}
+              filteredUniqueDates={filteredUniqueDates}
+              filteredTimelineBoroughData={filteredTimelineBoroughData}
+              graphOption={graphOption}
+            />,
+            <RaceTimeline
+              key="trends"
+              filteredRaceUniqueValues={filteredRaceUniqueValues}
+              filteredUniqueDates={filteredUniqueDates}
+              filteredTimelineRaceData={filteredTimelineRaceData}
+              graphOption={graphOption}
+            />,
+            <GenderTimeline
+              key="trends"
+              filteredUniqueDates={filteredUniqueDates}
+              filteredSexUniqueValues={filteredSexUniqueValues}
+              filteredTimelineSexData={filteredTimelineSexData}
+              graphOption={graphOption}
+            />,
+          ].filter((item) => item.key === graphOption)}
         />
         <FaChevronRight
           color="rgb(0, 0, 0)"

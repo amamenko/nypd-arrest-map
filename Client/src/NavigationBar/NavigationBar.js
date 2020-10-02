@@ -8,6 +8,7 @@ import LaddaButton, { XL, EXPAND_LEFT } from "react-ladda";
 import "tippy.js/dist/tippy.css";
 import "./NavigationBar.css";
 import "./burgermenu.css";
+import InfoPopUp from "./InfoPopUp/InfoPopUp";
 
 const NavigationBar = (props) => {
   const {
@@ -314,6 +315,7 @@ const NavigationBar = (props) => {
         placement="bottom-end"
         onClickOutside={() => changeTooltipVisible(false)}
       />
+      <InfoPopUp />
       <Menu
         right
         className="navbar_nav_menu"

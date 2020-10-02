@@ -11,6 +11,19 @@
   z-index: 9999;
 }
 
+.info_circle_container {
+  position: absolute;
+  right: 5rem;
+  top: 1.5vh;
+}
+
+.info_button {
+  width: 36px;
+  height: 30px;
+  z-index: 9999;
+  cursor: pointer;
+}
+
 /* Position and sizing of clickable cross button */
 .bm-cross-button {
   height: 24px;
