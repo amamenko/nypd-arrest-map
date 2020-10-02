@@ -22,7 +22,13 @@ import "react-toastify/dist/ReactToastify.css";
 import yearlyTotals from "./YearlyTotals";
 import LZString from "lz-string";
 
-const ws = new WebSocket("ws://localhost:4000");
+let ws = new WebSocket("ws://localhost:4000");
+
+if (process.env.NODE_ENV === "production") {
+  const host = location.origin.replace(/^http/, "ws");
+
+  ws = new WebSocket(host);
+}
 
 dayjs.extend(customParseFormat);
 
