@@ -32,7 +32,7 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 
-const port = 4000;
+const port = process.env.PORT || 4000;
 
 const storage = new Storage({
   credentials: require("./nypd-arrest-map-details.js"),
