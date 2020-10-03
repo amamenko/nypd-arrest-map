@@ -38,6 +38,8 @@ const BottomInfoPanel = (props) => {
 
     currentFilters,
     loadedYears,
+    loadDataChunks,
+    isSame,
 
     filteredUniqueDates,
     filteredTimelineAgeGroupData,
@@ -59,7 +61,8 @@ const BottomInfoPanel = (props) => {
       <div className="bottom_info_main_info_box">
         <div className="filters_applied">
           <h2>Filters Applied</h2>
-          {currentFilters.year.length === 0 &&
+          {(currentFilters.year.length === 0 ||
+            isSame(loadedYears, Object.keys(loadDataChunks[0]))) &&
           currentFilters.category.length === 0 &&
           currentFilters.offense.length === 0 &&
           currentFilters.age.length === 0 &&
@@ -212,6 +215,7 @@ const BottomInfoPanel = (props) => {
           autoPlay={true}
           fadeOutAnimation={true}
           dotsDisabled={true}
+          buttonsDisabled={true}
           mouseTrackingEnabled={true}
           playButtonEnabled={false}
           disableAutoPlayOnAction={false}

@@ -14,7 +14,7 @@
 .info_circle_container {
   position: absolute;
   right: 5rem;
-  top: 1.5vh;
+  top: 2.1vh;
 }
 
 .info_button {
@@ -90,5 +90,11 @@
     position: fixed;
     height: 100%;
     width: 20vw !important;
+  }
+}
+
+@media only screen and (min-width: 2000px) {
+  .info_circle_container {
+    top: 1.5vh;
   }
 }

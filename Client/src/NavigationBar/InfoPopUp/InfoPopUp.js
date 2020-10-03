@@ -1,6 +1,7 @@
 import React from "react";
 import { BsInfoCircle } from "react-icons/bs";
 import { SiGithub, SiLinkedin } from "react-icons/si";
+import { ImMail } from "react-icons/im";
 import Popup from "reactjs-popup";
 import "./info_pop_up.css";
 import "reactjs-popup/dist/index.css";
@@ -60,7 +61,7 @@ const InfoPopUp = () => {
             <br />
             <br />
             <p>
-              Have any questions? Comments? Contact me via GitHub or LinkedIn
+              Have any questions? Comments? Contact me via e-mail or LinkedIn
             </p>
             <div className="pop_up_icons_container">
               <a
@@ -76,6 +77,9 @@ const InfoPopUp = () => {
                 rel="noopener noreferrer"
               >
                 <SiLinkedin color="#000" />
+              </a>
+              <a href="mailto:amamenko@hotmail.com?subject=Comment/Question About NYPD Arrest Map">
+                <ImMail color="#000" />
               </a>
             </div>
           </div>

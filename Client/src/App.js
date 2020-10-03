@@ -15,17 +15,24 @@ import iNoBounce from "./inobounce";
 import BottomInfoPanel from "./BottomInfoPanel/BottomInfoPanel";
 import { css } from "@emotion/core";
 import GridLoader from "react-spinners/GridLoader";
+import { GiHandcuffs } from "react-icons/gi";
 import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import yearlyTotals from "./YearlyTotals";
 import LZString from "lz-string";
+import { useCountUp } from "react-countup";
+import {
+  CircularProgressbarWithChildren,
+  buildStyles,
+} from "react-circular-progressbar";
+import "react-circular-progressbar/dist/styles.css";
 
 let ws = new WebSocket("ws://localhost:4000");
 
 if (process.env.NODE_ENV === "production") {
-  const host = location.origin.replace(/^http/, "ws");
+  const host = window.location.href.replace(/^http/, "ws");
 
   ws = new WebSocket(host);
 }
@@ -43,6 +50,7 @@ const App = () => {
   const [laddaLoading, changeLaddaLoading] = useState(false);
   const [loadingYears, changeLoadingYears] = useState([]);
   const [fetchProgress, changeFetchProgress] = useState(0);
+
   const [mapVisible, changeMapVisible] = useState(false);
 
   // Filters
@@ -72,6 +80,21 @@ const App = () => {
   let loadDataChunks = useRef([{}]);
   let filteredDataChunks = useRef([]);
   let toastId = useRef(null);
+
+  const { countUp, update } = useCountUp({
+    start: 0,
+    end: loadDataChunks.current[0]["2020"]
+      ? Number(
+          (
+            loadDataChunks.current[0]["2020"]
+              .map((x) => x.length)
+              .reduce((a, b) => a + b, 0) / yearlyTotals["2020"]
+          ).toFixed(1)
+        ) * 100
+      : 0,
+    delay: 0,
+    duration: 1,
+  });
 
   const isSame = (arr1, arr2) =>
     arr1.length === arr2.length &&
@@ -423,6 +446,10 @@ const App = () => {
     [loadDataChunks, renderLayers, layers.length]
   );
 
+  const fetchProgressArr = [0];
+
+  console.log(countUp);
+
   useEffect(() => {
     const currentRef = loadDataChunks.current;
     const selectedYear = loadingYears[0]
@@ -439,10 +466,9 @@ const App = () => {
             yearlyTotals[selectedYear.toString()]
           ).toFixed(1);
 
-          if (toastId.current) {
-            if (fetchProgress !== refProgress) {
-              changeFetchProgress(Number(refProgress));
-            }
+          if (fetchProgress !== Number(refProgress)) {
+            changeFetchProgress(Number(refProgress));
+            update(Number(refProgress) * 100);
           }
         }
 
@@ -451,7 +477,7 @@ const App = () => {
         };
       }, 500);
     }
-  }, [fetchProgress, loadingYears]);
+  }, [fetchProgress, loadingYears, fetchProgressArr, loadedData, update]);
 
   useEffect(() => {
     if (fetchProgress < 1 && toastId.current) {
@@ -460,7 +486,7 @@ const App = () => {
       });
     } else if (fetchProgress === 1) {
       toast.update(toastId.current, {
-        render: `Data for ${loadingYears[0].toString()} successfully loaded`,
+        render: `Data for ${loadingYears[0]} successfully loaded`,
         type: toast.TYPE.SUCCESS,
         autoClose: false,
         progress: 1.0,
@@ -469,7 +495,7 @@ const App = () => {
 
       const dismissTimer = setTimeout(() => {
         toast.dismiss();
-      }, 10000);
+      }, 5000);
 
       return () => {
         clearTimeout(dismissTimer);
@@ -481,7 +507,11 @@ const App = () => {
     if (loadingYears.length > 0) {
       const selectedYear = loadingYears[0];
 
-      if (!toastId.current) {
+      if (
+        !toastId.current &&
+        typeof loadedData === "object" &&
+        loadedData.flat().length > 70000
+      ) {
         toastId.current = toast.info(`Loading ${selectedYear} data`, {
           position: "top-center",
           autoClose: false,
@@ -490,7 +520,7 @@ const App = () => {
         });
       }
     }
-  }, [loadingYears, fetchProgress]);
+  }, [loadingYears, loadedData, fetchProgress]);
 
   const splitChunks = Object.keys(loadDataChunks.current[0]).map((item, i) => {
     return { [item]: loadDataChunks.current[0][item] };
@@ -518,6 +548,8 @@ const App = () => {
         ws.onopen = (event) => {
           ws.send(year);
 
+          changeLoadingYears([year]);
+
           // Send one bite to websocket every 55 seconds to keep socket from closing itself on idle
           setInterval(() => {
             ws.send(".");
@@ -527,13 +559,22 @@ const App = () => {
             const data = LZString.decompressFromEncodedURIComponent(
               compressed_data.data
             );
-            console.log(JSON.parse(data));
+
             onNewDataArrive({ year: year, data: JSON.parse(data) });
+
             if (!loadedYears.includes(year)) {
               changeLoadedYears([...loadedYears, year]);
             }
 
-            if (fetchProgress === 1) {
+            const refProgress = (
+              loadDataChunks.current[0][year.toString()]
+                .map((x) => x.length)
+                .reduce((a, b) => a + b, 0) / yearlyTotals[year.toString()]
+            ).toFixed(1);
+
+            if (refProgress === 1) {
+              console.log("HERE");
+              changeFetchProgress(0);
               if (loadedYears.includes(year)) {
                 changeLoadedYears([...loadedYears, year]);
               }
@@ -742,20 +783,38 @@ const App = () => {
               : "none",
         }}
       >
-        <GridLoader
-          css={override}
-          size={50}
-          color={loaderColor}
-          style={{ transition: "all 0.5s ease" }}
-          loading={
-            loadedData === "" ||
-            (typeof loadedData === "object" && loadedData.flat().length < 70000)
-          }
-        />
+        {fetchProgress === 0 ? (
+          <GridLoader
+            css={override}
+            size={50}
+            color={loaderColor}
+            style={{ transition: "all 0.5s ease" }}
+            loading={
+              loadedData === "" ||
+              (typeof loadedData === "object" &&
+                loadedData.flat().length < 70000)
+            }
+          />
+        ) : (
+          <CircularProgressbarWithChildren
+            value={countUp}
+            styles={buildStyles({
+              strokeLinecap: "butt",
+              trailColor: "#eee",
+            })}
+          >
+            <GiHandcuffs color="#000" />
+            <div style={{ fontSize: 20, marginTop: -5 }}>
+              <strong>{countUp}%</strong>
+            </div>
+          </CircularProgressbarWithChildren>
+        )}
         <p>
           {mapError
             ? "Error Initializing NYPD Arrest Map"
-            : "Initializing NYPD Arrest Map"}
+            : fetchProgress === 0
+            ? "Initializing NYPD Arrest Map"
+            : "Loading Most Recent Arrest Data"}
         </p>
       </div>
       <div
@@ -833,6 +892,7 @@ const App = () => {
         </DeckGL>
         {mapLoaded ? (
           <BottomInfoPanel
+            isSame={isSame}
             mapVisible={mapVisible}
             loadData={loadData}
             loadDataChunks={loadDataChunks.current}
