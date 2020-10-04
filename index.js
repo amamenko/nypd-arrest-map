@@ -45,6 +45,7 @@ server.on("request", app);
 
 wss.on("connection", (ws) => {
   console.info("Websocket connection open.");
+  ws.send("Websocket connection open.");
 
   ws.on("message", (message) => {
     const decodedMessage = decoder.write(Buffer.from(message));

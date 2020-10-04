@@ -21,21 +21,13 @@ import customParseFormat from "dayjs/plugin/customParseFormat";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import yearlyTotals from "./YearlyTotals";
-import LZString from "lz-string";
 import { useCountUp } from "react-countup";
 import {
   CircularProgressbarWithChildren,
   buildStyles,
 } from "react-circular-progressbar";
 import "react-circular-progressbar/dist/styles.css";
-
-let ws = new WebSocket("ws://localhost:4000");
-
-if (process.env.NODE_ENV === "production") {
-  const host = window.location.href.replace(/^http/, "ws");
-
-  ws = new WebSocket(host);
-}
+import socketWorker from "comlink-loader!./socketWorker"; // eslint-disable-line import/no-webpack-loader-syntax
 
 dayjs.extend(customParseFormat);
 
@@ -95,6 +87,25 @@ const App = () => {
     delay: 0,
     duration: 1,
   });
+
+  useEffect(() => {
+    if (loadDataChunks.current[0]["2020"]) {
+      const newProgress =
+        Number(
+          (
+            loadDataChunks.current[0]["2020"]
+              .map((x) => x.length)
+              .reduce((a, b) => a + b, 0) / yearlyTotals["2020"]
+          ).toFixed(1)
+        ) * 100;
+
+      if (newProgress > 60) {
+        update(100);
+      } else {
+        update(newProgress);
+      }
+    }
+  }, [update, countUp]);
 
   const isSame = (arr1, arr2) =>
     arr1.length === arr2.length &&
@@ -448,8 +459,6 @@ const App = () => {
 
   const fetchProgressArr = [0];
 
-  console.log(countUp);
-
   useEffect(() => {
     const currentRef = loadDataChunks.current;
     const selectedYear = loadingYears[0]
@@ -466,9 +475,8 @@ const App = () => {
             yearlyTotals[selectedYear.toString()]
           ).toFixed(1);
 
-          if (fetchProgress !== Number(refProgress)) {
+          if (fetchProgress !== refProgress) {
             changeFetchProgress(Number(refProgress));
-            update(Number(refProgress) * 100);
           }
         }
 
@@ -477,31 +485,36 @@ const App = () => {
         };
       }, 500);
     }
-  }, [fetchProgress, loadingYears, fetchProgressArr, loadedData, update]);
+  }, [fetchProgress, loadingYears, fetchProgressArr, loadedData]);
 
   useEffect(() => {
     if (fetchProgress < 1 && toastId.current) {
+      console.log(fetchProgress);
       toast.update(toastId.current, {
         progress: fetchProgress,
       });
     } else if (fetchProgress === 1) {
-      toast.update(toastId.current, {
-        render: `Data for ${loadingYears[0]} successfully loaded`,
-        type: toast.TYPE.SUCCESS,
-        autoClose: false,
-        progress: 1.0,
-        closeButton: true,
-      });
-
-      const dismissTimer = setTimeout(() => {
+      if (loadedYears.length === 1 && loadedYears[0] === 2020) {
         toast.dismiss();
-      }, 5000);
+      } else {
+        toast.update(toastId.current, {
+          render: `Data for ${loadingYears[0]} successfully loaded`,
+          type: toast.TYPE.SUCCESS,
+          autoClose: false,
+          progress: 1.0,
+          closeButton: true,
+        });
 
-      return () => {
-        clearTimeout(dismissTimer);
-      };
+        const dismissTimer = setTimeout(() => {
+          toast.dismiss();
+        }, 5000);
+
+        return () => {
+          clearTimeout(dismissTimer);
+        };
+      }
     }
-  }, [fetchProgress, loadingYears]);
+  }, [fetchProgress, loadingYears, loadedYears]);
 
   useEffect(() => {
     if (loadingYears.length > 0) {
@@ -510,7 +523,8 @@ const App = () => {
       if (
         !toastId.current &&
         typeof loadedData === "object" &&
-        loadedData.flat().length > 70000
+        loadedData.flat().length > 70000 &&
+        selectedYear !== 2020
       ) {
         toastId.current = toast.info(`Loading ${selectedYear} data`, {
           position: "top-center",
@@ -520,7 +534,7 @@ const App = () => {
         });
       }
     }
-  }, [loadingYears, loadedData, fetchProgress]);
+  }, [loadingYears, loadedData, fetchProgress, loadedYears.length]);
 
   const splitChunks = Object.keys(loadDataChunks.current[0]).map((item, i) => {
     return { [item]: loadDataChunks.current[0][item] };
@@ -542,40 +556,60 @@ const App = () => {
     return flattenedArray;
   });
 
-  const dataFetch = useCallback(
-    (year) => {
-      if (!loadedYears.includes(2020)) {
-        ws.onopen = (event) => {
-          ws.send(year);
+  const getData = (data) => {
+    return data;
+  };
 
+  const dataFetch = useCallback(
+    async (year) => {
+      const workerInstance = new socketWorker();
+
+      if (!loadedYears.includes(2020)) {
+        if (!loadingYears.includes(year)) {
           changeLoadingYears([year]);
 
-          // Send one bite to websocket every 55 seconds to keep socket from closing itself on idle
-          setInterval(() => {
-            ws.send(".");
-          }, 55000);
+          await workerInstance.getSocketData(year).then((data) => {
+            if (data) {
+              console.log(data);
+              onNewDataArrive({ year: year, data: JSON.parse(data) });
 
-          ws.onmessage = (compressed_data) => {
-            const data = LZString.decompressFromEncodedURIComponent(
-              compressed_data.data
-            );
+              if (!loadedYears.includes(year)) {
+                changeLoadedYears([...loadedYears, year]);
+              }
 
+              const refProgress = (
+                loadDataChunks.current[0][year.toString()]
+                  .map((x) => x.length)
+                  .reduce((a, b) => a + b, 0) / yearlyTotals[year.toString()]
+              ).toFixed(1);
+
+              if (refProgress === 1) {
+                changeFetchProgress(0);
+                if (loadedYears.includes(year)) {
+                  changeLoadedYears([...loadedYears, year]);
+                }
+                if (loadingYears.length > 0) {
+                  changeLoadingYears([]);
+                }
+                if (laddaLoading) {
+                  changeLaddaLoading(false);
+                }
+              }
+            }
+          });
+        }
+      } else {
+        workerInstance.getSocketData(year).then((data) => {
+          if (data) {
             onNewDataArrive({ year: year, data: JSON.parse(data) });
 
             if (!loadedYears.includes(year)) {
               changeLoadedYears([...loadedYears, year]);
             }
 
-            const refProgress = (
-              loadDataChunks.current[0][year.toString()]
-                .map((x) => x.length)
-                .reduce((a, b) => a + b, 0) / yearlyTotals[year.toString()]
-            ).toFixed(1);
-
-            if (refProgress === 1) {
-              console.log("HERE");
+            if (fetchProgress === 1) {
               changeFetchProgress(0);
-              if (loadedYears.includes(year)) {
+              if (!loadedYears.includes(year)) {
                 changeLoadedYears([...loadedYears, year]);
               }
               if (loadingYears.length > 0) {
@@ -585,44 +619,11 @@ const App = () => {
                 changeLaddaLoading(false);
               }
             }
-          };
-        };
-      } else {
-        ws.send(year);
-
-        ws.onmessage = (compressed_data) => {
-          const data = LZString.decompressFromEncodedURIComponent(
-            compressed_data.data
-          );
-
-          onNewDataArrive({ year: year, data: JSON.parse(data) });
-
-          if (!loadedYears.includes(year)) {
-            changeLoadedYears([...loadedYears, year]);
           }
-
-          if (fetchProgress === 1) {
-            changeFetchProgress(0);
-            if (!loadedYears.includes(year)) {
-              changeLoadedYears([...loadedYears, year]);
-            }
-            if (loadingYears.length > 0) {
-              changeLoadingYears([]);
-            }
-            if (laddaLoading) {
-              changeLaddaLoading(false);
-            }
-          }
-        };
+        });
       }
     },
-    [
-      loadedYears,
-      onNewDataArrive,
-      laddaLoading,
-      loadingYears.length,
-      fetchProgress,
-    ]
+    [loadedYears, onNewDataArrive, laddaLoading, fetchProgress, loadingYears]
   );
 
   const handleDownloadYear = (year) => {
@@ -803,8 +804,8 @@ const App = () => {
               trailColor: "#eee",
             })}
           >
-            <GiHandcuffs color="#000" />
-            <div style={{ fontSize: 20, marginTop: -5 }}>
+            <GiHandcuffs color="#fff" size="4rem" />
+            <div style={{ fontSize: 30, marginTop: 20, color: "#fff" }}>
               <strong>{countUp}%</strong>
             </div>
           </CircularProgressbarWithChildren>
