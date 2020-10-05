@@ -13,6 +13,8 @@
     "deck.gl": "^8.2.7",
     "dotenv": "^8.2.0",
     "install": "^0.13.0",
+    "json-fn": "^1.1.1",
+    "jsonfn": "^0.31.0",
     "jsonpack": "^1.1.5",
     "lodash": "^4.17.20",
     "lodash.clonedeep": "^4.5.0",

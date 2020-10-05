@@ -457,8 +457,6 @@ const App = () => {
     [loadDataChunks, renderLayers, layers.length]
   );
 
-  const fetchProgressArr = [0];
-
   useEffect(() => {
     const currentRef = loadDataChunks.current;
     const selectedYear = loadingYears[0]
@@ -485,7 +483,7 @@ const App = () => {
         };
       }, 500);
     }
-  }, [fetchProgress, loadingYears, fetchProgressArr, loadedData]);
+  }, [fetchProgress, loadingYears, loadedData]);
 
   useEffect(() => {
     if (fetchProgress < 1 && toastId.current) {
@@ -556,10 +554,6 @@ const App = () => {
     return flattenedArray;
   });
 
-  const getData = (data) => {
-    return data;
-  };
-
   const dataFetch = useCallback(
     async (year) => {
       const workerInstance = new socketWorker();
@@ -568,35 +562,48 @@ const App = () => {
         if (!loadingYears.includes(year)) {
           changeLoadingYears([year]);
 
-          await workerInstance.getSocketData(year).then((data) => {
-            if (data) {
-              console.log(data);
-              onNewDataArrive({ year: year, data: JSON.parse(data) });
+          const refProgress = loadDataChunks.current[0][year.toString()]
+            ? loadDataChunks.current[0][year.toString()]
+                .map((x) => x.length)
+                .reduce((a, b) => a + b, 0) /
+              yearlyTotals[year.toString()].toFixed(1)
+            : 0;
 
-              if (!loadedYears.includes(year)) {
-                changeLoadedYears([...loadedYears, year]);
-              }
+          setInterval(() => {
+            let currentIndex = 0;
 
-              const refProgress = (
-                loadDataChunks.current[0][year.toString()]
-                  .map((x) => x.length)
-                  .reduce((a, b) => a + b, 0) / yearlyTotals[year.toString()]
-              ).toFixed(1);
+            let runSocket = true;
 
-              if (refProgress === 1) {
-                changeFetchProgress(0);
-                if (loadedYears.includes(year)) {
-                  changeLoadedYears([...loadedYears, year]);
+            if (runSocket) {
+              runSocket = false;
+              currentIndex++;
+
+              workerInstance.getSocketData(year, currentIndex).then((data) => {
+                if (data) {
+                  onNewDataArrive({ year: year, data: JSON.parse(data) });
+
+                  if (!loadedYears.includes(year)) {
+                    changeLoadedYears([...loadedYears, year]);
+                  }
+
+                  if (refProgress === 1) {
+                    changeFetchProgress(0);
+                    if (loadedYears.includes(year)) {
+                      changeLoadedYears([...loadedYears, year]);
+                    }
+                    if (loadingYears.length > 0) {
+                      changeLoadingYears([]);
+                    }
+                    if (laddaLoading) {
+                      changeLaddaLoading(false);
+                    }
+                  } else {
+                    runSocket = true;
+                  }
                 }
-                if (loadingYears.length > 0) {
-                  changeLoadingYears([]);
-                }
-                if (laddaLoading) {
-                  changeLaddaLoading(false);
-                }
-              }
+              });
             }
-          });
+          }, 5000);
         }
       } else {
         workerInstance.getSocketData(year).then((data) => {
@@ -705,7 +712,7 @@ const App = () => {
     ) {
       dataFetch(loadingYears[0]);
     }
-  }, [onNewDataArrive, loadedData, loadedYears, dataFetch, loadingYears]);
+  }, [loadedData, loadedYears, dataFetch, loadingYears]);
 
   const showTooltip = (object, x, y) => {
     const el = document.getElementsByClassName("deck-tooltip")[0];
