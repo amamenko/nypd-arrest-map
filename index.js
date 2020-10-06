@@ -43,12 +43,10 @@ const wss = new WebSocket({ server });
 
 server.on("request", app);
 
-wss.on("connection", (ws) => {
-  console.info("Websocket connection open.");
-  ws.send("Websocket connection open.");
-
+wss.once("connection", (ws) => {
   ws.on("message", (message) => {
     const decodedMessage = decoder.write(Buffer.from(message));
+    console.log(decodedMessage);
 
     if (yearlyTotals[decodedMessage]) {
       const bucket = storage.bucket(`${decodedMessage}_nypd_arrest_data`);

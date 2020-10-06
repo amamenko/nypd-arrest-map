@@ -27,7 +27,7 @@ import {
   buildStyles,
 } from "react-circular-progressbar";
 import "react-circular-progressbar/dist/styles.css";
-import socketWorker from "comlink-loader!./socketWorker"; // eslint-disable-line import/no-webpack-loader-syntax
+import socketWorker from "sharedworker-loader!./socketWorker"; // eslint-disable-line import/no-webpack-loader-syntax
 
 dayjs.extend(customParseFormat);
 
@@ -42,6 +42,8 @@ const App = () => {
   const [laddaLoading, changeLaddaLoading] = useState(false);
   const [loadingYears, changeLoadingYears] = useState([]);
   const [fetchProgress, changeFetchProgress] = useState(0);
+  const [fetchExecuted, changeFetchExecuted] = useState(false);
+  const [workerInstance, changeWorkerInstance] = useState("");
 
   const [mapVisible, changeMapVisible] = useState(false);
 
@@ -99,7 +101,7 @@ const App = () => {
           ).toFixed(1)
         ) * 100;
 
-      if (newProgress > 60) {
+      if (newProgress >= 40) {
         update(100);
       } else {
         update(newProgress);
@@ -555,82 +557,58 @@ const App = () => {
   });
 
   const dataFetch = useCallback(
-    async (year) => {
-      const workerInstance = new socketWorker();
+    async (year, workerInstance) => {
+      const handleNewData = () => {
+        changeLoadingYears([year]);
 
-      if (!loadedYears.includes(2020)) {
-        if (!loadingYears.includes(year)) {
-          changeLoadingYears([year]);
+        const refProgress = loadDataChunks.current[0][year.toString()]
+          ? loadDataChunks.current[0][year.toString()]
+              .map((x) => x.length)
+              .reduce((a, b) => a + b, 0) /
+            yearlyTotals[year.toString()].toFixed(1)
+          : 0;
 
-          const refProgress = loadDataChunks.current[0][year.toString()]
-            ? loadDataChunks.current[0][year.toString()]
-                .map((x) => x.length)
-                .reduce((a, b) => a + b, 0) /
-              yearlyTotals[year.toString()].toFixed(1)
-            : 0;
+        if (workerInstance) {
+          if (workerInstance.port) {
+            // Send from main thread to Shared Worker
+            workerInstance.port.postMessage(year);
 
-          setInterval(() => {
-            let currentIndex = 0;
+            workerInstance.port.addEventListener("message", ({ data }) => {
+              onNewDataArrive({ year: year, data: data });
 
-            let runSocket = true;
-
-            if (runSocket) {
-              runSocket = false;
-              currentIndex++;
-
-              workerInstance.getSocketData(year, currentIndex).then((data) => {
-                if (data) {
-                  onNewDataArrive({ year: year, data: JSON.parse(data) });
-
-                  if (!loadedYears.includes(year)) {
-                    changeLoadedYears([...loadedYears, year]);
-                  }
-
-                  if (refProgress === 1) {
-                    changeFetchProgress(0);
-                    if (loadedYears.includes(year)) {
-                      changeLoadedYears([...loadedYears, year]);
-                    }
-                    if (loadingYears.length > 0) {
-                      changeLoadingYears([]);
-                    }
-                    if (laddaLoading) {
-                      changeLaddaLoading(false);
-                    }
-                  } else {
-                    runSocket = true;
-                  }
-                }
-              });
-            }
-          }, 5000);
-        }
-      } else {
-        workerInstance.getSocketData(year).then((data) => {
-          if (data) {
-            onNewDataArrive({ year: year, data: JSON.parse(data) });
-
-            if (!loadedYears.includes(year)) {
-              changeLoadedYears([...loadedYears, year]);
-            }
-
-            if (fetchProgress === 1) {
-              changeFetchProgress(0);
               if (!loadedYears.includes(year)) {
                 changeLoadedYears([...loadedYears, year]);
               }
-              if (loadingYears.length > 0) {
-                changeLoadingYears([]);
+
+              if (refProgress === 1) {
+                changeFetchProgress(0);
+                changeFetchExecuted(false);
+                if (loadedYears.includes(year)) {
+                  changeLoadedYears([...loadedYears, year]);
+                }
+                if (loadingYears.length > 0) {
+                  changeLoadingYears([]);
+                }
+                if (laddaLoading) {
+                  changeLaddaLoading(false);
+                }
               }
-              if (laddaLoading) {
-                changeLaddaLoading(false);
-              }
-            }
+            });
           }
-        });
+        }
+      };
+
+      if (!loadedYears.includes(2020)) {
+        if (!loadingYears.includes(year)) {
+          return handleNewData();
+        }
+      } else {
+        if (!loadedYears.includes(year)) {
+          return handleNewData();
+        }
       }
     },
-    [loadedYears, onNewDataArrive, laddaLoading, fetchProgress, loadingYears]
+    [loadedYears, onNewDataArrive, laddaLoading, loadingYears]
   );
 
   const handleDownloadYear = (year) => {
@@ -704,15 +682,50 @@ const App = () => {
   };
 
   useEffect(() => {
-    if (!loadedYears.includes(2020)) {
-      dataFetch(2020);
-    } else if (
-      loadingYears.length > 0 &&
-      !loadDataChunks.current[0][loadingYears[0]]
-    ) {
-      dataFetch(loadingYears[0]);
+    if (!workerInstance) {
+      // Creates Shared Worker to persist session in each tab
+      changeWorkerInstance(new socketWorker());
     }
-  }, [loadedData, loadedYears, dataFetch, loadingYears]);
+
+    if (workerInstance) {
+      if (workerInstance.port) {
+        workerInstance.port.start();
+      }
+    }
+  }, [workerInstance.port, workerInstance]);
+
+  useEffect(() => {
+    if (!loadedYears.includes(2020)) {
+      if (loadingYears.length === 0) {
+        dataFetch(2020, workerInstance);
+      }
+    } else {
+      if (
+        loadingYears.length > 0 &&
+        !loadDataChunks.current[0][loadingYears[0]]
+      ) {
+        const runDataFetch = () => {
+          if (!fetchExecuted) {
+            changeFetchExecuted(true);
+
+            dataFetch(loadingYears[0], workerInstance);
+          } else {
+            return null;
+          }
+        };
+
+        runDataFetch();
+      }
+    }
+  }, [
+    workerInstance,
+    workerInstance.port,
+    dataFetch,
+    loadedYears,
+    loadingYears,
+    loadingYears.length,
+    fetchExecuted,
+  ]);
 
   const showTooltip = (object, x, y) => {
     const el = document.getElementsByClassName("deck-tooltip")[0];

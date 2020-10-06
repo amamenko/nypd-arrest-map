@@ -1,59 +1,38 @@
 import LZString from "lz-string";
 
-export const getSocketData = (year, currentIndex) => {
-  const timerPromise = new Promise((resolve, reject) => {
-    let ws = new WebSocket("ws://localhost:4000");
+self.addEventListener("connect", ({ ports }) => {
+  let ws = new WebSocket("ws://localhost:4000");
 
-    if (process.env.NODE_ENV === "production") {
-      const host = window.location.href.replace(/^http/, "ws");
+  const port = ports[0];
 
-      ws = new WebSocket(host);
-    }
+  if (process.env.NODE_ENV === "production") {
+    const host = window.location.href.replace(/^http/, "ws");
 
-    const newArr = [];
+    ws = new WebSocket(host);
+  }
 
-    const getData = () => {
-      if (newArr[currentIndex]) {
-        return resolve(newArr[currentIndex]);
-      }
-    };
+  ws.addEventListener("open", () => {
+    console.log("WOW");
+    // Send one bite to websocket every 55 seconds to keep socket from closing itself on idle
+    setInterval(() => {
+      ws.send(".");
+    }, 55000);
 
-    setInterval(getData, 500);
+    // Receive from main thread and send to websocket
+    port.addEventListener("message", ({ data }) => {
+      console.log(data);
+      ws.send(data);
+    });
 
-    if (ws.readyState === 0 && currentIndex === 0) {
-      ws.onopen = (event) => {
-        // Send one bite to websocket every 55 seconds to keep socket from closing itself on idle
-        setInterval(() => {
-          ws.send(".");
-        }, 55000);
+    port.start();
+  });
 
-        ws.send(year);
+  // Send from websocket to main thread
+  ws.addEventListener("message", ({ data }) => {
+    const decompressedData = LZString.decompressFromEncodedURIComponent(data);
 
-        ws.onmessage = (compressed_data) => {
-          const data = LZString.decompressFromEncodedURIComponent(
-            compressed_data.data
-          );
-
-          if (data) {
-            newArr.push(data);
-          }
-        };
-      };
-    } else if (ws.readyState === 1 && currentIndex > 0) {
-      ws.send(year);
-
-      ws.onmessage = (compressed_data) => {
-        const data = LZString.decompressFromEncodedURIComponent(
-          compressed_data.data
-        );
-
-        newArr.push(data);
-      };
-    } else {
-      ws.onclose = () => {
-        console.log("Websocket disconnected");
-      };
+    if (decompressedData) {
+      port.postMessage(JSON.parse(decompressedData));
     }
   });
-  return timerPromise;
-};
+});
