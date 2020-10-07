@@ -1,7 +1,24 @@
+@media only screen and (max-width: 768px) {
+  .modal {
+    font-size: 0.7rem !important;
+    line-height: 1.2rem !important;
+  }
+
+  .popup-content {
+    width: 80vw !important;
+  }
+
+  .pop_up_icons_container svg {
+    padding-top: 1rem;
+    font-size: 2.5rem !important;
+  }
+}
+
 .modal {
   font-size: 1.2rem;
   line-height: 1.5rem;
 }
+
 .navigation_bar_container,
 [data-tippy-root] {
   z-index: 20 !important;
@@ -13,16 +30,20 @@
   align-items: center;
   justify-content: center;
   font-weight: 500;
+  text-align: center;
 }
+
 .pop_up_icons_container svg {
   font-size: 3rem;
   margin-left: 1rem;
   margin-right: 1rem;
 }
+
 .popup-content {
   background-color: rgb(191, 195, 212) !important;
   border: 1px solid #9a9595 !important;
 }
+
 .modal > .header {
   width: 100%;
   border-bottom: 1px solid gray;

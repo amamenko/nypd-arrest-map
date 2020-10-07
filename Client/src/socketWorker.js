@@ -12,7 +12,6 @@ self.addEventListener("connect", ({ ports }) => {
   }
 
   ws.addEventListener("open", () => {
-    console.log("WOW");
     // Send one bite to websocket every 55 seconds to keep socket from closing itself on idle
     setInterval(() => {
       ws.send(".");
@@ -20,8 +19,9 @@ self.addEventListener("connect", ({ ports }) => {
 
     // Receive from main thread and send to websocket
     port.addEventListener("message", ({ data }) => {
-      console.log(data);
-      ws.send(data);
+      const sentDataCompressed = LZString.compressToEncodedURIComponent(data);
+
+      ws.send(sentDataCompressed);
     });
 
     port.start();

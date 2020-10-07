@@ -138,7 +138,10 @@ const NavigationBar = (props) => {
     if (yearFilter.includes(year)) {
       changeYearFilter(yearFilter.filter((x) => x !== year));
     } else {
-      changeYearFilter([...yearFilter, year]);
+      const copiedArr = yearFilter.slice();
+      copiedArr.push(year);
+
+      changeYearFilter(copiedArr);
     }
   };
 
@@ -146,7 +149,10 @@ const NavigationBar = (props) => {
     if (categoryFilter.includes(category)) {
       changeCategoryFilter(categoryFilter.filter((x) => x !== category));
     } else {
-      changeCategoryFilter([...categoryFilter, category]);
+      const copiedArr = categoryFilter.slice();
+      copiedArr.push(category);
+
+      changeCategoryFilter(copiedArr);
     }
   };
 
@@ -154,7 +160,10 @@ const NavigationBar = (props) => {
     if (offenseFilter.includes(offense)) {
       changeOffenseFilter(offenseFilter.filter((x) => x !== offense));
     } else {
-      changeOffenseFilter([...offenseFilter, offense]);
+      const copiedArr = offenseFilter.slice();
+      copiedArr.push(offense);
+
+      changeOffenseFilter(copiedArr);
     }
   };
 
@@ -162,7 +171,10 @@ const NavigationBar = (props) => {
     if (ageFilter.includes(age)) {
       changeAgeFilter(ageFilter.filter((x) => x !== age));
     } else {
-      changeAgeFilter([...ageFilter, age]);
+      const copiedArr = ageFilter.slice();
+      copiedArr.push(age);
+
+      changeAgeFilter(copiedArr);
     }
   };
 
@@ -170,7 +182,10 @@ const NavigationBar = (props) => {
     if (raceFilter.includes(race)) {
       changeRaceFilter(raceFilter.filter((x) => x !== race));
     } else {
-      changeRaceFilter([...raceFilter, race]);
+      const copiedArr = raceFilter.slice();
+      copiedArr.push(race);
+
+      changeRaceFilter(copiedArr);
     }
   };
 
@@ -178,7 +193,10 @@ const NavigationBar = (props) => {
     if (sexFilter.includes(sex)) {
       changeSexFilter(sexFilter.filter((x) => x !== sex));
     } else {
-      changeSexFilter([...sexFilter, sex]);
+      const copiedArr = sexFilter.slice();
+      copiedArr.push(sex);
+
+      changeSexFilter(copiedArr);
     }
   };
 
@@ -186,7 +204,10 @@ const NavigationBar = (props) => {
     if (boroughFilter.includes(borough)) {
       changeBoroughFilter(boroughFilter.filter((x) => x !== borough));
     } else {
-      changeBoroughFilter([...boroughFilter, borough]);
+      const copiedArr = boroughFilter.slice();
+      copiedArr.push(borough);
+
+      changeBoroughFilter(copiedArr);
     }
   };
 

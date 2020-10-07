@@ -10,6 +10,7 @@ const { StringDecoder } = require("string_decoder");
 const decoder = new StringDecoder("utf8");
 const LZString = require("lz-string");
 const path = require("path");
+const JSONfn = require("json-fn");
 
 require("dotenv").config();
 
@@ -43,41 +44,84 @@ const wss = new WebSocket({ server });
 
 server.on("request", app);
 
-wss.once("connection", (ws) => {
+wss.on("connection", (ws) => {
+  console.log("Websocket successfully connected");
+
   ws.on("message", (message) => {
     const decodedMessage = decoder.write(Buffer.from(message));
-    console.log(decodedMessage);
+    const decompressedMessage = LZString.decompressFromEncodedURIComponent(
+      decodedMessage
+    );
 
-    if (yearlyTotals[decodedMessage]) {
-      const bucket = storage.bucket(`${decodedMessage}_nypd_arrest_data`);
+    if (decompressedMessage && decompressedMessage !== ".") {
+      const parsedMessage = JSONfn.parse(decompressedMessage.trim());
 
-      const stream = bucket.file(`${decodedMessage}.json`).createReadStream();
+      const year = parsedMessage.year;
+      let currentLoadDataChunks = parsedMessage.currentLoadDataChunks;
 
-      let chunkArr = [];
-      let totalLength = 0;
+      if (yearlyTotals[year]) {
+        const bucket = storage.bucket(`${year}_nypd_arrest_data`);
 
-      oboe(stream).node(
-        "{ARREST_DATE PD_DESC OFNS_DESC LAW_CAT_CD ARREST_BORO AGE_GROUP PERP_SEX PERP_RACE Latitude Longitude}",
-        (chunk) => {
-          chunkArr.push(chunk);
-          totalLength++;
+        const stream = bucket.file(`${year}.json`).createReadStream();
 
-          if (
-            chunkArr.length === 30000 ||
-            totalLength === yearlyTotals[decodedMessage]
-          ) {
-            console.log(chunkArr.length);
-            const compressedJSON = LZString.compressToEncodedURIComponent(
-              JSON.stringify(chunkArr)
-            );
+        let chunkArr = [];
+        let totalLength = 0;
 
-            ws.send(compressedJSON);
-            chunkArr = [];
+        oboe(stream).node(
+          "{ARREST_DATE PD_DESC OFNS_DESC LAW_CAT_CD ARREST_BORO AGE_GROUP PERP_SEX PERP_RACE Latitude Longitude}",
+          (chunk) => {
+            chunkArr.push(chunk);
+            totalLength++;
+
+            if (
+              chunkArr.length === 30000 ||
+              totalLength === yearlyTotals[year]
+            ) {
+              console.log(chunkArr.length);
+
+              if (!currentLoadDataChunks[year.toString()]) {
+                Object.assign(currentLoadDataChunks, {
+                  [year.toString()]: [chunkArr],
+                });
+              } else {
+                currentLoadDataChunks[year.toString()].push(chunkArr);
+              }
+
+              const splitChunks = Object.keys(currentLoadDataChunks).map(
+                (item) => {
+                  return { [item]: currentLoadDataChunks[item] };
+                }
+              );
+
+              const loadedDataArr = splitChunks.map((x) => {
+                const keyName = Object.keys(x)[0];
+
+                let flattenedArray = [];
+
+                for (let i = 0; i < x[keyName].length; i++) {
+                  let currentValue = x[keyName][i];
+                  for (let j = 0; j < currentValue.length; j++) {
+                    flattenedArray.push(currentValue[j]);
+                  }
+                }
+                return flattenedArray;
+              });
+
+              const compressedRes = LZString.compressToEncodedURIComponent(
+                JSON.stringify({
+                  newDataChunks: currentLoadDataChunks,
+                  loadedDataArr: loadedDataArr,
+                })
+              );
+
+              ws.send(compressedRes);
+              chunkArr = [];
+            }
+
+            return oboe.drop;
           }
-
-          return oboe.drop;
-        }
-      );
+        );
+      }
     }
   });
 

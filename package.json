@@ -19,6 +19,7 @@
     "dotenv": "^8.2.0",
     "event-stream": "^4.0.1",
     "express": "^4.17.1",
+    "json-fn": "^1.1.1",
     "jsonc": "^2.0.0",
     "jsonpack": "^1.1.5",
     "lodash": "^4.17.20",

@@ -27,7 +27,8 @@ import {
   buildStyles,
 } from "react-circular-progressbar";
 import "react-circular-progressbar/dist/styles.css";
-import socketWorker from "sharedworker-loader!./socketWorker"; // eslint-disable-line import/no-webpack-loader-syntax
+import socketWorker from "worker-loader!./socketWorker"; // eslint-disable-line import/no-webpack-loader-syntax
+import JSONfn from "json-fn";
 
 dayjs.extend(customParseFormat);
 
@@ -101,7 +102,7 @@ const App = () => {
           ).toFixed(1)
         ) * 100;
 
-      if (newProgress >= 40) {
+      if (newProgress >= 60) {
         update(100);
       } else {
         update(newProgress);
@@ -420,40 +421,26 @@ const App = () => {
 
   const onNewDataArrive = useCallback(
     (chunk) => {
-      const chunkYear = chunk.year;
+      const newDataChunks = chunk.newDataChunks;
+      const loadedDataArr = chunk.loadedDataArr;
+      const year = chunk.year;
 
-      if (!loadDataChunks.current[0][chunkYear]) {
-        Object.assign(loadDataChunks.current[0], { [chunkYear]: [chunk.data] });
-      } else {
-        loadDataChunks.current[0][chunkYear].push(chunk.data);
-      }
-
-      const splitChunks = Object.keys(loadDataChunks.current[0]).map(
-        (item, i) => {
-          return { [item]: loadDataChunks.current[0][item] };
-        }
-      );
-
-      const loadedDataArr = splitChunks.map((x) => {
-        const keyName = Object.keys(x)[0];
-
-        let flattenedArray = [];
-
-        for (let i = 0; i < x[keyName].length; i++) {
-          let currentValue = x[keyName][i];
-          for (let j = 0; j < currentValue.length; j++) {
-            flattenedArray.push(currentValue[j]);
-          }
-        }
-        return flattenedArray;
-      });
+      loadDataChunks.current[0] = newDataChunks;
 
       filteredDataChunks.current = loadedDataArr;
 
       changeLoadedData(loadedDataArr);
 
       if (layers.length === 0 || layers.length !== loadedDataArr.length) {
-        renderLayers();
+        if (loadDataChunks.current[0][year.toString()]) {
+          if (
+            loadDataChunks.current[0][year.toString()]
+              .map((x) => x.length)
+              .reduce((a, b) => a + b, 0) === yearlyTotals[year]
+          ) {
+            renderLayers();
+          }
+        }
       }
     },
     [loadDataChunks, renderLayers, layers.length]
@@ -465,8 +452,8 @@ const App = () => {
       ? loadingYears[0].toString().slice()
       : null;
 
-    if (loadingYears[0]) {
-      const progressInterval = setInterval(() => {
+    const progressInterval = setInterval(() => {
+      if (loadingYears[0] && selectedYear) {
         if (currentRef[0][selectedYear.toString()]) {
           const refProgress = (
             currentRef[0][selectedYear.toString()]
@@ -479,22 +466,32 @@ const App = () => {
             changeFetchProgress(Number(refProgress));
           }
         }
+      } else {
+        clearInterval(progressInterval);
+      }
+    }, 500);
 
-        return () => {
-          clearInterval(progressInterval);
-        };
-      }, 500);
-    }
+    return () => {
+      clearInterval(progressInterval);
+    };
   }, [fetchProgress, loadingYears, loadedData]);
 
   useEffect(() => {
+    if (!loadingYears[0]) {
+      if (fetchProgress !== 0) {
+        changeFetchProgress(0);
+      }
+    }
+  }, [fetchProgress, loadingYears.length, loadingYears]);
+
+  useEffect(() => {
     if (fetchProgress < 1 && toastId.current) {
-      console.log(fetchProgress);
       toast.update(toastId.current, {
         progress: fetchProgress,
       });
     } else if (fetchProgress === 1) {
       if (loadedYears.length === 1 && loadedYears[0] === 2020) {
+        console.log("DISMISSED");
         toast.dismiss();
       } else {
         toast.update(toastId.current, {
@@ -557,41 +554,57 @@ const App = () => {
   });
 
   const dataFetch = useCallback(
-    async (year, workerInstance) => {
+    async (year) => {
       const handleNewData = () => {
         changeLoadingYears([year]);
 
-        const refProgress = loadDataChunks.current[0][year.toString()]
-          ? loadDataChunks.current[0][year.toString()]
-              .map((x) => x.length)
-              .reduce((a, b) => a + b, 0) /
-            yearlyTotals[year.toString()].toFixed(1)
-          : 0;
+        const currentLoadDataChunks = loadDataChunks.current[0];
 
         if (workerInstance) {
           if (workerInstance.port) {
             // Send from main thread to Shared Worker
-            workerInstance.port.postMessage(year);
+            const workerMessage = JSONfn.stringify({
+              year: year,
+              currentLoadDataChunks: currentLoadDataChunks,
+            });
+
+            workerInstance.port.postMessage(workerMessage);
 
             workerInstance.port.addEventListener("message", ({ data }) => {
-              onNewDataArrive({ year: year, data: data });
+              onNewDataArrive({
+                year: year,
+                newDataChunks: data.newDataChunks,
+                loadedDataArr: data.loadedDataArr,
+              });
 
               if (!loadedYears.includes(year)) {
-                changeLoadedYears([...loadedYears, year]);
+                const copiedArr = loadedYears.slice();
+                copiedArr.push(year);
+
+                changeLoadedYears(copiedArr);
               }
+
+              const refProgress = data.newDataChunks[year.toString()]
+                ? Number(
+                    (
+                      data.newDataChunks[year.toString()]
+                        .map((x) => x.length)
+                        .reduce((a, b) => a + b, 0) /
+                      yearlyTotals[year.toString()]
+                    ).toFixed(1)
+                  )
+                : 0;
 
               if (refProgress === 1) {
                 changeFetchProgress(0);
                 changeFetchExecuted(false);
-                if (loadedYears.includes(year)) {
-                  changeLoadedYears([...loadedYears, year]);
-                }
-                if (loadingYears.length > 0) {
-                  changeLoadingYears([]);
-                }
-                if (laddaLoading) {
-                  changeLaddaLoading(false);
-                }
+
+                const copiedArr = loadedYears.slice();
+                copiedArr.push(year);
+
+                changeLoadedYears(copiedArr);
+                changeLoadingYears([]);
+                changeLaddaLoading(false);
               }
             });
           }
@@ -608,7 +621,7 @@ const App = () => {
         }
       }
     },
-    [loadedYears, onNewDataArrive, laddaLoading, loadingYears]
+    [loadedYears, onNewDataArrive, loadingYears, workerInstance]
   );
 
   const handleDownloadYear = (year) => {
@@ -683,7 +696,7 @@ const App = () => {
 
   useEffect(() => {
     if (!workerInstance) {
-      // Creates Shared Worker to persist session in each tab
+      // Creates Web Worker
       changeWorkerInstance(new socketWorker());
     }
 
@@ -695,31 +708,32 @@ const App = () => {
   }, [workerInstance.port, workerInstance]);
 
   useEffect(() => {
-    if (!loadedYears.includes(2020)) {
-      if (loadingYears.length === 0) {
-        dataFetch(2020, workerInstance);
-      }
-    } else {
-      if (
-        loadingYears.length > 0 &&
-        !loadDataChunks.current[0][loadingYears[0]]
-      ) {
-        const runDataFetch = () => {
-          if (!fetchExecuted) {
-            changeFetchExecuted(true);
+    if (workerInstance) {
+      if (!loadedYears.includes(2020)) {
+        if (loadingYears.length === 0) {
+          dataFetch(2020);
+        }
+      } else {
+        if (
+          loadingYears.length > 0 &&
+          !loadDataChunks.current[0][loadingYears[0]]
+        ) {
+          const runDataFetch = () => {
+            if (!fetchExecuted) {
+              changeFetchExecuted(true);
 
-            dataFetch(loadingYears[0], workerInstance);
-          } else {
-            return null;
-          }
-        };
+              dataFetch(loadingYears[0]);
+            } else {
+              return null;
+            }
+          };
 
-        runDataFetch();
+          runDataFetch();
+        }
       }
     }
   }, [
     workerInstance,
-    workerInstance.port,
     dataFetch,
     loadedYears,
     loadingYears,
@@ -784,11 +798,7 @@ const App = () => {
 
   useEffect(() => {
     if (typeof loadedData === "object" && loadedData.flat().length > 70000) {
-      const mapVisibleDelay = setTimeout(() => changeMapVisible(true), 3000);
-
-      return () => {
-        clearTimeout(mapVisibleDelay);
-      };
+      changeMapVisible(true);
     }
   }, [loadedData]);
 
@@ -835,6 +845,8 @@ const App = () => {
             ? "Error Initializing NYPD Arrest Map"
             : fetchProgress === 0
             ? "Initializing NYPD Arrest Map"
+            : countUp >= 60
+            ? "Rendering NYPD Arrest Map"
             : "Loading Most Recent Arrest Data"}
         </p>
       </div>
