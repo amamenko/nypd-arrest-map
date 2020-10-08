@@ -1,38 +1,38 @@
 import LZString from "lz-string";
 
-self.addEventListener("connect", ({ ports }) => {
-  let ws = new WebSocket("ws://localhost:4000");
+let ws = new WebSocket("ws://localhost:4000");
 
-  const port = ports[0];
+if (process.env.NODE_ENV === "production") {
+  const host = window.location.href.replace(/^http/, "ws");
 
-  if (process.env.NODE_ENV === "production") {
-    const host = window.location.href.replace(/^http/, "ws");
+  ws = new WebSocket(host);
+}
 
-    ws = new WebSocket(host);
+onmessage = (e) => {
+  const year = e.data;
+
+  if (ws.readyState === 1) {
+    // Receive from main thread and send to websocket
+    ws.send(year);
   }
 
-  ws.addEventListener("open", () => {
+  ws.onopen = () => {
     // Send one bite to websocket every 55 seconds to keep socket from closing itself on idle
     setInterval(() => {
       ws.send(".");
     }, 55000);
 
     // Receive from main thread and send to websocket
-    port.addEventListener("message", ({ data }) => {
-      const sentDataCompressed = LZString.compressToEncodedURIComponent(data);
-
-      ws.send(sentDataCompressed);
-    });
-
-    port.start();
-  });
+    ws.send(year);
+  };
 
   // Send from websocket to main thread
-  ws.addEventListener("message", ({ data }) => {
+  ws.onmessage = ({ data }) => {
     const decompressedData = LZString.decompressFromEncodedURIComponent(data);
 
+    // Faster to JSON.stringify() then postMessage() a string than to postMessage() an object.
     if (decompressedData) {
-      port.postMessage(JSON.parse(decompressedData));
+      postMessage(JSON.stringify({ year: year, data: decompressedData }));
     }
-  });
-});
+  };
+};

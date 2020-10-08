@@ -49,20 +49,12 @@ wss.on("connection", (ws) => {
 
   ws.on("message", (message) => {
     const decodedMessage = decoder.write(Buffer.from(message));
-    const decompressedMessage = LZString.decompressFromEncodedURIComponent(
-      decodedMessage
-    );
 
-    if (decompressedMessage && decompressedMessage !== ".") {
-      const parsedMessage = JSONfn.parse(decompressedMessage.trim());
+    if (decodedMessage && decodedMessage !== ".") {
+      if (yearlyTotals[decodedMessage]) {
+        const bucket = storage.bucket(`${decodedMessage}_nypd_arrest_data`);
 
-      const year = parsedMessage.year;
-      let currentLoadDataChunks = parsedMessage.currentLoadDataChunks;
-
-      if (yearlyTotals[year]) {
-        const bucket = storage.bucket(`${year}_nypd_arrest_data`);
-
-        const stream = bucket.file(`${year}.json`).createReadStream();
+        const stream = bucket.file(`${decodedMessage}.json`).createReadStream();
 
         let chunkArr = [];
         let totalLength = 0;
@@ -74,47 +66,15 @@ wss.on("connection", (ws) => {
             totalLength++;
 
             if (
-              chunkArr.length === 30000 ||
-              totalLength === yearlyTotals[year]
+              chunkArr.length === 15000 ||
+              totalLength === yearlyTotals[decodedMessage]
             ) {
               console.log(chunkArr.length);
-
-              if (!currentLoadDataChunks[year.toString()]) {
-                Object.assign(currentLoadDataChunks, {
-                  [year.toString()]: [chunkArr],
-                });
-              } else {
-                currentLoadDataChunks[year.toString()].push(chunkArr);
-              }
-
-              const splitChunks = Object.keys(currentLoadDataChunks).map(
-                (item) => {
-                  return { [item]: currentLoadDataChunks[item] };
-                }
+              const compressedJSON = LZString.compressToEncodedURIComponent(
+                JSON.stringify(chunkArr)
               );
 
-              const loadedDataArr = splitChunks.map((x) => {
-                const keyName = Object.keys(x)[0];
-
-                let flattenedArray = [];
-
-                for (let i = 0; i < x[keyName].length; i++) {
-                  let currentValue = x[keyName][i];
-                  for (let j = 0; j < currentValue.length; j++) {
-                    flattenedArray.push(currentValue[j]);
-                  }
-                }
-                return flattenedArray;
-              });
-
-              const compressedRes = LZString.compressToEncodedURIComponent(
-                JSON.stringify({
-                  newDataChunks: currentLoadDataChunks,
-                  loadedDataArr: loadedDataArr,
-                })
-              );
-
-              ws.send(compressedRes);
+              ws.send(compressedJSON);
               chunkArr = [];
             }
 

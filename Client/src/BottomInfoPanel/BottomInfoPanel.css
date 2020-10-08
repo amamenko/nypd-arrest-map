@@ -212,8 +212,20 @@
   }
 }
 
+@media only screen and (min-width: 1900px) {
+  .carousel_right_arrow,
+  .carousel_left_arrow {
+    height: 90%;
+  }
+}
+
 @media only screen and (min-width: 2200px) {
   .bottom_info_panel_container {
     height: 16vh;
+  }
+
+  .carousel_right_arrow,
+  .carousel_left_arrow {
+    height: 70%;
   }
 }

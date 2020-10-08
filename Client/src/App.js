@@ -28,7 +28,6 @@ import {
 } from "react-circular-progressbar";
 import "react-circular-progressbar/dist/styles.css";
 import socketWorker from "worker-loader!./socketWorker"; // eslint-disable-line import/no-webpack-loader-syntax
-import JSONfn from "json-fn";
 
 dayjs.extend(customParseFormat);
 
@@ -421,22 +420,42 @@ const App = () => {
 
   const onNewDataArrive = useCallback(
     (chunk) => {
-      const newDataChunks = chunk.newDataChunks;
-      const loadedDataArr = chunk.loadedDataArr;
-      const year = chunk.year;
+      const chunkYear = chunk.year;
 
-      loadDataChunks.current[0] = newDataChunks;
+      if (!loadDataChunks.current[0][chunkYear.toString()]) {
+        loadDataChunks.current[0][chunkYear.toString()] = [chunk.data];
+      } else {
+        loadDataChunks.current[0][chunkYear.toString()].push(chunk.data);
+      }
+
+      const splitChunks = Object.keys(loadDataChunks.current[0]).map((item) => {
+        return { [item]: loadDataChunks.current[0][item] };
+      });
+
+      const loadedDataArr = splitChunks.map((x) => {
+        const keyName = Object.keys(x)[0];
+
+        let flattenedArray = [];
+
+        for (let i = 0; i < x[keyName].length; i++) {
+          let currentValue = x[keyName][i];
+          for (let j = 0; j < currentValue.length; j++) {
+            flattenedArray.push(currentValue[j]);
+          }
+        }
+        return flattenedArray;
+      });
 
       filteredDataChunks.current = loadedDataArr;
 
       changeLoadedData(loadedDataArr);
 
       if (layers.length === 0 || layers.length !== loadedDataArr.length) {
-        if (loadDataChunks.current[0][year.toString()]) {
+        if (loadDataChunks.current[0][chunkYear.toString()]) {
           if (
-            loadDataChunks.current[0][year.toString()]
+            loadDataChunks.current[0][chunkYear.toString()]
               .map((x) => x.length)
-              .reduce((a, b) => a + b, 0) === yearlyTotals[year]
+              .reduce((a, b) => a + b, 0) === yearlyTotals[chunkYear]
           ) {
             renderLayers();
           }
@@ -490,8 +509,10 @@ const App = () => {
         progress: fetchProgress,
       });
     } else if (fetchProgress === 1) {
+      if (fetchExecuted) {
+        changeFetchExecuted(false);
+      }
       if (loadedYears.length === 1 && loadedYears[0] === 2020) {
-        console.log("DISMISSED");
         toast.dismiss();
       } else {
         toast.update(toastId.current, {
@@ -511,7 +532,7 @@ const App = () => {
         };
       }
     }
-  }, [fetchProgress, loadingYears, loadedYears]);
+  }, [fetchProgress, fetchExecuted, loadingYears, loadedYears]);
 
   useEffect(() => {
     if (loadingYears.length > 0) {
@@ -555,73 +576,40 @@ const App = () => {
 
   const dataFetch = useCallback(
     async (year) => {
-      const handleNewData = () => {
-        changeLoadingYears([year]);
+      if (workerInstance) {
+        // Send from main thread to Web Worker
+        workerInstance.postMessage(year);
 
-        const currentLoadDataChunks = loadDataChunks.current[0];
+        workerInstance.onmessage = (receivedData) => {
+          const data = JSON.parse(receivedData.data);
 
-        if (workerInstance) {
-          if (workerInstance.port) {
-            // Send from main thread to Shared Worker
-            const workerMessage = JSONfn.stringify({
-              year: year,
-              currentLoadDataChunks: currentLoadDataChunks,
-            });
+          console.log(JSON.parse(data.data).length);
+          console.log(year);
 
-            workerInstance.port.postMessage(workerMessage);
+          onNewDataArrive({ year: data.year, data: JSON.parse(data.data) });
 
-            workerInstance.port.addEventListener("message", ({ data }) => {
-              onNewDataArrive({
-                year: year,
-                newDataChunks: data.newDataChunks,
-                loadedDataArr: data.loadedDataArr,
-              });
+          if (!loadedYears.includes(data.year)) {
+            const copiedArr = loadedYears.slice();
+            copiedArr.push(data.year);
 
-              if (!loadedYears.includes(year)) {
-                const copiedArr = loadedYears.slice();
-                copiedArr.push(year);
-
-                changeLoadedYears(copiedArr);
-              }
-
-              const refProgress = data.newDataChunks[year.toString()]
-                ? Number(
-                    (
-                      data.newDataChunks[year.toString()]
-                        .map((x) => x.length)
-                        .reduce((a, b) => a + b, 0) /
-                      yearlyTotals[year.toString()]
-                    ).toFixed(1)
-                  )
-                : 0;
-
-              if (refProgress === 1) {
-                changeFetchProgress(0);
-                changeFetchExecuted(false);
-
-                const copiedArr = loadedYears.slice();
-                copiedArr.push(year);
-
-                changeLoadedYears(copiedArr);
-                changeLoadingYears([]);
-                changeLaddaLoading(false);
-              }
-            });
+            changeLoadedYears(copiedArr);
           }
-        }
-      };
 
-      if (!loadedYears.includes(2020)) {
-        if (!loadingYears.includes(year)) {
-          return handleNewData();
-        }
-      } else {
-        if (!loadedYears.includes(year)) {
-          return handleNewData();
-        }
+          if (fetchProgress === 1) {
+            changeFetchProgress(0);
+            changeFetchExecuted(false);
+
+            const copiedArr = loadedYears.slice();
+            copiedArr.push(data.year);
+
+            changeLoadedYears(copiedArr);
+            changeLoadingYears([]);
+            changeLaddaLoading(false);
+          }
+        };
       }
     },
-    [loadedYears, onNewDataArrive, loadingYears, workerInstance]
+    [loadedYears, onNewDataArrive, workerInstance, fetchProgress]
   );
 
   const handleDownloadYear = (year) => {
@@ -699,13 +687,7 @@ const App = () => {
       // Creates Web Worker
       changeWorkerInstance(new socketWorker());
     }
-
-    if (workerInstance) {
-      if (workerInstance.port) {
-        workerInstance.port.start();
-      }
-    }
-  }, [workerInstance.port, workerInstance]);
+  }, [workerInstance]);
 
   useEffect(() => {
     if (workerInstance) {
@@ -718,17 +700,8 @@ const App = () => {
           loadingYears.length > 0 &&
           !loadDataChunks.current[0][loadingYears[0]]
         ) {
-          const runDataFetch = () => {
-            if (!fetchExecuted) {
-              changeFetchExecuted(true);
-
-              dataFetch(loadingYears[0]);
-            } else {
-              return null;
-            }
-          };
-
-          runDataFetch();
+          dataFetch(loadingYears[0]);
+          changeLoadingYears([]);
         }
       }
     }

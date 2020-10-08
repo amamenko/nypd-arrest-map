@@ -93,6 +93,13 @@
   }
 }
 
+@media only screen and (min-width: 1900px) and (max-width: 2199px) {
+  .info_circle_container {
+    position: absolute;
+    top: 1.3rem !important;
+  }
+}
+
 @media only screen and (min-width: 2000px) {
   .info_circle_container {
     top: 1.5vh;
