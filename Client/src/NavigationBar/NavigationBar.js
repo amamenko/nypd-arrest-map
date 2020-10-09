@@ -620,7 +620,8 @@ const NavigationBar = (props) => {
               ageFilter,
               raceFilter,
               sexFilter,
-              boroughFilter
+              boroughFilter,
+              loadData
             );
           }}
           data-color={"blue"}

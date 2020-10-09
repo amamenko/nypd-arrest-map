@@ -27,7 +27,6 @@ import {
   buildStyles,
 } from "react-circular-progressbar";
 import "react-circular-progressbar/dist/styles.css";
-import socketWorker from "worker-loader!./socketWorker"; // eslint-disable-line import/no-webpack-loader-syntax
 
 dayjs.extend(customParseFormat);
 
@@ -38,7 +37,7 @@ const App = () => {
   const [loaderColor, changeLoaderColor] = useState("rgb(93, 188, 210)");
   const [mapError, changeMapError] = useState(false);
   const [layers, changeLayers] = useState([]);
-  const [loadedYears, changeLoadedYears] = useState([]);
+
   const [laddaLoading, changeLaddaLoading] = useState(false);
   const [loadingYears, changeLoadingYears] = useState([]);
   const [fetchProgress, changeFetchProgress] = useState(0);
@@ -74,6 +73,10 @@ const App = () => {
   let loadDataChunks = useRef([{}]);
   let filteredDataChunks = useRef([]);
   let toastId = useRef(null);
+
+  const loadedYears = Object.keys(loadDataChunks.current[0]).map((x) =>
+    Number(x)
+  );
 
   const { countUp, update } = useCountUp({
     start: 0,
@@ -419,7 +422,7 @@ const App = () => {
   }, [filteredDataChunks, layers]);
 
   const onNewDataArrive = useCallback(
-    (chunk) => {
+    (chunk, dataIndex) => {
       const chunkYear = chunk.year;
 
       if (!loadDataChunks.current[0][chunkYear.toString()]) {
@@ -428,29 +431,20 @@ const App = () => {
         loadDataChunks.current[0][chunkYear.toString()].push(chunk.data);
       }
 
-      const splitChunks = Object.keys(loadDataChunks.current[0]).map((item) => {
-        return { [item]: loadDataChunks.current[0][item] };
-      });
+      if (filteredDataChunks.current[dataIndex]) {
+        filteredDataChunks.current[dataIndex] = filteredDataChunks.current[
+          dataIndex
+        ].concat(chunk.data);
+      } else {
+        filteredDataChunks.current.push(chunk.data);
+      }
 
-      const loadedDataArr = splitChunks.map((x) => {
-        const keyName = Object.keys(x)[0];
+      changeLoadedData(filteredDataChunks.current);
 
-        let flattenedArray = [];
-
-        for (let i = 0; i < x[keyName].length; i++) {
-          let currentValue = x[keyName][i];
-          for (let j = 0; j < currentValue.length; j++) {
-            flattenedArray.push(currentValue[j]);
-          }
-        }
-        return flattenedArray;
-      });
-
-      filteredDataChunks.current = loadedDataArr;
-
-      changeLoadedData(loadedDataArr);
-
-      if (layers.length === 0 || layers.length !== loadedDataArr.length) {
+      if (
+        layers.length === 0 ||
+        layers.length !== filteredDataChunks.current.length
+      ) {
         if (loadDataChunks.current[0][chunkYear.toString()]) {
           if (
             loadDataChunks.current[0][chunkYear.toString()]
@@ -554,69 +548,50 @@ const App = () => {
     }
   }, [loadingYears, loadedData, fetchProgress, loadedYears.length]);
 
-  const splitChunks = Object.keys(loadDataChunks.current[0]).map((item, i) => {
-    return { [item]: loadDataChunks.current[0][item] };
-  });
-
-  const loadedDataArr = splitChunks.map((x, i) => {
-    const keyName = Object.keys(loadDataChunks.current[0])[i];
-
-    let flattenedArray = [];
-
-    if (x[keyName]) {
-      for (let i = 0; i < x[keyName].length; i++) {
-        let currentValue = x[keyName][i];
-        for (let j = 0; j < currentValue.length; j++) {
-          flattenedArray.push(currentValue[j]);
-        }
-      }
-    }
-    return flattenedArray;
-  });
-
   const dataFetch = useCallback(
-    async (year) => {
+    (year, dataIndex) => {
       if (workerInstance) {
-        // Send from main thread to Web Worker
+        // Send from main thread to web worker
         workerInstance.postMessage(year);
 
         workerInstance.onmessage = (receivedData) => {
           const data = JSON.parse(receivedData.data);
 
-          console.log(JSON.parse(data.data).length);
-          console.log(year);
+          onNewDataArrive(
+            { year: data.year, data: JSON.parse(data.data) },
+            dataIndex
+          );
 
-          onNewDataArrive({ year: data.year, data: JSON.parse(data.data) });
+          // if (fetchProgress === 1) {
+          //   changeFetchProgress(0);
+          //   changeFetchExecuted(false);
 
-          if (!loadedYears.includes(data.year)) {
-            const copiedArr = loadedYears.slice();
-            copiedArr.push(data.year);
+          //   const copiedArr = loadedYears.slice();
+          //   copiedArr.push(data.year);
 
-            changeLoadedYears(copiedArr);
-          }
-
-          if (fetchProgress === 1) {
-            changeFetchProgress(0);
-            changeFetchExecuted(false);
-
-            const copiedArr = loadedYears.slice();
-            copiedArr.push(data.year);
-
-            changeLoadedYears(copiedArr);
-            changeLoadingYears([]);
-            changeLaddaLoading(false);
-          }
+          //   changeLoadingYears([]);
+          //   changeLaddaLoading(false);
+          // }
         };
       }
     },
-    [loadedYears, onNewDataArrive, workerInstance, fetchProgress]
+    [onNewDataArrive, workerInstance]
   );
 
   const handleDownloadYear = (year) => {
     changeLoadingYears([year]);
   };
 
-  const setFilters = (year, category, offense, age, race, sex, borough) => {
+  const setFilters = (
+    year,
+    category,
+    offense,
+    age,
+    race,
+    sex,
+    borough,
+    loadedData
+  ) => {
     const newYears = year.filter((item) => !loadedYears.includes(item));
 
     changeCurrentFilters({
@@ -629,7 +604,7 @@ const App = () => {
       borough: borough,
     });
 
-    filteredDataChunks.current = loadedDataArr.map((chunk) => {
+    filteredDataChunks.current = [loadedData].map((chunk) => {
       return chunk.filter((x) => {
         if (
           (year.includes(
@@ -684,8 +659,59 @@ const App = () => {
 
   useEffect(() => {
     if (!workerInstance) {
-      // Creates Web Worker
-      changeWorkerInstance(new socketWorker());
+      // Creates inline web worker from anonymous function
+      const blobURL = URL.createObjectURL(
+        new Blob(
+          [
+            "(",
+
+            (() => {
+              // Creates new websocket instance
+              let ws = new WebSocket("ws://localhost:4000");
+
+              if (process.env.NODE_ENV === "production") {
+                const host = window.location.href.replace(/^http/, "ws");
+
+                ws = new WebSocket(host);
+              }
+
+              onmessage = (e) => {
+                const year = e.data;
+
+                if (ws.readyState === 1) {
+                  // Receive from main thread and send to websocket
+                  ws.send(year);
+                }
+
+                ws.onopen = () => {
+                  // Send one bite to websocket every 55 seconds to keep socket from closing itself on idle
+                  setInterval(() => {
+                    ws.send(".");
+                  }, 55000);
+
+                  // Receive from main thread and send to websocket
+                  ws.send(year);
+                };
+
+                // Send from websocket to main thread
+                ws.onmessage = ({ data }) => {
+                  // Faster to JSON.stringify() then postMessage() a string than to postMessage() an object.
+                  if (data) {
+                    postMessage(JSON.stringify({ year: year, data: data }));
+                  }
+                };
+              };
+            }).toString(),
+
+            ")()",
+          ],
+          { type: "application/javascript" }
+        )
+      );
+
+      const socketWorker = new Worker(blobURL);
+
+      changeWorkerInstance(socketWorker);
     }
   }, [workerInstance]);
 
@@ -693,26 +719,20 @@ const App = () => {
     if (workerInstance) {
       if (!loadedYears.includes(2020)) {
         if (loadingYears.length === 0) {
-          dataFetch(2020);
+          changeLoadingYears([2020]);
+          dataFetch(2020, loadedData.length);
         }
       } else {
         if (
           loadingYears.length > 0 &&
           !loadDataChunks.current[0][loadingYears[0]]
         ) {
-          dataFetch(loadingYears[0]);
+          dataFetch(loadingYears[0], loadedData.length);
           changeLoadingYears([]);
         }
       }
     }
-  }, [
-    workerInstance,
-    dataFetch,
-    loadedYears,
-    loadingYears,
-    loadingYears.length,
-    fetchExecuted,
-  ]);
+  }, [workerInstance, dataFetch, loadedYears, loadingYears, loadedData.length]);
 
   const showTooltip = (object, x, y) => {
     const el = document.getElementsByClassName("deck-tooltip")[0];

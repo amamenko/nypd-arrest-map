@@ -8,9 +8,7 @@ const oboe = require("oboe");
 const yearlyTotals = require("./YearlyTotalsNode");
 const { StringDecoder } = require("string_decoder");
 const decoder = new StringDecoder("utf8");
-const LZString = require("lz-string");
 const path = require("path");
-const JSONfn = require("json-fn");
 
 require("dotenv").config();
 
@@ -70,11 +68,9 @@ wss.on("connection", (ws) => {
               totalLength === yearlyTotals[decodedMessage]
             ) {
               console.log(chunkArr.length);
-              const compressedJSON = LZString.compressToEncodedURIComponent(
-                JSON.stringify(chunkArr)
-              );
+              const stringifiedJSON = JSON.stringify(chunkArr);
 
-              ws.send(compressedJSON);
+              ws.send(stringifiedJSON);
               chunkArr = [];
             }
 
