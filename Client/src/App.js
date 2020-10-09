@@ -47,13 +47,14 @@ const App = () => {
   const [mapVisible, changeMapVisible] = useState(false);
 
   // Filters
-  const [yearFilter, changeYearFilter] = useState([2020]);
-  const [categoryFilter, changeCategoryFilter] = useState([]);
-  const [offenseFilter, changeOffenseFilter] = useState([]);
-  const [ageFilter, changeAgeFilter] = useState([]);
-  const [raceFilter, changeRaceFilter] = useState([]);
-  const [sexFilter, changeSexFilter] = useState([]);
-  const [boroughFilter, changeBoroughFilter] = useState([]);
+  let yearFilter = [2020];
+  let categoryFilter = [];
+  let offenseFilter = [];
+  let ageFilter = [];
+  let raceFilter = [];
+  let sexFilter = [];
+  let boroughFilter = [];
+
   const [currentFilters, changeCurrentFilters] = useState({
     year: [],
     category: [],
@@ -604,6 +605,7 @@ const App = () => {
       borough: borough,
     });
 
+
     filteredDataChunks.current = [loadedData].map((chunk) => {
       return chunk.filter((x) => {
         if (
@@ -667,7 +669,9 @@ const App = () => {
 
             (() => {
               // Creates new websocket instance
-              let ws = new WebSocket("ws://localhost:4000");
+              let ws = new WebSocket(
+                "ws://localhost:4000"
+              );
 
               if (process.env.NODE_ENV === "production") {
                 const host = window.location.href.replace(/^http/, "ws");
@@ -880,19 +884,12 @@ const App = () => {
           filteredData={filteredDataChunks.current}
           handleDownloadYear={handleDownloadYear}
           yearFilter={yearFilter}
-          changeYearFilter={changeYearFilter}
           categoryFilter={categoryFilter}
-          changeCategoryFilter={changeCategoryFilter}
           offenseFilter={offenseFilter}
-          changeOffenseFilter={changeOffenseFilter}
           ageFilter={ageFilter}
-          changeAgeFilter={changeAgeFilter}
           raceFilter={raceFilter}
-          changeRaceFilter={changeRaceFilter}
           sexFilter={sexFilter}
-          changeSexFilter={changeSexFilter}
           boroughFilter={boroughFilter}
-          changeBoroughFilter={changeBoroughFilter}
         />
         <DeckGL
           initialViewState={{

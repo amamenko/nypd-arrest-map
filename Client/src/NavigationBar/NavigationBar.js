@@ -27,19 +27,12 @@ const NavigationBar = (props) => {
     filteredData,
     handleDownloadYear,
     yearFilter,
-    changeYearFilter,
     categoryFilter,
-    changeCategoryFilter,
     offenseFilter,
-    changeOffenseFilter,
     ageFilter,
-    changeAgeFilter,
     raceFilter,
-    changeRaceFilter,
     sexFilter,
-    changeSexFilter,
     boroughFilter,
-    changeBoroughFilter,
   } = props;
 
   const logoContainerRef = useRef(null);
@@ -136,78 +129,58 @@ const NavigationBar = (props) => {
 
   const handleYearFilters = (year) => {
     if (yearFilter.includes(year)) {
-      changeYearFilter(yearFilter.filter((x) => x !== year));
+      yearFilter.splice(yearFilter.indexOf(year), 1);
     } else {
-      const copiedArr = yearFilter.slice();
-      copiedArr.push(year);
-
-      changeYearFilter(copiedArr);
+      yearFilter.push(year);
     }
   };
 
   const handleCategoryFilters = (category) => {
     if (categoryFilter.includes(category)) {
-      changeCategoryFilter(categoryFilter.filter((x) => x !== category));
+      categoryFilter.splice(categoryFilter.indexOf(category), 1);
     } else {
-      const copiedArr = categoryFilter.slice();
-      copiedArr.push(category);
-
-      changeCategoryFilter(copiedArr);
+      categoryFilter.push(category);
     }
   };
-
+  
   const handleOffenseFilters = (offense) => {
     if (offenseFilter.includes(offense)) {
-      changeOffenseFilter(offenseFilter.filter((x) => x !== offense));
+      offenseFilter.splice(offenseFilter.indexOf(offense), 1);
     } else {
-      const copiedArr = offenseFilter.slice();
-      copiedArr.push(offense);
-
-      changeOffenseFilter(copiedArr);
+      offenseFilter.push(offense);
     }
   };
 
   const handleAgeFilters = (age) => {
     if (ageFilter.includes(age)) {
-      changeAgeFilter(ageFilter.filter((x) => x !== age));
+      ageFilter.splice(ageFilter.indexOf(age), 1);
     } else {
-      const copiedArr = ageFilter.slice();
-      copiedArr.push(age);
-
-      changeAgeFilter(copiedArr);
+      ageFilter.push(age);
     }
   };
 
   const handleRaceFilters = (race) => {
     if (raceFilter.includes(race)) {
-      changeRaceFilter(raceFilter.filter((x) => x !== race));
+      raceFilter.splice(raceFilter.indexOf(race), 1);
     } else {
-      const copiedArr = raceFilter.slice();
-      copiedArr.push(race);
-
-      changeRaceFilter(copiedArr);
+      raceFilter.push(race);
     }
   };
 
   const handleSexFilters = (sex) => {
     if (sexFilter.includes(sex)) {
-      changeSexFilter(sexFilter.filter((x) => x !== sex));
+      sexFilter.splice(sexFilter.indexOf(sex), 1);
     } else {
-      const copiedArr = sexFilter.slice();
-      copiedArr.push(sex);
-
-      changeSexFilter(copiedArr);
+      sexFilter.push(sex);
     }
   };
 
   const handleBoroughFilters = (borough) => {
     if (boroughFilter.includes(borough)) {
-      changeBoroughFilter(boroughFilter.filter((x) => x !== borough));
+      boroughFilter.splice(boroughFilter.indexOf(borough), 1);
+      return boroughFilter;
     } else {
-      const copiedArr = boroughFilter.slice();
-      copiedArr.push(borough);
-
-      changeBoroughFilter(copiedArr);
+      boroughFilter.push(borough);
     }
   };
 
@@ -370,7 +343,6 @@ const NavigationBar = (props) => {
                       handleYearFilters(year);
                     } else {
                       handleDownloadYear(year);
-                      changeYearFilter([...yearFilter, year]);
                     }
                   }}
                 >
