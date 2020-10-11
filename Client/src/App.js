@@ -36,7 +36,6 @@ const App = () => {
   const [tooltipVisible, changeTooltipVisible] = useState(false);
   const [loaderColor, changeLoaderColor] = useState("rgb(93, 188, 210)");
   const [mapError, changeMapError] = useState(false);
-  const [layers, changeLayers] = useState([]);
 
   const [laddaLoading, changeLaddaLoading] = useState(false);
   const [loadingYears, changeLoadingYears] = useState([]);
@@ -45,15 +44,6 @@ const App = () => {
   const [workerInstance, changeWorkerInstance] = useState("");
 
   const [mapVisible, changeMapVisible] = useState(false);
-
-  // Filters
-  let yearFilter = [2020];
-  let categoryFilter = [];
-  let offenseFilter = [];
-  let ageFilter = [];
-  let raceFilter = [];
-  let sexFilter = [];
-  let boroughFilter = [];
 
   const [currentFilters, changeCurrentFilters] = useState({
     year: [],
@@ -74,7 +64,8 @@ const App = () => {
   let loadDataChunks = useRef([{}]);
   let filteredDataChunks = useRef([]);
   let toastId = useRef(null);
-
+  let perfArr = useRef("")
+  
   const loadedYears = Object.keys(loadDataChunks.current[0]).map((x) =>
     Number(x)
   );
@@ -146,46 +137,47 @@ const App = () => {
 
   const filteredData = filteredDataChunks.current.flat();
 
+
   const hasNumber = (input) => {
     return /\d/.test(input);
   };
 
   const ageGroup =
-    loadData.length > 0 &&
-    loadData.map((x) => x.AGE_GROUP).filter((x) => x !== "AGE_GROUP");
+    loadData.length > 0 ?
+    loadData.map((x) => x.AGE_GROUP).filter((x) => x !== "AGE_GROUP") : [];
   const raceArr =
-    loadData.length > 0 &&
-    loadData.map((x) => x.PERP_RACE).filter((x) => x !== "PERP_RACE");
+    loadData.length > 0 ?
+      loadData.map((x) => x.PERP_RACE).filter((x) => x !== "PERP_RACE") : [];
   const boroughArr =
-    loadData.length > 0 &&
-    loadData
-      .map((x) => {
-        if (x.ARREST_BORO === "K" && Number(x.Latitude) > 40.73912) {
-          return "B";
-        } else if (
-          x.ARREST_BORO === "M" &&
-          Number(x.Longitude) > -73.920961 &&
-          Number(x.Latitude) < 40.800709
-        ) {
-          return "Q";
-        } else if (x.ARREST_BORO === "B" && Number(x.Latitude) < 40.697465) {
-          return "K";
-        } else if (x.ARREST_BORO === "Q" && Number(x.Longitude) < -73.962745) {
-          return "M";
-        } else if (
-          x.ARREST_BORO === "Q" &&
-          Number(x.Longitude) < -73.878559 &&
-          Number(x.Latitude) > 40.787907
-        ) {
-          return "B";
-        } else {
-          return x.ARREST_BORO;
-        }
-      })
-      .filter((x) => x !== "ARREST_BORO");
+    loadData.length > 0 ?
+      loadData
+        .map((x) => {
+          if (x.ARREST_BORO === "K" && Number(x.Latitude) > 40.73912) {
+            return "B";
+          } else if (
+            x.ARREST_BORO === "M" &&
+            Number(x.Longitude) > -73.920961 &&
+            Number(x.Latitude) < 40.800709
+          ) {
+            return "Q";
+          } else if (x.ARREST_BORO === "B" && Number(x.Latitude) < 40.697465) {
+            return "K";
+          } else if (x.ARREST_BORO === "Q" && Number(x.Longitude) < -73.962745) {
+            return "M";
+          } else if (
+            x.ARREST_BORO === "Q" &&
+            Number(x.Longitude) < -73.878559 &&
+            Number(x.Latitude) > 40.787907
+          ) {
+            return "B";
+          } else {
+            return x.ARREST_BORO;
+          }
+        })
+        .filter((x) => x !== "ARREST_BORO") : [];
   const offenseDescriptionArr =
-    loadData.length > 0 &&
-    loadData.map((x) => x.OFNS_DESC !== "OFNS_DESC" && x.OFNS_DESC);
+    loadData.length > 0 ?
+      loadData.map((x) => x.OFNS_DESC !== "OFNS_DESC" && x.OFNS_DESC) : [];
 
   const filteredArrestCategory = filteredData
     .map((x) => x.LAW_CAT_CD)
@@ -379,28 +371,19 @@ const App = () => {
 
   const renderLayers = useCallback(() => {
     const yearsFiltered = filteredDataChunks.current.map((item) =>
-      item
-        .map((x) => x.ARREST_DATE)
-        .filter((x) => x !== "ARREST_DATE")
-        .map((x) => Number(dayjs(x, "MM/DD/YYYY").format("YYYY")))
-        .filter(uniqueValues)
+      Number(dayjs(item[5]["ARREST_DATE"], "MM/DD/YYYY").format("YYYY"))
     );
 
-    if (layers.length !== filteredDataChunks.length) {
       layersRef.current = filteredDataChunks.current.map(
         (chunk, chunkIndex) => {
-          const yearOfChunk = chunk
-            .map((x) => x.ARREST_DATE)
-            .filter((x) => x !== "ARREST_DATE")
-            .map((x) => dayjs(x, "MM/DD/YYYY").format("YYYY"))
-            .filter(uniqueValues);
-
+          const yearOfChunk = dayjs(chunk[5]["ARREST_DATE"], "MM/DD/YYYY").format("YYYY")
+          
           return new ScatterplotLayer({
             id: `chunk-${chunkIndex}`,
             data: chunk,
-            visible: yearsFiltered.flat().includes(Number(yearOfChunk[0])),
+            visible: yearsFiltered.flat().includes(Number(yearOfChunk)),
             filled: true,
-            radiusMinPixels: 3,
+            radiusMinPixels: 2,
             getPosition: (d) => [Number(d.Longitude), Number(d.Latitude)],
             getFillColor: (d) =>
               d.LAW_CAT_CD === "F"
@@ -409,18 +392,12 @@ const App = () => {
                 ? [255, 116, 0]
                 : [255, 193, 0],
             pickable: true,
-            parameters: {
-              depthTest: false,
-            },
+            useDevicePixels: false
           });
         }
       );
 
-      if (!isSame(layers, layersRef.current)) {
-        changeLayers(layersRef.current);
-      }
-    }
-  }, [filteredDataChunks, layers]);
+  }, [filteredDataChunks]);
 
   const onNewDataArrive = useCallback(
     (chunk, dataIndex) => {
@@ -440,70 +417,36 @@ const App = () => {
         filteredDataChunks.current.push(chunk.data);
       }
 
-      changeLoadedData(filteredDataChunks.current);
+      changeLoadedData(filteredDataChunks.current)
+
+      const currentYearDataLength = loadDataChunks.current[0][chunkYear.toString()]
+      .map((x) => x.length)
+        .reduce((a, b) => a + b, 0)
+      
+     perfArr.current = (Number((currentYearDataLength / yearlyTotals[chunkYear]).toFixed(1)))
 
       if (
-        layers.length === 0 ||
-        layers.length !== filteredDataChunks.current.length
+        layersRef.current.length === 0 ||
+        layersRef.current.length !== filteredDataChunks.current.length
       ) {
         if (loadDataChunks.current[0][chunkYear.toString()]) {
           if (
-            loadDataChunks.current[0][chunkYear.toString()]
-              .map((x) => x.length)
-              .reduce((a, b) => a + b, 0) === yearlyTotals[chunkYear]
+            currentYearDataLength === yearlyTotals[chunkYear]
           ) {
             renderLayers();
           }
         }
       }
     },
-    [loadDataChunks, renderLayers, layers.length]
+    [loadDataChunks, renderLayers]
   );
 
   useEffect(() => {
-    const currentRef = loadDataChunks.current;
-    const selectedYear = loadingYears[0]
-      ? loadingYears[0].toString().slice()
-      : null;
-
-    const progressInterval = setInterval(() => {
-      if (loadingYears[0] && selectedYear) {
-        if (currentRef[0][selectedYear.toString()]) {
-          const refProgress = (
-            currentRef[0][selectedYear.toString()]
-              .map((x) => x.length)
-              .reduce((a, b) => a + b, 0) /
-            yearlyTotals[selectedYear.toString()]
-          ).toFixed(1);
-
-          if (fetchProgress !== refProgress) {
-            changeFetchProgress(Number(refProgress));
-          }
-        }
-      } else {
-        clearInterval(progressInterval);
-      }
-    }, 500);
-
-    return () => {
-      clearInterval(progressInterval);
-    };
-  }, [fetchProgress, loadingYears, loadedData]);
-
-  useEffect(() => {
-    if (!loadingYears[0]) {
-      if (fetchProgress !== 0) {
-        changeFetchProgress(0);
-      }
-    }
-  }, [fetchProgress, loadingYears.length, loadingYears]);
-
-  useEffect(() => {
-    if (fetchProgress < 1 && toastId.current) {
+    if (perfArr.current < 1 && toastId.current) {
       toast.update(toastId.current, {
-        progress: fetchProgress,
+        progress: perfArr.current ,
       });
-    } else if (fetchProgress === 1) {
+    } else if (perfArr.current  === 1) {
       if (fetchExecuted) {
         changeFetchExecuted(false);
       }
@@ -527,7 +470,7 @@ const App = () => {
         };
       }
     }
-  }, [fetchProgress, fetchExecuted, loadingYears, loadedYears]);
+  }, [fetchExecuted, loadingYears, loadedYears]);
 
   useEffect(() => {
     if (loadingYears.length > 0) {
@@ -547,7 +490,7 @@ const App = () => {
         });
       }
     }
-  }, [loadingYears, loadedData, fetchProgress, loadedYears.length]);
+  }, [loadingYears, loadedData, loadedYears.length]);
 
   const dataFetch = useCallback(
     (year, dataIndex) => {
@@ -562,17 +505,6 @@ const App = () => {
             { year: data.year, data: JSON.parse(data.data) },
             dataIndex
           );
-
-          // if (fetchProgress === 1) {
-          //   changeFetchProgress(0);
-          //   changeFetchExecuted(false);
-
-          //   const copiedArr = loadedYears.slice();
-          //   copiedArr.push(data.year);
-
-          //   changeLoadingYears([]);
-          //   changeLaddaLoading(false);
-          // }
         };
       }
     },
@@ -795,58 +727,57 @@ const App = () => {
 
   useEffect(() => {
     if (typeof loadedData === "object" && loadedData.flat().length > 70000) {
-      changeMapVisible(true);
+      if (!mapVisible) {
+        changeMapVisible(true);
+      }
     }
-  }, [loadedData]);
-
+  }, [loadedData, mapVisible]);
+  
   return (
     <>
-      <div
-        className="loading_container"
-        style={{
-          display:
-            loadedData === "" ||
-            (typeof loadedData === "object" && loadedData.flat().length < 70000)
-              ? "flex"
-              : "none",
-        }}
-      >
-        {fetchProgress === 0 ? (
-          <GridLoader
-            css={override}
-            size={50}
-            color={loaderColor}
-            style={{ transition: "all 0.5s ease" }}
-            loading={
-              loadedData === "" ||
-              (typeof loadedData === "object" &&
-                loadedData.flat().length < 70000)
-            }
-          />
-        ) : (
-          <CircularProgressbarWithChildren
-            value={countUp}
-            styles={buildStyles({
-              strokeLinecap: "butt",
-              trailColor: "#eee",
-            })}
-          >
-            <GiHandcuffs color="#fff" size="4rem" />
-            <div style={{ fontSize: 30, marginTop: 20, color: "#fff" }}>
-              <strong>{countUp}%</strong>
-            </div>
-          </CircularProgressbarWithChildren>
-        )}
-        <p>
-          {mapError
-            ? "Error Initializing NYPD Arrest Map"
-            : fetchProgress === 0
-            ? "Initializing NYPD Arrest Map"
-            : countUp >= 60
-            ? "Rendering NYPD Arrest Map"
-            : "Loading Most Recent Arrest Data"}
-        </p>
-      </div>
+      {(loadedData === "" ||
+        (typeof loadedData === "object" && loadedData.flat().length < 70000)) ?
+        (<div
+          className="loading_container"
+        
+        >
+          {fetchProgress === 0 ? (
+            <GridLoader
+              css={override}
+              size={50}
+              color={loaderColor}
+              style={{ transition: "all 0.5s ease" }}
+              loading={
+                loadedData === "" ||
+                (typeof loadedData === "object" &&
+                  loadedData.flat().length < 70000)
+              }
+            />
+          ) : (
+              <CircularProgressbarWithChildren
+                value={countUp}
+                styles={buildStyles({
+                  strokeLinecap: "butt",
+                  trailColor: "#eee",
+                })}
+              >
+                <GiHandcuffs color="#fff" size="4rem" />
+                <div style={{ fontSize: 30, marginTop: 20, color: "#fff" }}>
+                  <strong>{countUp}%</strong>
+                </div>
+              </CircularProgressbarWithChildren>
+            )}
+          <p>
+            {mapError
+              ? "Error Initializing NYPD Arrest Map"
+              : perfArr.current === 0 && countUp === 0
+                ? "Initializing NYPD Arrest Map"
+                : countUp >= 60
+                  ? "Rendering NYPD Arrest Map"
+                  : "Loading Most Recent Arrest Data"}
+          </p>
+        </div>) : null
+}
       <div
         className="nypd_arrest_map_container"
         style={{
@@ -883,13 +814,6 @@ const App = () => {
           laddaLoading={laddaLoading}
           filteredData={filteredDataChunks.current}
           handleDownloadYear={handleDownloadYear}
-          yearFilter={yearFilter}
-          categoryFilter={categoryFilter}
-          offenseFilter={offenseFilter}
-          ageFilter={ageFilter}
-          raceFilter={raceFilter}
-          sexFilter={sexFilter}
-          boroughFilter={boroughFilter}
         />
         <DeckGL
           initialViewState={{

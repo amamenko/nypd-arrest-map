@@ -36,7 +36,7 @@
 
 .filters_applied p {
   font-size: 0.7rem;
-  line-height: 0.2rem;
+  line-height: 1rem;
   padding-left: 0.5rem;
   padding-right: 0.5rem;
 }
@@ -222,10 +222,5 @@
 @media only screen and (min-width: 2200px) {
   .bottom_info_panel_container {
     height: 16vh;
-  }
-
-  .carousel_right_arrow,
-  .carousel_left_arrow {
-    height: 70%;
   }
 }

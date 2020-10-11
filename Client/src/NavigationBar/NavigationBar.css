@@ -26,6 +26,7 @@ label {
 
 .overview_tooltip.legend_tooltip {
   margin-left: 0.5rem;
+  display: none;
 }
 
 .overview_tooltip > .tippy-arrow::before {
