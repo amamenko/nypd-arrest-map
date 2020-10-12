@@ -28,6 +28,14 @@
   color: rgb(235, 235, 235);
 }
 
+.ReactModal__Content {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #fff;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
 .loading_container {
   height: 100vh;
   width: 100%;

@@ -64,7 +64,7 @@ wss.on("connection", (ws) => {
             totalLength++;
 
             if (
-              chunkArr.length === 15000 ||
+              chunkArr.length === 30000 ||
               totalLength === yearlyTotals[decodedMessage]
             ) {
               console.log(chunkArr.length);

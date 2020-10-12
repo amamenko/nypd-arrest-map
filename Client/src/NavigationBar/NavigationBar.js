@@ -26,6 +26,20 @@ const NavigationBar = (props) => {
     loadedYears,
     filteredData,
     handleDownloadYear,
+    yearFilter,
+    changeYearFilter,
+    categoryFilter,
+    changeCategoryFilter,
+    offenseFilter,
+    changeOffenseFilter,
+    ageFilter,
+    changeAgeFilter,
+    raceFilter,
+    changeRaceFilter,
+    sexFilter,
+    changeSexFilter,
+    boroughFilter,
+    changeBoroughFilter,
   } = props;
 
   const logoContainerRef = useRef(null);
@@ -38,15 +52,6 @@ const NavigationBar = (props) => {
   const [menuClicked, changeMenuClicked] = useState(false);
   const [collapseOpen, changeCollapseOpen] = useState("");
 
-  // Filters
-  const [yearFilter, changeYearFilter] = useState([2020])
-  const [categoryFilter, changeCategoryFilter] = useState([]);
-  const [offenseFilter, changeOffenseFilter] = useState([])
-  const [ageFilter, changeAgeFilter] = useState([])
-  const [raceFilter, changeRaceFilter] = useState([])
-  const [sexFilter, changeSexFilter] = useState([])
-  const [boroughFilter, changeBoroughFilter] = useState([])
-console.log(loadData)
   const filterByYear = () => {
     return (
       <div className="nav_item">
@@ -131,71 +136,71 @@ console.log(loadData)
 
   const handleYearFilters = (year) => {
     if (yearFilter.includes(year)) {
-      changeYearFilter(yearFilter.filter((item) => item !== year))
+      changeYearFilter(yearFilter.filter((item) => item !== year));
     } else {
       const copyArr = yearFilter.slice();
-      copyArr.push(year)
-      changeYearFilter(copyArr)
+      copyArr.push(year);
+      changeYearFilter(copyArr);
     }
   };
 
   const handleCategoryFilters = (category) => {
     if (categoryFilter.includes(category)) {
-      changeCategoryFilter(categoryFilter.filter((item) => item !== category))
+      changeCategoryFilter(categoryFilter.filter((item) => item !== category));
     } else {
       const copyArr = categoryFilter.slice();
-      copyArr.push(category)
-     changeCategoryFilter(copyArr)
+      copyArr.push(category);
+      changeCategoryFilter(copyArr);
     }
   };
-  
+
   const handleOffenseFilters = (offense) => {
     if (offenseFilter.includes(offense)) {
-      changeOffenseFilter(offenseFilter.filter((item) => item !== offense))
+      changeOffenseFilter(offenseFilter.filter((item) => item !== offense));
     } else {
       const copyArr = offenseFilter.slice();
-      copyArr.push(offense)
-      changeOffenseFilter(copyArr)
+      copyArr.push(offense);
+      changeOffenseFilter(copyArr);
     }
   };
 
   const handleAgeFilters = (age) => {
     if (ageFilter.includes(age)) {
-      changeAgeFilter(ageFilter.filter((item) => item !== age))
+      changeAgeFilter(ageFilter.filter((item) => item !== age));
     } else {
       const copyArr = ageFilter.slice();
-      copyArr.push(age)
-      changeAgeFilter(copyArr)
+      copyArr.push(age);
+      changeAgeFilter(copyArr);
     }
   };
 
   const handleRaceFilters = (race) => {
     if (raceFilter.includes(race)) {
-      changeRaceFilter(raceFilter.filter((item) => item !== race))
+      changeRaceFilter(raceFilter.filter((item) => item !== race));
     } else {
       const copyArr = raceFilter.slice();
-      copyArr.push(race)
-      changeRaceFilter(copyArr)
+      copyArr.push(race);
+      changeRaceFilter(copyArr);
     }
   };
 
   const handleSexFilters = (sex) => {
     if (sexFilter.includes(sex)) {
-      changeSexFilter(sexFilter.filter((item) => item !== sex))
+      changeSexFilter(sexFilter.filter((item) => item !== sex));
     } else {
       const copyArr = sexFilter.slice();
-      copyArr.push(sex)
-      changeSexFilter(copyArr)
+      copyArr.push(sex);
+      changeSexFilter(copyArr);
     }
   };
 
   const handleBoroughFilters = (borough) => {
     if (boroughFilter.includes(borough)) {
-      changeBoroughFilter(boroughFilter.filter((item) => item !== borough))
+      changeBoroughFilter(boroughFilter.filter((item) => item !== borough));
     } else {
       const copyArr = boroughFilter.slice();
-      copyArr.push(borough)
-      changeBoroughFilter(copyArr)
+      copyArr.push(borough);
+      changeBoroughFilter(copyArr);
     }
   };
 

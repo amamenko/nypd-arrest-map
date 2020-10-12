@@ -14,19 +14,13 @@ import NavigationBar from "./NavigationBar/NavigationBar";
 import iNoBounce from "./inobounce";
 import BottomInfoPanel from "./BottomInfoPanel/BottomInfoPanel";
 import { css } from "@emotion/core";
-import GridLoader from "react-spinners/GridLoader";
-import { GiHandcuffs } from "react-icons/gi";
 import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 import yearlyTotals from "./YearlyTotals";
 import { useCountUp } from "react-countup";
-import {
-  CircularProgressbarWithChildren,
-  buildStyles,
-} from "react-circular-progressbar";
-import "react-circular-progressbar/dist/styles.css";
+import InitialLoader from "./InitialLoader";
+import SubsequentLoader from "./SubsequentLoader";
+import Modal from "react-modal";
 
 dayjs.extend(customParseFormat);
 
@@ -36,11 +30,23 @@ const App = () => {
   const [tooltipVisible, changeTooltipVisible] = useState(false);
   const [loaderColor, changeLoaderColor] = useState("rgb(93, 188, 210)");
   const [mapError, changeMapError] = useState(false);
+  const [modalActive, changeModalActive] = useState({
+    active: false,
+    year: null,
+  });
+
+  // Filters
+  const [categoryFilter, changeCategoryFilter] = useState([]);
+  const [offenseFilter, changeOffenseFilter] = useState([]);
+  const [ageFilter, changeAgeFilter] = useState([]);
+  const [raceFilter, changeRaceFilter] = useState([]);
+  const [sexFilter, changeSexFilter] = useState([]);
+  const [boroughFilter, changeBoroughFilter] = useState([]);
+  const [yearFilter, changeYearFilter] = useState([2020]);
 
   const [laddaLoading, changeLaddaLoading] = useState(false);
   const [loadingYears, changeLoadingYears] = useState([]);
   const [fetchProgress, changeFetchProgress] = useState(0);
-  const [fetchExecuted, changeFetchExecuted] = useState(false);
   const [workerInstance, changeWorkerInstance] = useState("");
 
   const [mapVisible, changeMapVisible] = useState(false);
@@ -63,9 +69,13 @@ const App = () => {
   let layersRef = useRef([]);
   let loadDataChunks = useRef([{}]);
   let filteredDataChunks = useRef([]);
-  let toastId = useRef(null);
-  let perfArr = useRef("")
-  
+  let progressVal = useRef("");
+
+  // Needed for screen-readers
+  useEffect(() => {
+    Modal.setAppElement("body");
+  }, []);
+
   const loadedYears = Object.keys(loadDataChunks.current[0]).map((x) =>
     Number(x)
   );
@@ -137,47 +147,56 @@ const App = () => {
 
   const filteredData = filteredDataChunks.current.flat();
 
-
   const hasNumber = (input) => {
     return /\d/.test(input);
   };
 
   const ageGroup =
-    loadData.length > 0 ?
-    loadData.map((x) => x.AGE_GROUP).filter((x) => x !== "AGE_GROUP") : [];
+    loadData.length > 0
+      ? loadData.map((x) => x.AGE_GROUP).filter((x) => x !== "AGE_GROUP")
+      : [];
   const raceArr =
-    loadData.length > 0 ?
-      loadData.map((x) => x.PERP_RACE).filter((x) => x !== "PERP_RACE") : [];
+    loadData.length > 0
+      ? loadData.map((x) => x.PERP_RACE).filter((x) => x !== "PERP_RACE")
+      : [];
   const boroughArr =
-    loadData.length > 0 ?
-      loadData
-        .map((x) => {
-          if (x.ARREST_BORO === "K" && Number(x.Latitude) > 40.73912) {
-            return "B";
-          } else if (
-            x.ARREST_BORO === "M" &&
-            Number(x.Longitude) > -73.920961 &&
-            Number(x.Latitude) < 40.800709
-          ) {
-            return "Q";
-          } else if (x.ARREST_BORO === "B" && Number(x.Latitude) < 40.697465) {
-            return "K";
-          } else if (x.ARREST_BORO === "Q" && Number(x.Longitude) < -73.962745) {
-            return "M";
-          } else if (
-            x.ARREST_BORO === "Q" &&
-            Number(x.Longitude) < -73.878559 &&
-            Number(x.Latitude) > 40.787907
-          ) {
-            return "B";
-          } else {
-            return x.ARREST_BORO;
-          }
-        })
-        .filter((x) => x !== "ARREST_BORO") : [];
+    loadData.length > 0
+      ? loadData
+          .map((x) => {
+            if (x.ARREST_BORO === "K" && Number(x.Latitude) > 40.73912) {
+              return "B";
+            } else if (
+              x.ARREST_BORO === "M" &&
+              Number(x.Longitude) > -73.920961 &&
+              Number(x.Latitude) < 40.800709
+            ) {
+              return "Q";
+            } else if (
+              x.ARREST_BORO === "B" &&
+              Number(x.Latitude) < 40.697465
+            ) {
+              return "K";
+            } else if (
+              x.ARREST_BORO === "Q" &&
+              Number(x.Longitude) < -73.962745
+            ) {
+              return "M";
+            } else if (
+              x.ARREST_BORO === "Q" &&
+              Number(x.Longitude) < -73.878559 &&
+              Number(x.Latitude) > 40.787907
+            ) {
+              return "B";
+            } else {
+              return x.ARREST_BORO;
+            }
+          })
+          .filter((x) => x !== "ARREST_BORO")
+      : [];
   const offenseDescriptionArr =
-    loadData.length > 0 ?
-      loadData.map((x) => x.OFNS_DESC !== "OFNS_DESC" && x.OFNS_DESC) : [];
+    loadData.length > 0
+      ? loadData.map((x) => x.OFNS_DESC !== "OFNS_DESC" && x.OFNS_DESC)
+      : [];
 
   const filteredArrestCategory = filteredData
     .map((x) => x.LAW_CAT_CD)
@@ -369,34 +388,91 @@ const App = () => {
 
   const token = process.env.REACT_APP_MAPBOX_TOKEN;
 
+  const showTooltip = useCallback(
+    (object, x, y) => {
+      const el = document.getElementsByClassName("deck-tooltip")[0];
+
+      if (object) {
+        if (!tooltipVisible) {
+          changeTooltipVisible(true);
+        }
+
+        const {
+          ARREST_DATE,
+          LAW_CAT_CD,
+          OFNS_DESC,
+          PD_DESC,
+          AGE_GROUP,
+          PERP_SEX,
+          PERP_RACE,
+        } = object;
+        el.innerHTML = `
+      <p><strong>Date of Arrest:</strong> ${ARREST_DATE}</p>
+      <p><strong>Category:</strong> ${
+        LAW_CAT_CD === "F"
+          ? "Felony"
+          : LAW_CAT_CD === "M"
+          ? "Misdemeanor"
+          : "Violation"
+      }</p>
+      <p><strong>Offense:</strong> ${OFNS_DESC}</p>
+      <p><strong>Offense Description:</strong> ${PD_DESC}</p>
+      <p><strong>Perpetrator's Age Group:</strong> ${AGE_GROUP}</p>
+      <p><strong>Perpetrator's Sex:</strong> ${
+        PERP_SEX === "M" ? "Male" : "Female"
+      }</p>
+      <p><strong>Perpetrator's Race:</strong> ${PERP_RACE.toLowerCase()
+        .split(" ")
+        .map((x) => x[0].toUpperCase() + x.slice(1))
+        .join(" ")}</p>
+  `;
+        el.style.display = "inline-block";
+        el.style.background = "#000";
+        el.style.color = "rgb(235, 235, 235)";
+        el.style.fontSize = "1rem";
+        el.style.overflowWrap = "break-word";
+        el.style.lineHeight = "1rem";
+        el.style.maxWidth = "10rem";
+        el.style.opacity = 0.9;
+        el.style.left = x + "px";
+        el.style.top = y + "px";
+      } else {
+        if (tooltipVisible) {
+          changeTooltipVisible(false);
+        }
+        el.style.opacity = 0;
+      }
+    },
+    [tooltipVisible]
+  );
+
   const renderLayers = useCallback(() => {
     const yearsFiltered = filteredDataChunks.current.map((item) =>
       Number(dayjs(item[5]["ARREST_DATE"], "MM/DD/YYYY").format("YYYY"))
     );
 
-      layersRef.current = filteredDataChunks.current.map(
-        (chunk, chunkIndex) => {
-          const yearOfChunk = dayjs(chunk[5]["ARREST_DATE"], "MM/DD/YYYY").format("YYYY")
-          
-          return new ScatterplotLayer({
-            id: `chunk-${chunkIndex}`,
-            data: chunk,
-            visible: yearsFiltered.flat().includes(Number(yearOfChunk)),
-            filled: true,
-            radiusMinPixels: 2,
-            getPosition: (d) => [Number(d.Longitude), Number(d.Latitude)],
-            getFillColor: (d) =>
-              d.LAW_CAT_CD === "F"
-                ? [255, 0, 0]
-                : d.LAW_CAT_CD === "M"
-                ? [255, 116, 0]
-                : [255, 193, 0],
-            pickable: true,
-            useDevicePixels: false
-          });
-        }
+    layersRef.current = filteredDataChunks.current.map((chunk, chunkIndex) => {
+      const yearOfChunk = dayjs(chunk[5]["ARREST_DATE"], "MM/DD/YYYY").format(
+        "YYYY"
       );
 
+      return new ScatterplotLayer({
+        id: `chunk-${chunkIndex}`,
+        data: chunk,
+        visible: yearsFiltered.flat().includes(Number(yearOfChunk)),
+        filled: true,
+        radiusMinPixels: 2,
+        getPosition: (d) => [Number(d.Longitude), Number(d.Latitude)],
+        getFillColor: (d) =>
+          d.LAW_CAT_CD === "F"
+            ? [255, 0, 0]
+            : d.LAW_CAT_CD === "M"
+            ? [255, 116, 0]
+            : [255, 193, 0],
+        pickable: true,
+        useDevicePixels: false,
+      });
+    });
   }, [filteredDataChunks]);
 
   const onNewDataArrive = useCallback(
@@ -417,22 +493,24 @@ const App = () => {
         filteredDataChunks.current.push(chunk.data);
       }
 
-      changeLoadedData(filteredDataChunks.current)
+      changeLoadedData(filteredDataChunks.current);
 
-      const currentYearDataLength = loadDataChunks.current[0][chunkYear.toString()]
-      .map((x) => x.length)
-        .reduce((a, b) => a + b, 0)
-      
-     perfArr.current = (Number((currentYearDataLength / yearlyTotals[chunkYear]).toFixed(1)))
+      const currentYearDataLength = loadDataChunks.current[0][
+        chunkYear.toString()
+      ]
+        .map((x) => x.length)
+        .reduce((a, b) => a + b, 0);
+
+      progressVal.current = (
+        currentYearDataLength / yearlyTotals[chunkYear]
+      ).toFixed(1);
 
       if (
         layersRef.current.length === 0 ||
         layersRef.current.length !== filteredDataChunks.current.length
       ) {
         if (loadDataChunks.current[0][chunkYear.toString()]) {
-          if (
-            currentYearDataLength === yearlyTotals[chunkYear]
-          ) {
+          if (currentYearDataLength === yearlyTotals[chunkYear]) {
             renderLayers();
           }
         }
@@ -442,55 +520,22 @@ const App = () => {
   );
 
   useEffect(() => {
-    if (perfArr.current < 1 && toastId.current) {
-      toast.update(toastId.current, {
-        progress: perfArr.current ,
-      });
-    } else if (perfArr.current  === 1) {
-      if (fetchExecuted) {
-        changeFetchExecuted(false);
-      }
-      if (loadedYears.length === 1 && loadedYears[0] === 2020) {
-        toast.dismiss();
-      } else {
-        toast.update(toastId.current, {
-          render: `Data for ${loadingYears[0]} successfully loaded`,
-          type: toast.TYPE.SUCCESS,
-          autoClose: false,
-          progress: 1.0,
-          closeButton: true,
-        });
+    if (
+      fetchProgress !== 1 &&
+      (loadedData === "" ||
+        (typeof loadedData === "object" && loadedData.flat().length < 70000))
+    ) {
+      const progressInt = setInterval(() => {
+        if (Number(fetchProgress) !== Number(progressVal.current)) {
+          changeFetchProgress(Number(progressVal.current));
+        }
+      }, 500);
 
-        const dismissTimer = setTimeout(() => {
-          toast.dismiss();
-        }, 5000);
-
-        return () => {
-          clearTimeout(dismissTimer);
-        };
-      }
+      return () => {
+        clearInterval(progressInt);
+      };
     }
-  }, [fetchExecuted, loadingYears, loadedYears]);
-
-  useEffect(() => {
-    if (loadingYears.length > 0) {
-      const selectedYear = loadingYears[0];
-
-      if (
-        !toastId.current &&
-        typeof loadedData === "object" &&
-        loadedData.flat().length > 70000 &&
-        selectedYear !== 2020
-      ) {
-        toastId.current = toast.info(`Loading ${selectedYear} data`, {
-          position: "top-center",
-          autoClose: false,
-          hideProgressBar: false,
-          progress: 0,
-        });
-      }
-    }
-  }, [loadingYears, loadedData, loadedYears.length]);
+  }, [fetchProgress, loadedData]);
 
   const dataFetch = useCallback(
     (year, dataIndex) => {
@@ -511,10 +556,6 @@ const App = () => {
     [onNewDataArrive, workerInstance]
   );
 
-  const handleDownloadYear = (year) => {
-    changeLoadingYears([year]);
-  };
-
   const setFilters = (
     year,
     category,
@@ -525,8 +566,7 @@ const App = () => {
     borough,
     loadedData
   ) => {
-    const newYears = year.filter((item) => !loadedYears.includes(item));
-
+    const t0 = performance.now();
     changeCurrentFilters({
       year: year,
       category: category,
@@ -536,7 +576,6 @@ const App = () => {
       sex: sex,
       borough: borough,
     });
-
 
     filteredDataChunks.current = [loadedData].map((chunk) => {
       return chunk.filter((x) => {
@@ -584,11 +623,36 @@ const App = () => {
       });
     });
 
-    if (!newYears.length > 0) {
-      setTimeout(() => changeLaddaLoading(false), 2000);
-    }
+    setTimeout(() => changeLaddaLoading(false), 2000);
 
     renderLayers();
+
+    const t1 = performance.now();
+
+    console.log(`Time to perform task: ${t1 - t0} milliseconds.`);
+  };
+
+  const handleDownloadYear = (year) => {
+    changeLoadingYears([year]);
+    changeYearFilter([...yearFilter, year]);
+    changeCategoryFilter([]);
+    changeBoroughFilter([]);
+    changeOffenseFilter([]);
+    changeSexFilter([]);
+    changeRaceFilter([]);
+    changeAgeFilter([]);
+    changeFetchProgress(0);
+    changeModalActive({ active: true, year: year });
+    setFilters(
+      [...loadedYears, year],
+      [],
+      [],
+      [],
+      [],
+      [],
+      [],
+      loadedData ? loadedData.flat() : [""]
+    );
   };
 
   useEffect(() => {
@@ -601,9 +665,7 @@ const App = () => {
 
             (() => {
               // Creates new websocket instance
-              let ws = new WebSocket(
-                "ws://localhost:4000"
-              );
+              let ws = new WebSocket("ws://localhost:4000");
 
               if (process.env.NODE_ENV === "production") {
                 const host = window.location.href.replace(/^http/, "ws");
@@ -670,61 +732,6 @@ const App = () => {
     }
   }, [workerInstance, dataFetch, loadedYears, loadingYears, loadedData.length]);
 
-  const showTooltip = (object, x, y) => {
-    const el = document.getElementsByClassName("deck-tooltip")[0];
-
-    if (object) {
-      if (!tooltipVisible) {
-        changeTooltipVisible(true);
-      }
-
-      const {
-        ARREST_DATE,
-        LAW_CAT_CD,
-        OFNS_DESC,
-        PD_DESC,
-        AGE_GROUP,
-        PERP_SEX,
-        PERP_RACE,
-      } = object;
-      el.innerHTML = `
-      <p><strong>Date of Arrest:</strong> ${ARREST_DATE}</p>
-      <p><strong>Category:</strong> ${
-        LAW_CAT_CD === "F"
-          ? "Felony"
-          : LAW_CAT_CD === "M"
-          ? "Misdemeanor"
-          : "Violation"
-      }</p>
-      <p><strong>Offense:</strong> ${OFNS_DESC}</p>
-      <p><strong>Offense Description:</strong> ${PD_DESC}</p>
-      <p><strong>Perpetrator's Age Group:</strong> ${AGE_GROUP}</p>
-      <p><strong>Perpetrator's Sex:</strong> ${
-        PERP_SEX === "M" ? "Male" : "Female"
-      }</p>
-      <p><strong>Perpetrator's Race:</strong> ${PERP_RACE.toLowerCase()
-        .split(" ")
-        .map((x) => x[0].toUpperCase() + x.slice(1))
-        .join(" ")}</p>
-  `;
-      el.style.display = "inline-block";
-      el.style.background = "#000";
-      el.style.color = "rgb(235, 235, 235)";
-      el.style.fontSize = "1rem";
-      el.style.overflowWrap = "break-word";
-      el.style.lineHeight = "1rem";
-      el.style.maxWidth = "10rem";
-      el.style.opacity = 0.9;
-      el.style.left = x + "px";
-      el.style.top = y + "px";
-    } else {
-      if (tooltipVisible) {
-        changeTooltipVisible(false);
-      }
-      el.style.opacity = 0;
-    }
-  };
-
   useEffect(() => {
     if (typeof loadedData === "object" && loadedData.flat().length > 70000) {
       if (!mapVisible) {
@@ -732,52 +739,30 @@ const App = () => {
       }
     }
   }, [loadedData, mapVisible]);
-  
+
   return (
     <>
-      {(loadedData === "" ||
-        (typeof loadedData === "object" && loadedData.flat().length < 70000)) ?
-        (<div
-          className="loading_container"
-        
-        >
-          {fetchProgress === 0 ? (
-            <GridLoader
-              css={override}
-              size={50}
-              color={loaderColor}
-              style={{ transition: "all 0.5s ease" }}
-              loading={
-                loadedData === "" ||
-                (typeof loadedData === "object" &&
-                  loadedData.flat().length < 70000)
-              }
-            />
-          ) : (
-              <CircularProgressbarWithChildren
-                value={countUp}
-                styles={buildStyles({
-                  strokeLinecap: "butt",
-                  trailColor: "#eee",
-                })}
-              >
-                <GiHandcuffs color="#fff" size="4rem" />
-                <div style={{ fontSize: 30, marginTop: 20, color: "#fff" }}>
-                  <strong>{countUp}%</strong>
-                </div>
-              </CircularProgressbarWithChildren>
-            )}
-          <p>
-            {mapError
-              ? "Error Initializing NYPD Arrest Map"
-              : perfArr.current === 0 && countUp === 0
-                ? "Initializing NYPD Arrest Map"
-                : countUp >= 60
-                  ? "Rendering NYPD Arrest Map"
-                  : "Loading Most Recent Arrest Data"}
-          </p>
-        </div>) : null
-}
+      {loadedData === "" ||
+      (typeof loadedData === "object" && loadedData.flat().length < 70000) ? (
+        <InitialLoader
+          fetchProgress={fetchProgress}
+          override={override}
+          loadedData={loadedData}
+          countUp={countUp}
+          loaderColor={loaderColor}
+          mapError={mapError}
+        />
+      ) : null}
+      {modalActive.active && modalActive.year ? (
+        <SubsequentLoader
+          loadingYears={loadingYears}
+          fetchProgress={fetchProgress}
+          loadedData={loadedData}
+          loadDataChunks={loadDataChunks}
+          modalActive={modalActive}
+          changeModalActive={changeModalActive}
+        />
+      ) : null}
       <div
         className="nypd_arrest_map_container"
         style={{
@@ -788,17 +773,6 @@ const App = () => {
               : 1,
         }}
       >
-        <ToastContainer
-          position="bottom-center"
-          autoClose={false}
-          hideProgressBar={false}
-          newestOnTop={false}
-          closeOnClick={false}
-          rtl={false}
-          pauseOnFocusLoss={false}
-          draggable={false}
-          pauseOnHover={false}
-        />
         <NavigationBar
           loadData={loadedData ? loadedData.flat() : [""]}
           raceUniqueValues={raceUniqueValues}
@@ -814,6 +788,20 @@ const App = () => {
           laddaLoading={laddaLoading}
           filteredData={filteredDataChunks.current}
           handleDownloadYear={handleDownloadYear}
+          yearFilter={yearFilter}
+          changeYearFilter={changeYearFilter}
+          categoryFilter={categoryFilter}
+          changeCategoryFilter={changeCategoryFilter}
+          offenseFilter={offenseFilter}
+          changeOffenseFilter={changeOffenseFilter}
+          ageFilter={ageFilter}
+          changeAgeFilter={changeAgeFilter}
+          raceFilter={raceFilter}
+          changeRaceFilter={changeRaceFilter}
+          sexFilter={sexFilter}
+          changeSexFilter={changeSexFilter}
+          boroughFilter={boroughFilter}
+          changeBoroughFilter={changeBoroughFilter}
         />
         <DeckGL
           initialViewState={{
@@ -824,13 +812,13 @@ const App = () => {
             pitch: 0,
             bearing: 0,
           }}
-          controller={true}
           layers={layersRef.current}
-          onHover={({ object, x, y }) => showTooltip(object, x, y)}
-          onClick={({ object, x, y }) => showTooltip(object, x, y)}
           pickingRadius={10}
+          controller={true}
           onLoad={() => changeMapLoaded(true)}
           onError={(e) => changeMapError(true)}
+          onHover={({ object, x, y }) => showTooltip(object, x, y)}
+          onClick={({ object, x, y }) => showTooltip(object, x, y)}
         >
           <StaticMap
             mapStyle="mapbox://styles/mapbox/dark-v9"
