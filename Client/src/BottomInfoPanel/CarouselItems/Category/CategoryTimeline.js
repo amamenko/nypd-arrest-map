@@ -9,8 +9,11 @@ const CategoryTimeline = (props) => {
     filteredTimelineCategoryData,
     filteredUniqueCategory,
     graphOption,
-    uniqueValues,
   } = props;
+
+  const uniqueValues = (value, index, self) => {
+    return self.indexOf(value) === index;
+  };
 
   const categoryArr = filteredUniqueCategory[0]
     ? filteredUniqueCategory[0]

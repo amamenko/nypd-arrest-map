@@ -28,8 +28,6 @@ const BottomInfoPanel = (props) => {
     filteredArrestCategory,
     filteredUniqueCategory,
 
-    uniqueValues,
-
     filteredAgeGroupData,
     filteredRaceUniqueValues,
     filteredSexUniqueValues,
@@ -269,7 +267,6 @@ const BottomInfoPanel = (props) => {
               filteredArrestCategory={filteredArrestCategory}
               graphOption={graphOption}
               filteredUniqueCategory={filteredUniqueCategory}
-              uniqueValues={uniqueValues}
             />,
             <AgeGroupTimeline
               key="trends"

@@ -434,40 +434,43 @@ const NavigationBar = (props) => {
           className="nav_item"
         >
           <div className="nav_item_content_container">
-            {offenseDescriptionUniqueValues.map((desc, i) => {
-              if (
-                desc &&
-                !(desc.includes("OTHER STATE LAWS") && desc.includes("("))
-              ) {
-                return (
-                  <p key={i}>
-                    <label>
-                      <input
-                        name="my-checkbox"
-                        type="checkbox"
-                        onClick={() => handleOffenseFilters(desc)}
-                      />
-                      {desc
-                        .split(" ")
-                        .map(
-                          (x) => x[0].toUpperCase() + x.slice(1).toLowerCase()
-                        )
-                        .join(" ")
-                        .split("/")
-                        .map(
-                          (x) =>
-                            x[0].toUpperCase() +
-                            x.slice(1, x.indexOf(" ")).toLowerCase() +
-                            x.slice(x.indexOf(" "))
-                        )
-                        .join("/")}
-                    </label>
-                  </p>
-                );
-              } else {
-                return null;
-              }
-            })}
+            {!offenseDescriptionUniqueValues
+              ? null
+              : offenseDescriptionUniqueValues.map((desc, i) => {
+                  if (
+                    desc &&
+                    !(desc.includes("OTHER STATE LAWS") && desc.includes("("))
+                  ) {
+                    return (
+                      <p key={i}>
+                        <label>
+                          <input
+                            name="my-checkbox"
+                            type="checkbox"
+                            onClick={() => handleOffenseFilters(desc)}
+                          />
+                          {desc
+                            .split(" ")
+                            .map(
+                              (x) =>
+                                x[0].toUpperCase() + x.slice(1).toLowerCase()
+                            )
+                            .join(" ")
+                            .split("/")
+                            .map(
+                              (x) =>
+                                x[0].toUpperCase() +
+                                x.slice(1, x.indexOf(" ")).toLowerCase() +
+                                x.slice(x.indexOf(" "))
+                            )
+                            .join("/")}
+                        </label>
+                      </p>
+                    );
+                  } else {
+                    return null;
+                  }
+                })}
           </div>
         </Collapsible>
         <Collapsible
@@ -478,20 +481,22 @@ const NavigationBar = (props) => {
           className="nav_item"
         >
           <div className="nav_item_content_container">
-            {ageGroupData.map((age, i) => {
-              return (
-                <p key={i}>
-                  <label>
-                    <input
-                      name="my-checkbox"
-                      type="checkbox"
-                      onClick={() => handleAgeFilters(age)}
-                    />
-                    {age === "65" ? "65+" : age}
-                  </label>
-                </p>
-              );
-            })}
+            {!ageGroupData
+              ? null
+              : ageGroupData.map((age, i) => {
+                  return (
+                    <p key={i}>
+                      <label>
+                        <input
+                          name="my-checkbox"
+                          type="checkbox"
+                          onClick={() => handleAgeFilters(age)}
+                        />
+                        {age === "65" ? "65+" : age}
+                      </label>
+                    </p>
+                  );
+                })}
           </div>
         </Collapsible>
         <Collapsible
@@ -502,38 +507,41 @@ const NavigationBar = (props) => {
           className="nav_item"
         >
           <div className="nav_item_content_container">
-            {raceUniqueValues.map((race, i) => {
-              if (race) {
-                return (
-                  <p key={i}>
-                    <label>
-                      <input
-                        name="my-checkbox"
-                        type="checkbox"
-                        onClick={() => handleRaceFilters(race)}
-                      />
-                      {race &&
-                        race
-                          .split(" ")
-                          .map(
-                            (x) => x[0].toUpperCase() + x.slice(1).toLowerCase()
-                          )
-                          .join(" ")
-                          .split("/")
-                          .map(
-                            (x) =>
-                              x[0].toUpperCase() +
-                              x.slice(1, x.indexOf(" ")).toLowerCase() +
-                              x.slice(x.indexOf(" "))
-                          )
-                          .join("/")}
-                    </label>
-                  </p>
-                );
-              } else {
-                return null;
-              }
-            })}
+            {!raceUniqueValues
+              ? null
+              : raceUniqueValues.map((race, i) => {
+                  if (race) {
+                    return (
+                      <p key={i}>
+                        <label>
+                          <input
+                            name="my-checkbox"
+                            type="checkbox"
+                            onClick={() => handleRaceFilters(race)}
+                          />
+                          {race &&
+                            race
+                              .split(" ")
+                              .map(
+                                (x) =>
+                                  x[0].toUpperCase() + x.slice(1).toLowerCase()
+                              )
+                              .join(" ")
+                              .split("/")
+                              .map(
+                                (x) =>
+                                  x[0].toUpperCase() +
+                                  x.slice(1, x.indexOf(" ")).toLowerCase() +
+                                  x.slice(x.indexOf(" "))
+                              )
+                              .join("/")}
+                        </label>
+                      </p>
+                    );
+                  } else {
+                    return null;
+                  }
+                })}
           </div>
         </Collapsible>
         <Collapsible
@@ -574,30 +582,32 @@ const NavigationBar = (props) => {
           className="nav_item"
         >
           <div className="nav_item_content_container">
-            {boroughUniqueValues.map((borough, i) => {
-              return (
-                <p key={i}>
-                  <label>
-                    <input
-                      name="my-checkbox"
-                      type="checkbox"
-                      onClick={() => handleBoroughFilters(borough)}
-                    />
-                    {borough === "B"
-                      ? "Bronx"
-                      : borough === "Q"
-                      ? "Queens"
-                      : borough === "M"
-                      ? "Manhattan"
-                      : borough === "K"
-                      ? "Brooklyn"
-                      : borough === "S"
-                      ? "Staten Island"
-                      : "Unknown"}
-                  </label>
-                </p>
-              );
-            })}
+            {!boroughUniqueValues
+              ? null
+              : boroughUniqueValues.map((borough, i) => {
+                  return (
+                    <p key={i}>
+                      <label>
+                        <input
+                          name="my-checkbox"
+                          type="checkbox"
+                          onClick={() => handleBoroughFilters(borough)}
+                        />
+                        {borough === "B"
+                          ? "Bronx"
+                          : borough === "Q"
+                          ? "Queens"
+                          : borough === "M"
+                          ? "Manhattan"
+                          : borough === "K"
+                          ? "Brooklyn"
+                          : borough === "S"
+                          ? "Staten Island"
+                          : "Unknown"}
+                      </label>
+                    </p>
+                  );
+                })}
           </div>
         </Collapsible>
         <span className="spacer" />
