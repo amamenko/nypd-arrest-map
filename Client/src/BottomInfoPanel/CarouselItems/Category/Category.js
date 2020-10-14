@@ -16,19 +16,26 @@ const Category = (props) => {
         <Chart
           chartType="PieChart"
           loader={<DoubleBounce size={100} color="rgb(93, 188, 210)" />}
-          data={[
-            ["Category", "Number of Arrests"],
-            ["Felony", filteredArrestCategory.filter((x) => x === "F").length],
-            [
-              "Misdemeanor",
-              filteredArrestCategory.filter((x) => x === "M").length,
-            ],
-            [
-              "Violation",
-              filteredArrestCategory.filter((x) => x !== "F" && x !== "M")
-                .length,
-            ],
-          ]}
+          data={
+            filteredArrestCategory
+              ? [
+                  ["Category", "Number of Arrests"],
+                  [
+                    "Felony",
+                    filteredArrestCategory.filter((x) => x === "F").length,
+                  ],
+                  [
+                    "Misdemeanor",
+                    filteredArrestCategory.filter((x) => x === "M").length,
+                  ],
+                  [
+                    "Violation",
+                    filteredArrestCategory.filter((x) => x !== "F" && x !== "M")
+                      .length,
+                  ],
+                ]
+              : []
+          }
           options={{
             backgroundColor: "transparent",
           }}

@@ -81,6 +81,15 @@ const App = () => {
     Modal.setAppElement("body");
   }, []);
 
+  // Custom Hook to check for previous state
+  const usePrevious = (value) => {
+    const ref = useRef();
+    useEffect(() => {
+      ref.current = value;
+    });
+    return ref.current;
+  };
+
   const loadedYears = Object.keys(loadDataChunks.current[0]).map((x) =>
     Number(x)
   );
@@ -152,202 +161,320 @@ const App = () => {
     return /\d/.test(input);
   };
 
-  const postToMapFilterWorker = (chunk, arrName, specificName) => {
-    if (timelineWorkerInstance) {
-      let returnedData = [];
+  const [ageGroup, changeAgeGroup] = useState([]);
+  const [raceArr, changeRaceArr] = useState([]);
+  const [boroughArr, changeBoroughArr] = useState([]);
+  const [offenseDescriptionArr, changeOffenseDescriptionArr] = useState([]);
+  const [filteredArrestCategory, changeFilteredArrestCategory] = useState([]);
+  const [filteredAgeGroup, changeFilteredAgeGroup] = useState([]);
+  const [filteredSexArr, changeFilteredSexArr] = useState([]);
+  const [filteredRaceArr, changeFilteredRaceArr] = useState([]);
+  const [filteredBoroughArr, changeFilteredBoroughArr] = useState([]);
+  const [
+    filteredOffenseDescriptionArr,
+    changeFilteredOffenseDescriptionArr,
+  ] = useState([]);
+  const [filteredUniqueCategory, changeFilteredUniqueCategory] = useState([]);
+  const [filteredUniqueDates, changeFilteredUniqueDates] = useState([]);
 
-      // Send from main thread to web worker
-      timelineWorkerInstance.postMessage({
-        chunk: chunk,
-        arrName: arrName,
-        filterExactName: specificName,
-      });
+  const postToMapFilterWorker = useCallback(
+    (chunk, arrName, specificName) => {
+      if (mapFilterWorkerInstance) {
+        // Send from main thread to web worker
+        mapFilterWorkerInstance.postMessage({
+          chunk: chunk,
+          arrName: arrName,
+          filterExactName: specificName,
+        });
 
-      timelineWorkerInstance.onmessage = (receivedData) => {
-        if (returnedData.length === 0) {
-          JSON.parse(receivedData.data).forEach((x) => returnedData.push(x));
-        }
-      };
+        mapFilterWorkerInstance.onmessage = (receivedData) => {
+          const parsedData = JSON.parse(receivedData.data);
 
-      return returnedData;
-    }
-  };
+          const arrayName = parsedData.arrayName;
+          const returnedArr = parsedData.returnedArr;
 
-  const ageGroup =
-    loadData.length > 0
-      ? postToMapFilterWorker(loadData, "ageGroup", "AGE_GROUP")
-      : [];
-
-  const raceArr =
-    loadData.length > 0
-      ? postToMapFilterWorker(loadData, "raceArr", "PERP_RACE")
-      : [];
-
-  const boroughArr =
-    loadData.length > 0
-      ? postToMapFilterWorker(loadData, "boroughArr", "ARREST_BORO")
-      : [];
-
-  const offenseDescriptionArr = postToMapFilterWorker(
-    loadData,
-    "offenseDescriptionArr",
-    "OFNS_DESC"
-  );
-
-  const filteredArrestCategory = postToMapFilterWorker(
-    filteredData,
-    "filteredArrestCategory",
-    "LAW_CAT_CD"
-  );
-
-  const filteredAgeGroup = postToMapFilterWorker(
-    filteredData,
-    "filteredAgeGroup",
-    "AGE_GROUP"
-  );
-
-  const filteredSexArr = postToMapFilterWorker(
-    filteredData,
-    "filteredSexArr",
-    "PERP_SEX"
-  );
-
-  const filteredRaceArr = postToMapFilterWorker(
-    filteredData,
-    "filteredRaceArr",
-    "PERP_RACE"
-  );
-
-  const filteredBoroughArr = postToMapFilterWorker(
-    filteredData,
-    "filteredBoroughArr",
-    "ARREST_BORO"
-  );
-
-  const filteredOffenseDescriptionArr = postToMapFilterWorker(
-    filteredData,
-    "filteredOffenseDescriptionArr",
-    "OFNS_DESC"
-  );
-
-  const filteredUniqueCategory = postToMapFilterWorker(
-    filteredDataChunks.current,
-    "filteredUniqueCategory",
-    "LAW_CAT_CD"
-  );
-
-  const filteredUniqueDates = postToMapFilterWorker(
-    filteredDataChunks.current,
-    "filteredUniqueDates",
-    "ARREST_DATE"
-  );
-
-  const postToTimelineWorker = (chunk, generalName, specificName) => {
-    if (timelineWorkerInstance) {
-      let returnedData = [];
-
-      // Send from main thread to web worker
-      timelineWorkerInstance.postMessage({
-        chunk: chunk,
-        filterGeneralName: generalName,
-        filterExactName: specificName,
-      });
-
-      timelineWorkerInstance.onmessage = (receivedData) => {
-        if (returnedData.length === 0) {
-          JSON.parse(receivedData.data).forEach((x) => returnedData.push(x));
-        }
-      };
-
-      return returnedData;
-    }
-  };
-
-  const filteredTimelineAgeGroupData = postToTimelineWorker(
-    filteredDataChunks.current,
-    "age_group",
-    "AGE_GROUP"
-  );
-
-  const filteredTimelineBoroughData = postToTimelineWorker(
-    filteredDataChunks.current,
-    "borough",
-    "ARREST_BORO"
-  );
-
-  const filteredTimelineCategoryData = postToTimelineWorker(
-    filteredDataChunks.current,
-    "category",
-    "LAW_CAT_CD"
-  );
-
-  const filteredTimelineSexData = postToTimelineWorker(
-    filteredDataChunks.current,
-    "sex",
-    "PERP_SEX"
-  );
-
-  const filteredTimelineRaceData = postToTimelineWorker(
-    filteredDataChunks.current,
-    "race",
-    "PERP_RACE"
-  );
-
-  const postToFilteredWorker = (arrName, arr) => {
-    if (filterWorkerInstance) {
-      let returnedData = [];
-
-      // Send from main thread to web worker
-      filterWorkerInstance.postMessage({ arrName: arrName, arr: arr });
-
-      filterWorkerInstance.onmessage = (receivedData) => {
-        const parsedData = JSON.parse(receivedData.data);
-
-        const arrayName = parsedData.arrayName;
-        const returnedArr = parsedData.returnedArr;
-
-        if (arrayName === arrName) {
-          console.log(arrName);
-          if (returnedData.length === 0) {
-            returnedArr.forEach((x) => returnedData.push(x));
+          if (arrayName === arrName) {
+            if (arrayName === "ageGroup") {
+              changeAgeGroup(returnedArr);
+            } else if (arrayName === "raceArr") {
+              changeRaceArr(returnedArr);
+            } else if (arrayName === "boroughArr") {
+              changeBoroughArr(returnedArr);
+            } else if (arrayName === "offenseDescriptionArr") {
+              changeOffenseDescriptionArr(returnedArr);
+            } else if (arrayName === "filteredArrestCategory") {
+              changeFilteredArrestCategory(returnedArr);
+            } else if (arrayName === "filteredAgeGroup") {
+              changeFilteredAgeGroup(returnedArr);
+            } else if (arrayName === "filteredSexArr") {
+              changeFilteredSexArr(returnedArr);
+            } else if (arrayName === "filteredRaceArr") {
+              changeFilteredRaceArr(returnedArr);
+            } else if (arrayName === "filteredBoroughArr") {
+              changeFilteredBoroughArr(returnedArr);
+            } else if (arrayName === "filteredOffenseDescriptionArr") {
+              changeFilteredOffenseDescriptionArr(returnedArr);
+            } else if (arrayName === "filteredUniqueCategory") {
+              changeFilteredUniqueCategory(returnedArr);
+            } else {
+              changeFilteredUniqueDates(returnedArr);
+            }
           }
-        }
-      };
+        };
+      }
+    },
+    [mapFilterWorkerInstance]
+  );
+
+  const prevLoadData = usePrevious(loadData);
+
+  useEffect(() => {
+    if (loadData && loadData.length > 0 && prevLoadData) {
+      if (loadData[0] !== prevLoadData[0]) {
+        postToMapFilterWorker(loadData, "ageGroup", "AGE_GROUP");
+        postToMapFilterWorker(loadData, "raceArr", "PERP_RACE");
+        postToMapFilterWorker(loadData, "boroughArr", "ARREST_BORO");
+        postToMapFilterWorker(loadData, "offenseDescriptionArr", "OFNS_DESC");
+      }
     }
-  };
+  }, [loadData, postToMapFilterWorker, prevLoadData]);
 
-  const filteredAgeGroupData = postToFilteredWorker(
-    "filteredAgeGroupData",
-    filteredAgeGroup
+  const prevFilteredData = usePrevious(filteredData);
+
+  useEffect(() => {
+    if (filteredData && prevFilteredData) {
+      if (filteredData[0] !== prevFilteredData[0]) {
+        postToMapFilterWorker(
+          filteredData,
+          "filteredArrestCategory",
+          "LAW_CAT_CD"
+        );
+        postToMapFilterWorker(filteredData, "filteredAgeGroup", "AGE_GROUP");
+        postToMapFilterWorker(filteredData, "filteredSexArr", "PERP_SEX");
+        postToMapFilterWorker(filteredData, "filteredRaceArr", "PERP_RACE");
+        postToMapFilterWorker(
+          filteredData,
+          "filteredBoroughArr",
+          "ARREST_BORO"
+        );
+        postToMapFilterWorker(
+          filteredData,
+          "filteredOffenseDescriptionArr",
+          "OFNS_DESC"
+        );
+      }
+    }
+  }, [filteredData, postToMapFilterWorker, prevFilteredData]);
+
+  const [
+    filteredTimelineAgeGroupData,
+    changeFilteredTimelineAgeGroupData,
+  ] = useState([]);
+  const [
+    filteredTimelineBoroughData,
+    changeFilteredTimelineBoroughData,
+  ] = useState([]);
+  const [
+    filteredTimelineCategoryData,
+    changeFilteredTimelineCategoryData,
+  ] = useState([]);
+  const [filteredTimelineSexData, changeFilteredTimelineSexData] = useState([]);
+  const [filteredTimelineRaceData, changeFilteredTimelineRaceData] = useState(
+    []
   );
 
-  const filteredRaceUniqueValues = postToFilteredWorker(
-    "filteredRaceUniqueValues",
-    filteredRaceArr
-  );
-  const filteredSexUniqueValues = postToFilteredWorker(
-    "filteredSexUniqueValues",
-    filteredSexArr
-  );
-  const filteredBoroughUniqueValues = postToFilteredWorker(
-    "filteredBoroughUniqueValues",
-    filteredBoroughArr
-  );
-  const filteredOffenseDescriptionUniqueValues = postToFilteredWorker(
-    "filteredOffenseDescriptionUniqueValues",
-    filteredOffenseDescriptionArr
+  const postToTimelineWorker = useCallback(
+    (chunk, generalName, specificName) => {
+      if (timelineWorkerInstance) {
+        // Send from main thread to web worker
+        timelineWorkerInstance.postMessage({
+          chunk: chunk,
+          filterGeneralName: generalName,
+          filterExactName: specificName,
+        });
+
+        timelineWorkerInstance.onmessage = (receivedData) => {
+          const parsedData = JSON.parse(receivedData.data);
+
+          const arrayName = parsedData.arrayName;
+          const returnedArr = parsedData.returnedArr;
+
+          if (arrayName === generalName) {
+            if (arrayName === "age") {
+              changeFilteredTimelineAgeGroupData(returnedArr);
+            } else if (arrayName === "borough") {
+              changeFilteredTimelineBoroughData(returnedArr);
+            } else if (arrayName === "category") {
+              changeFilteredTimelineCategoryData(returnedArr);
+            } else if (arrayName === "sex") {
+              changeFilteredTimelineSexData(returnedArr);
+            } else {
+              changeFilteredTimelineRaceData(returnedArr);
+            }
+          }
+        };
+      }
+    },
+    [timelineWorkerInstance]
   );
 
-  const ageGroupData = postToFilteredWorker("ageGroupData", ageGroup);
-  const raceUniqueValues = postToFilteredWorker("raceUniqueValues", raceArr);
-  const boroughUniqueValues = postToFilteredWorker(
-    "boroughUniqueValues",
-    boroughArr
+  useEffect(() => {
+    if (filteredDataChunks.current) {
+      postToMapFilterWorker(
+        filteredDataChunks.current,
+        "filteredUniqueCategory",
+        "LAW_CAT_CD"
+      );
+      postToMapFilterWorker(
+        filteredDataChunks.current,
+        "filteredUniqueDates",
+        "ARREST_DATE"
+      );
+
+      postToTimelineWorker(
+        filteredDataChunks.current,
+        "age_group",
+        "AGE_GROUP"
+      );
+
+      postToTimelineWorker(
+        filteredDataChunks.current,
+        "borough",
+        "ARREST_BORO"
+      );
+
+      postToTimelineWorker(
+        filteredDataChunks.current,
+        "category",
+        "LAW_CAT_CD"
+      );
+
+      postToTimelineWorker(filteredDataChunks.current, "sex", "PERP_SEX");
+
+      postToTimelineWorker(filteredDataChunks.current, "race", "PERP_RACE");
+    }
+  }, [postToMapFilterWorker, postToTimelineWorker]);
+
+  const [filteredAgeGroupData, changeFilteredAgeGroupData] = useState([]);
+  const [filteredRaceUniqueValues, changeFilteredRaceUniqueValues] = useState(
+    []
   );
-  const offenseDescriptionUniqueValues = postToFilteredWorker(
-    "offenseDescriptionUniqueValues",
-    offenseDescriptionArr
+  const [filteredSexUniqueValues, changeFilteredSexUniqueValues] = useState([]);
+  const [
+    filteredBoroughUniqueValues,
+    changeFilteredBoroughUniqueValues,
+  ] = useState([]);
+  const [
+    filteredOffenseDescriptionUniqueValues,
+    changeFilteredOffenseDescriptionUniqueValues,
+  ] = useState([]);
+  const [ageGroupData, changeAgeGroupData] = useState([]);
+  const [raceUniqueValues, changeRaceUniqueValues] = useState([]);
+  const [boroughUniqueValues, changeBoroughUniqueValues] = useState([]);
+  const [
+    offenseDescriptionUniqueValues,
+    changeOffenseDescriptionUniqueValues,
+  ] = useState([]);
+
+  const postToFilteredWorker = useCallback(
+    (arrName, arr) => {
+      if (filterWorkerInstance) {
+        // Send from main thread to web worker
+        filterWorkerInstance.postMessage({ arrName: arrName, arr: arr });
+
+        filterWorkerInstance.onmessage = (receivedData) => {
+          const parsedData = JSON.parse(receivedData.data);
+
+          const arrayName = parsedData.arrayName;
+          const returnedArr = parsedData.returnedArr;
+
+          if (arrayName === arrName) {
+            if (arrayName === "filteredAgeGroupData") {
+              changeFilteredAgeGroupData(returnedArr);
+            } else if (arrayName === "filteredRaceUniqueValues") {
+              changeFilteredRaceUniqueValues(returnedArr);
+            } else if (arrayName === "filteredSexUniqueValues") {
+              changeFilteredSexUniqueValues(returnedArr);
+            } else if (arrayName === "filteredBoroughUniqueValues") {
+              changeFilteredBoroughUniqueValues(returnedArr);
+            } else if (arrayName === "filteredOffenseDescriptionUniqueValues") {
+              changeFilteredOffenseDescriptionUniqueValues(returnedArr);
+            } else if (arrayName === "ageGroupData") {
+              changeAgeGroupData(returnedArr);
+            } else if (arrayName === "raceUniqueValues") {
+              changeRaceUniqueValues(returnedArr);
+            } else if (arrayName === "boroughUniqueValues") {
+              changeBoroughUniqueValues(returnedArr);
+            } else {
+              changeOffenseDescriptionUniqueValues(returnedArr);
+            }
+          }
+        };
+      }
+    },
+    [filterWorkerInstance]
   );
+
+  useEffect(() => {
+    if (filteredAgeGroup) {
+      console.log("OKAY FRIEND");
+      postToFilteredWorker("filteredAgeGroupData", filteredAgeGroup);
+    }
+  }, [filteredAgeGroup, postToFilteredWorker]);
+
+  useEffect(() => {
+    if (filteredRaceArr) {
+      postToFilteredWorker("filteredRaceUniqueValues", filteredRaceArr);
+    }
+  }, [filteredRaceArr, postToFilteredWorker]);
+
+  useEffect(() => {
+    if (filteredSexArr) {
+      postToFilteredWorker("filteredSexUniqueValues", filteredSexArr);
+    }
+  }, [filteredSexArr, postToFilteredWorker]);
+
+  useEffect(() => {
+    if (filteredBoroughArr) {
+      postToFilteredWorker("filteredBoroughUniqueValues", filteredBoroughArr);
+    }
+  }, [filteredBoroughArr, postToFilteredWorker]);
+
+  useEffect(() => {
+    if (filteredOffenseDescriptionArr) {
+      postToFilteredWorker(
+        "filteredOffenseDescriptionUniqueValues",
+        filteredOffenseDescriptionArr
+      );
+    }
+  }, [filteredOffenseDescriptionArr, postToFilteredWorker]);
+
+  useEffect(() => {
+    if (ageGroup) {
+      postToFilteredWorker("ageGroupData", ageGroup);
+    }
+  }, [ageGroup, postToFilteredWorker]);
+
+  useEffect(() => {
+    if (raceArr) {
+      postToFilteredWorker("raceUniqueValues", raceArr);
+    }
+  }, [raceArr, postToFilteredWorker]);
+
+  useEffect(() => {
+    if (boroughArr) {
+      postToFilteredWorker("boroughUniqueValues", boroughArr);
+    }
+  }, [boroughArr, postToFilteredWorker]);
+
+  useEffect(() => {
+    if (offenseDescriptionArr) {
+      postToFilteredWorker(
+        "offenseDescriptionUniqueValues",
+        offenseDescriptionArr
+      );
+    }
+  }, [offenseDescriptionArr, postToFilteredWorker]);
 
   useEffect(() => {
     if (!mapError) {
@@ -665,12 +792,13 @@ const App = () => {
                   arrName === "filteredUniqueDates"
                 ) {
                   postMessage(
-                    JSON.stringify(
-                      chunk
+                    JSON.stringify({
+                      arrayName: arrName,
+                      returnedArr: chunk
                         .map((x) => x[filterExactName])
                         .filter((x) => x !== filterExactName)
-                        .filter(uniqueValues)
-                    )
+                        .filter(uniqueValues),
+                    })
                   );
                 } else if (
                   arrName.includes("filtered") &&
@@ -678,19 +806,21 @@ const App = () => {
                   arrName !== "filteredOffenseDescriptionArr"
                 ) {
                   postMessage(
-                    JSON.stringify(
-                      chunk
+                    JSON.stringify({
+                      arrayName: arrName,
+                      returnedArr: chunk
                         .map((x) => x[filterExactName])
-                        .filter((x) => x !== filterExactName)
-                    )
+                        .filter((x) => x !== filterExactName),
+                    })
                   );
                 } else if (
                   arrName === "boroughArr" ||
                   arrName === "filteredBoroughArr"
                 ) {
                   postMessage(
-                    JSON.stringify(
-                      chunk
+                    JSON.stringify({
+                      arrayName: arrName,
+                      returnedArr: chunk
                         .map((x) => {
                           if (
                             x[filterExactName] === "K" &&
@@ -723,29 +853,31 @@ const App = () => {
                             return x[filterExactName];
                           }
                         })
-                        .filter((x) => x !== filterExactName)
-                    )
+                        .filter((x) => x !== filterExactName),
+                    })
                   );
                 } else if (
                   arrName === "offenseDescriptionArr" ||
                   arrName === "filteredOffenseDescriptionArr"
                 ) {
                   postMessage(
-                    JSON.stringify(
-                      chunk.map(
+                    JSON.stringify({
+                      arrayName: arrName,
+                      returnedArr: chunk.map(
                         (x) =>
                           x[filterExactName] !== "OFNS_DESC" &&
                           x[filterExactName]
-                      )
-                    )
+                      ),
+                    })
                   );
                 } else {
                   postMessage(
-                    JSON.stringify(
-                      chunk
+                    JSON.stringify({
+                      arrayName: arrName,
+                      returnedArr: chunk
                         .map((x) => x[filterExactName])
-                        .filter((x) => x !== filterExactName)
-                    )
+                        .filter((x) => x !== filterExactName),
+                    })
                   );
                 }
               };
@@ -781,8 +913,9 @@ const App = () => {
 
                 if (filterGeneralName === "category") {
                   postMessage(
-                    JSON.stringify(
-                      chunk.map((item) =>
+                    JSON.stringify({
+                      arrayName: filterGeneralName,
+                      returnedArr: chunk.map((item) =>
                         item
                           .map((x) => {
                             return {
@@ -800,13 +933,14 @@ const App = () => {
                               x.date !== "ARREST_DATE" &&
                               x[filterGeneralName] !== filterExactName
                           )
-                      )
-                    )
+                      ),
+                    })
                   );
                 } else if (filterGeneralName === "sex") {
                   postMessage(
-                    JSON.stringify(
-                      chunk.map((item) =>
+                    JSON.stringify({
+                      arrayName: filterGeneralName,
+                      returnedArr: chunk.map((item) =>
                         item
                           .map((x) => {
                             return {
@@ -820,13 +954,14 @@ const App = () => {
                               x.date !== "ARREST_DATE" &&
                               x[filterGeneralName] !== filterExactName
                           )
-                      )
-                    )
+                      ),
+                    })
                   );
                 } else {
                   postMessage(
-                    JSON.stringify(
-                      chunk.map((item) => {
+                    JSON.stringify({
+                      arrayName: filterGeneralName,
+                      returnedArr: chunk.map((item) => {
                         if (item instanceof Array) {
                           return item
                             .map((x) => {
@@ -843,8 +978,8 @@ const App = () => {
                         } else {
                           return null;
                         }
-                      })
-                    )
+                      }),
+                    })
                   );
                 }
               };
@@ -888,31 +1023,33 @@ const App = () => {
                   postMessage(
                     JSON.stringify({
                       arrayName: name,
-                      returnedArr: arr.filter(uniqueValues).sort((a, b) => {
-                        const first = hasNumber(a)
-                          ? Number(
-                              a.split(a[0] === "<" ? "<" : "-")[
-                                a[0] === "<" ? 1 : 0
-                              ]
-                            )
-                          : null;
-                        const second = hasNumber(b)
-                          ? Number(
-                              b.split(b[0] === "<" ? "<" : "-")[
-                                b[0] === "<" ? 1 : 0
-                              ]
-                            )
-                          : null;
+                      returnedArr: arr
+                        ? arr.filter(uniqueValues).sort((a, b) => {
+                            const first = hasNumber(a)
+                              ? Number(
+                                  a.split(a[0] === "<" ? "<" : "-")[
+                                    a[0] === "<" ? 1 : 0
+                                  ]
+                                )
+                              : null;
+                            const second = hasNumber(b)
+                              ? Number(
+                                  b.split(b[0] === "<" ? "<" : "-")[
+                                    b[0] === "<" ? 1 : 0
+                                  ]
+                                )
+                              : null;
 
-                        return first - second;
-                      }),
+                            return first - second;
+                          })
+                        : [],
                     })
                   );
                 } else {
                   postMessage(
                     JSON.stringify({
                       arrayName: name,
-                      returnedArr: arr.filter(uniqueValues).sort(),
+                      returnedArr: arr ? arr.filter(uniqueValues).sort() : [],
                     })
                   );
                 }

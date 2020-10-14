@@ -10,6 +10,7 @@ const TopOffenses = (props) => {
   } = props;
 
   const sortedArr =
+    filteredOffenseDescriptionArr &&
     filteredOffenseDescriptionArr.length > 0 &&
     filteredOffenseDescriptionUniqueValues.length > 0
       ? filteredOffenseDescriptionUniqueValues
