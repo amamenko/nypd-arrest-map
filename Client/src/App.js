@@ -21,12 +21,21 @@ import { useCountUp } from "react-countup";
 import InitialLoader from "./InitialLoader";
 import SubsequentLoader from "./SubsequentLoader";
 import Modal from "react-modal";
+import { useDispatch, useSelector } from "react-redux";
 
 dayjs.extend(customParseFormat);
 
 const App = () => {
+  const dispatch = useDispatch();
+
+  // const filteredDataChunks = useSelector(
+  //   (state) => state.filteredDataChunksReducer.data
+  // );
+  // const loadDataChunks = useSelector(
+  //   (state) => state.loadDataChunksReducer.data
+  // );
+
   const [mapLoaded, changeMapLoaded] = useState(false);
-  const [loadedData, changeLoadedData] = useState("");
   const [tooltipVisible, changeTooltipVisible] = useState(false);
   const [loaderColor, changeLoaderColor] = useState("rgb(93, 188, 210)");
   const [mapError, changeMapError] = useState(false);
@@ -75,6 +84,11 @@ const App = () => {
   let loadDataChunks = useRef([{}]);
   let filteredDataChunks = useRef([]);
   let progressVal = useRef("");
+
+  // Returned Refs
+  let loadedData = useRef([]);
+
+  let loadData = loadedData ? loadedData.current.flat() : [""];
 
   // Needed for screen-readers
   useEffect(() => {
@@ -153,13 +167,7 @@ const App = () => {
     margin: 0 auto;
   `;
 
-  const loadData = loadedData ? loadedData.flat() : [""];
-
   const filteredData = filteredDataChunks.current.flat();
-
-  const hasNumber = (input) => {
-    return /\d/.test(input);
-  };
 
   const [ageGroup, changeAgeGroup] = useState([]);
   const [raceArr, changeRaceArr] = useState([]);
@@ -193,32 +201,30 @@ const App = () => {
           const arrayName = parsedData.arrayName;
           const returnedArr = parsedData.returnedArr;
 
-          if (arrayName === arrName) {
-            if (arrayName === "ageGroup") {
-              changeAgeGroup(returnedArr);
-            } else if (arrayName === "raceArr") {
-              changeRaceArr(returnedArr);
-            } else if (arrayName === "boroughArr") {
-              changeBoroughArr(returnedArr);
-            } else if (arrayName === "offenseDescriptionArr") {
-              changeOffenseDescriptionArr(returnedArr);
-            } else if (arrayName === "filteredArrestCategory") {
-              changeFilteredArrestCategory(returnedArr);
-            } else if (arrayName === "filteredAgeGroup") {
-              changeFilteredAgeGroup(returnedArr);
-            } else if (arrayName === "filteredSexArr") {
-              changeFilteredSexArr(returnedArr);
-            } else if (arrayName === "filteredRaceArr") {
-              changeFilteredRaceArr(returnedArr);
-            } else if (arrayName === "filteredBoroughArr") {
-              changeFilteredBoroughArr(returnedArr);
-            } else if (arrayName === "filteredOffenseDescriptionArr") {
-              changeFilteredOffenseDescriptionArr(returnedArr);
-            } else if (arrayName === "filteredUniqueCategory") {
-              changeFilteredUniqueCategory(returnedArr);
-            } else {
-              changeFilteredUniqueDates(returnedArr);
-            }
+          if (arrayName === "ageGroup") {
+            changeAgeGroup(returnedArr);
+          } else if (arrayName === "raceArr") {
+            changeRaceArr(returnedArr);
+          } else if (arrayName === "boroughArr") {
+            changeBoroughArr(returnedArr);
+          } else if (arrayName === "offenseDescriptionArr") {
+            changeOffenseDescriptionArr(returnedArr);
+          } else if (arrayName === "filteredArrestCategory") {
+            changeFilteredArrestCategory(returnedArr);
+          } else if (arrayName === "filteredAgeGroup") {
+            changeFilteredAgeGroup(returnedArr);
+          } else if (arrayName === "filteredSexArr") {
+            changeFilteredSexArr(returnedArr);
+          } else if (arrayName === "filteredRaceArr") {
+            changeFilteredRaceArr(returnedArr);
+          } else if (arrayName === "filteredBoroughArr") {
+            changeFilteredBoroughArr(returnedArr);
+          } else if (arrayName === "filteredOffenseDescriptionArr") {
+            changeFilteredOffenseDescriptionArr(returnedArr);
+          } else if (arrayName === "filteredUniqueCategory") {
+            changeFilteredUniqueCategory(returnedArr);
+          } else {
+            changeFilteredUniqueDates(returnedArr);
           }
         };
       }
@@ -299,18 +305,16 @@ const App = () => {
           const arrayName = parsedData.arrayName;
           const returnedArr = parsedData.returnedArr;
 
-          if (arrayName === generalName) {
-            if (arrayName === "age") {
-              changeFilteredTimelineAgeGroupData(returnedArr);
-            } else if (arrayName === "borough") {
-              changeFilteredTimelineBoroughData(returnedArr);
-            } else if (arrayName === "category") {
-              changeFilteredTimelineCategoryData(returnedArr);
-            } else if (arrayName === "sex") {
-              changeFilteredTimelineSexData(returnedArr);
-            } else {
-              changeFilteredTimelineRaceData(returnedArr);
-            }
+          if (arrayName === "age") {
+            changeFilteredTimelineAgeGroupData(returnedArr);
+          } else if (arrayName === "borough") {
+            changeFilteredTimelineBoroughData(returnedArr);
+          } else if (arrayName === "category") {
+            changeFilteredTimelineCategoryData(returnedArr);
+          } else if (arrayName === "sex") {
+            changeFilteredTimelineSexData(returnedArr);
+          } else {
+            changeFilteredTimelineRaceData(returnedArr);
           }
         };
       }
@@ -388,26 +392,24 @@ const App = () => {
           const arrayName = parsedData.arrayName;
           const returnedArr = parsedData.returnedArr;
 
-          if (arrayName === arrName) {
-            if (arrayName === "filteredAgeGroupData") {
-              changeFilteredAgeGroupData(returnedArr);
-            } else if (arrayName === "filteredRaceUniqueValues") {
-              changeFilteredRaceUniqueValues(returnedArr);
-            } else if (arrayName === "filteredSexUniqueValues") {
-              changeFilteredSexUniqueValues(returnedArr);
-            } else if (arrayName === "filteredBoroughUniqueValues") {
-              changeFilteredBoroughUniqueValues(returnedArr);
-            } else if (arrayName === "filteredOffenseDescriptionUniqueValues") {
-              changeFilteredOffenseDescriptionUniqueValues(returnedArr);
-            } else if (arrayName === "ageGroupData") {
-              changeAgeGroupData(returnedArr);
-            } else if (arrayName === "raceUniqueValues") {
-              changeRaceUniqueValues(returnedArr);
-            } else if (arrayName === "boroughUniqueValues") {
-              changeBoroughUniqueValues(returnedArr);
-            } else {
-              changeOffenseDescriptionUniqueValues(returnedArr);
-            }
+          if (arrayName === "filteredAgeGroupData") {
+            changeFilteredAgeGroupData(returnedArr);
+          } else if (arrayName === "filteredRaceUniqueValues") {
+            changeFilteredRaceUniqueValues(returnedArr);
+          } else if (arrayName === "filteredSexUniqueValues") {
+            changeFilteredSexUniqueValues(returnedArr);
+          } else if (arrayName === "filteredBoroughUniqueValues") {
+            changeFilteredBoroughUniqueValues(returnedArr);
+          } else if (arrayName === "filteredOffenseDescriptionUniqueValues") {
+            changeFilteredOffenseDescriptionUniqueValues(returnedArr);
+          } else if (arrayName === "ageGroupData") {
+            changeAgeGroupData(returnedArr);
+          } else if (arrayName === "raceUniqueValues") {
+            changeRaceUniqueValues(returnedArr);
+          } else if (arrayName === "boroughUniqueValues") {
+            changeBoroughUniqueValues(returnedArr);
+          } else {
+            changeOffenseDescriptionUniqueValues(returnedArr);
           }
         };
       }
@@ -417,7 +419,6 @@ const App = () => {
 
   useEffect(() => {
     if (filteredAgeGroup) {
-      console.log("OKAY FRIEND");
       postToFilteredWorker("filteredAgeGroupData", filteredAgeGroup);
     }
   }, [filteredAgeGroup, postToFilteredWorker]);
@@ -478,7 +479,7 @@ const App = () => {
 
   useEffect(() => {
     if (!mapError) {
-      while (loadedData === "") {
+      while (loadedData.current.length) {
         const colorChangeInterval = setInterval(() => {
           if (loaderColor === "rgb(93, 188, 210)") {
             changeLoaderColor("rgb(255, 255, 255)");
@@ -592,29 +593,41 @@ const App = () => {
     });
   }, [filteredDataChunks]);
 
+  const handleChangeLoadedData = (item) => {
+    if (loadedData) {
+      loadedData.current = item;
+    }
+  };
+
   const onNewDataArrive = useCallback(
     (chunk, dataIndex) => {
       const chunkYear = chunk.year;
+      const currentLoadedRef = loadDataChunks.current[0];
+      const currentFilteredRef = filteredDataChunks.current;
 
-      if (!loadDataChunks.current[0][chunkYear.toString()]) {
-        loadDataChunks.current[0][chunkYear.toString()] = [chunk.data];
+      if (!currentLoadedRef[chunkYear.toString()]) {
+        currentLoadedRef[chunkYear.toString()] = [chunk.data];
+
+        // handleChangeLoadedDataChunks(currentLoadedRef);
       } else {
-        loadDataChunks.current[0][chunkYear.toString()].push(chunk.data);
+        currentLoadedRef[chunkYear.toString()].push(chunk.data);
+
+        // handleChangeLoadedDataChunks(currentLoadedRef);
       }
 
-      if (filteredDataChunks.current[dataIndex]) {
-        filteredDataChunks.current[dataIndex] = filteredDataChunks.current[
-          dataIndex
-        ].concat(chunk.data);
+      if (currentFilteredRef[dataIndex]) {
+        currentFilteredRef[dataIndex] = currentFilteredRef[dataIndex].concat(
+          chunk.data
+        );
+
+        handleChangeLoadedData(currentFilteredRef);
       } else {
-        filteredDataChunks.current.push(chunk.data);
+        currentFilteredRef.push(chunk.data);
+
+        handleChangeLoadedData(currentFilteredRef);
       }
 
-      changeLoadedData(filteredDataChunks.current);
-
-      const currentYearDataLength = loadDataChunks.current[0][
-        chunkYear.toString()
-      ]
+      const currentYearDataLength = currentLoadedRef[chunkYear.toString()]
         .map((x) => x.length)
         .reduce((a, b) => a + b, 0);
 
@@ -639,8 +652,9 @@ const App = () => {
   useEffect(() => {
     if (
       fetchProgress !== 1 &&
-      (loadedData === "" ||
-        (typeof loadedData === "object" && loadedData.flat().length < 70000))
+      (loadedData.current.length === 0 ||
+        (typeof loadedData.current === "object" &&
+          loadedData.current.flat().length < 70000))
     ) {
       const progressInt = setInterval(() => {
         if (Number(fetchProgress) !== Number(progressVal.current)) {
@@ -652,7 +666,7 @@ const App = () => {
         clearInterval(progressInt);
       };
     }
-  }, [fetchProgress, loadedData]);
+  }, [fetchProgress]);
 
   const dataFetch = useCallback(
     (year, dataIndex) => {
@@ -763,7 +777,7 @@ const App = () => {
       [],
       [],
       [],
-      loadedData ? loadedData.flat() : [""]
+      loadedData ? loadedData.current.flat() : [""]
     );
   };
 
@@ -1011,6 +1025,10 @@ const App = () => {
                   return self.indexOf(value) === index;
                 };
 
+                const hasNumber = (input) => {
+                  return /\d/.test(input);
+                };
+
                 const dataSent = e.data;
 
                 const name = dataSent.arrName;
@@ -1131,22 +1149,25 @@ const App = () => {
       if (!loadedYears.includes(2020)) {
         if (loadingYears.length === 0) {
           changeLoadingYears([2020]);
-          dataFetch(2020, loadedData.length);
+          dataFetch(2020, loadedData.current.length);
         }
       } else {
         if (
           loadingYears.length > 0 &&
           !loadDataChunks.current[0][loadingYears[0]]
         ) {
-          dataFetch(loadingYears[0], loadedData.length);
+          dataFetch(loadingYears[0], loadedData.current.length);
           changeLoadingYears([]);
         }
       }
     }
-  }, [workerInstance, dataFetch, loadedYears, loadingYears, loadedData.length]);
+  }, [workerInstance, dataFetch, loadedYears, loadingYears]);
 
   useEffect(() => {
-    if (typeof loadedData === "object" && loadedData.flat().length > 70000) {
+    if (
+      typeof loadedData.current === "object" &&
+      loadedData.current.flat().length > 70000
+    ) {
       if (!mapVisible) {
         changeMapVisible(true);
       }
@@ -1155,12 +1176,13 @@ const App = () => {
 
   return (
     <>
-      {loadedData === "" ||
-      (typeof loadedData === "object" && loadedData.flat().length < 70000) ? (
+      {loadedData.current.length === 0 ||
+      (typeof loadedData.current === "object" &&
+        loadedData.current.flat().length < 70000) ? (
         <InitialLoader
           fetchProgress={fetchProgress}
           override={override}
-          loadedData={loadedData}
+          loadedData={loadedData.current}
           countUp={countUp}
           loaderColor={loaderColor}
           mapError={mapError}
@@ -1170,7 +1192,7 @@ const App = () => {
         <SubsequentLoader
           loadingYears={loadingYears}
           fetchProgress={fetchProgress}
-          loadedData={loadedData}
+          loadedData={loadedData.current}
           loadDataChunks={loadDataChunks}
           modalActive={modalActive}
           changeModalActive={changeModalActive}
@@ -1180,14 +1202,15 @@ const App = () => {
         className="nypd_arrest_map_container"
         style={{
           opacity:
-            loadedData === "" ||
-            (typeof loadedData === "object" && loadedData.flat().length < 70000)
+            loadedData.current.length === 0 ||
+            (typeof loadedData.current === "object" &&
+              loadedData.current.flat().length < 70000)
               ? 0
               : 1,
         }}
       >
         <NavigationBar
-          loadData={loadedData ? loadedData.flat() : [""]}
+          loadData={loadedData ? loadedData.current.flat() : [""]}
           raceUniqueValues={raceUniqueValues}
           boroughUniqueValues={boroughUniqueValues}
           offenseDescriptionUniqueValues={offenseDescriptionUniqueValues}
