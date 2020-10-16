@@ -9,7 +9,14 @@ import "tippy.js/dist/tippy.css";
 import "./NavigationBar.css";
 import "./burgermenu.css";
 import InfoPopUp from "./InfoPopUp/InfoPopUp";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
+import ACTION_CHANGE_CATEGORY_FILTER from "../actions/filters/category/ACTION_CHANGE_CATEGORY_FILTER";
+import ACTION_CHANGE_YEAR_FILTER from "../actions/filters/year/ACTION_CHANGE_YEAR_FILTER";
+import ACTION_CHANGE_OFFENSE_FILTER from "../actions/filters/offense/ACTION_CHANGE_OFFENSE_FILTER";
+import ACTION_CHANGE_AGE_FILTER from "../actions/filters/age/ACTION_CHANGE_AGE_FILTER";
+import ACTION_CHANGE_RACE_FILTER from "../actions/filters/race/ACTION_CHANGE_RACE_FILTER";
+import ACTION_CHANGE_SEX_FILTER from "../actions/filters/sex/ACTION_CHANGE_SEX_FILTER";
+import ACTION_CHANGE_BOROUGH_FILTER from "../actions/filters/borough/ACTION_CHANGE_BOROUGH_FILTER";
 
 const NavigationBar = (props) => {
   const {
@@ -27,23 +34,26 @@ const NavigationBar = (props) => {
     loadedYears,
     filteredData,
     handleDownloadYear,
-    yearFilter,
-    changeYearFilter,
-    categoryFilter,
-    changeCategoryFilter,
-    offenseFilter,
-    changeOffenseFilter,
-    ageFilter,
-    changeAgeFilter,
-    raceFilter,
-    changeRaceFilter,
-    sexFilter,
-    changeSexFilter,
-    boroughFilter,
-    changeBoroughFilter,
   } = props;
 
+  const dispatch = useDispatch();
+
   const totalCount = useSelector((state) => state.totalCountReducer.total);
+
+  // Filter states
+  const categoryFilter = useSelector(
+    (state) => state.categoryFilterReducer.category
+  );
+  const ageFilter = useSelector((state) => state.ageFilterReducer.age);
+  const yearFilter = useSelector((state) => state.yearFilterReducer.year);
+  const boroughFilter = useSelector(
+    (state) => state.boroughFilterReducer.borough
+  );
+  const sexFilter = useSelector((state) => state.sexFilterReducer.sex);
+  const offenseFilter = useSelector(
+    (state) => state.offenseFilterReducer.offense
+  );
+  const raceFilter = useSelector((state) => state.raceFilterReducer.race);
 
   const logoContainerRef = useRef(null);
 
@@ -51,6 +61,7 @@ const NavigationBar = (props) => {
   const mapboxAttribRef = document.getElementsByClassName(
     "mapboxgl-ctrl-bottom-left"
   );
+
   const [tooltipVisible, changeTooltipVisible] = useState(true);
   const [menuClicked, changeMenuClicked] = useState(false);
   const [collapseOpen, changeCollapseOpen] = useState("");
@@ -139,71 +150,98 @@ const NavigationBar = (props) => {
 
   const handleYearFilters = (year) => {
     if (yearFilter.includes(year)) {
-      changeYearFilter(yearFilter.filter((item) => item !== year));
+      dispatch(
+        ACTION_CHANGE_YEAR_FILTER(yearFilter.filter((item) => item !== year))
+      );
     } else {
       const copyArr = yearFilter.slice();
       copyArr.push(year);
-      changeYearFilter(copyArr);
+
+      dispatch(ACTION_CHANGE_YEAR_FILTER(copyArr));
     }
   };
 
   const handleCategoryFilters = (category) => {
     if (categoryFilter.includes(category)) {
-      changeCategoryFilter(categoryFilter.filter((item) => item !== category));
+      dispatch(
+        ACTION_CHANGE_CATEGORY_FILTER(
+          categoryFilter.filter((item) => item !== category)
+        )
+      );
     } else {
       const copyArr = categoryFilter.slice();
       copyArr.push(category);
-      changeCategoryFilter(copyArr);
+
+      dispatch(ACTION_CHANGE_CATEGORY_FILTER(copyArr));
     }
   };
 
   const handleOffenseFilters = (offense) => {
     if (offenseFilter.includes(offense)) {
-      changeOffenseFilter(offenseFilter.filter((item) => item !== offense));
+      dispatch(
+        ACTION_CHANGE_OFFENSE_FILTER(
+          offenseFilter.filter((item) => item !== offense)
+        )
+      );
     } else {
       const copyArr = offenseFilter.slice();
       copyArr.push(offense);
-      changeOffenseFilter(copyArr);
+
+      dispatch(ACTION_CHANGE_OFFENSE_FILTER(copyArr));
     }
   };
 
   const handleAgeFilters = (age) => {
     if (ageFilter.includes(age)) {
-      changeAgeFilter(ageFilter.filter((item) => item !== age));
+      dispatch(
+        ACTION_CHANGE_AGE_FILTER(ageFilter.filter((item) => item !== age))
+      );
     } else {
       const copyArr = ageFilter.slice();
       copyArr.push(age);
-      changeAgeFilter(copyArr);
+
+      dispatch(ACTION_CHANGE_AGE_FILTER(copyArr));
     }
   };
 
   const handleRaceFilters = (race) => {
     if (raceFilter.includes(race)) {
-      changeRaceFilter(raceFilter.filter((item) => item !== race));
+      dispatch(
+        ACTION_CHANGE_RACE_FILTER(raceFilter.filter((item) => item !== race))
+      );
     } else {
       const copyArr = raceFilter.slice();
       copyArr.push(race);
-      changeRaceFilter(copyArr);
+
+      dispatch(ACTION_CHANGE_RACE_FILTER(copyArr));
     }
   };
 
   const handleSexFilters = (sex) => {
     if (sexFilter.includes(sex)) {
-      changeSexFilter(sexFilter.filter((item) => item !== sex));
+      dispatch(
+        ACTION_CHANGE_SEX_FILTER(sexFilter.filter((item) => item !== sex))
+      );
     } else {
       const copyArr = sexFilter.slice();
       copyArr.push(sex);
-      changeSexFilter(copyArr);
+
+      dispatch(ACTION_CHANGE_SEX_FILTER(copyArr));
     }
   };
 
   const handleBoroughFilters = (borough) => {
     if (boroughFilter.includes(borough)) {
-      changeBoroughFilter(boroughFilter.filter((item) => item !== borough));
+      dispatch(
+        ACTION_CHANGE_BOROUGH_FILTER(
+          boroughFilter.filter((item) => item !== borough)
+        )
+      );
     } else {
       const copyArr = boroughFilter.slice();
       copyArr.push(borough);
-      changeBoroughFilter(copyArr);
+
+      dispatch(ACTION_CHANGE_BOROUGH_FILTER(copyArr));
     }
   };
 

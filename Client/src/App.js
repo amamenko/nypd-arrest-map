@@ -62,6 +62,7 @@ const App = () => {
   const [laddaLoading, changeLaddaLoading] = useState(false);
   const [loadingYears, changeLoadingYears] = useState([]);
   const [fetchProgress, changeFetchProgress] = useState(0);
+  const [loadData, changeLoadData] = useState([]);
 
   // Web Worker Instances
   const [workerInstance, changeWorkerInstance] = useState("");
@@ -88,8 +89,6 @@ const App = () => {
 
   let layersRef = useRef([]);
   let progressVal = useRef("");
-
-  let loadData = filteredDataChunks ? filteredDataChunks.flat() : [""];
 
   // Needed for screen-readers
   useEffect(() => {
@@ -166,6 +165,16 @@ const App = () => {
       ? filteredDataChunks.flat()
       : []
     : [];
+
+  const prevLoadChunks = usePrevious(loadDataChunks);
+
+  useEffect(() => {
+    if (loadDataChunks !== prevLoadChunks) {
+      if (Object.values(loadDataChunks[0])[0]) {
+        changeLoadData(Object.values(loadDataChunks[0])[0].flat());
+      }
+    }
+  }, [loadDataChunks, prevLoadChunks]);
 
   const [ageGroup, changeAgeGroup] = useState([]);
   const [raceArr, changeRaceArr] = useState([]);
@@ -404,64 +413,68 @@ const App = () => {
   );
 
   useEffect(() => {
-    if (filteredAgeGroup) {
-      postToFilteredWorker("filteredAgeGroupData", filteredAgeGroup);
-    }
-  }, [filteredAgeGroup, postToFilteredWorker]);
+    if (filteredData && prevFilteredData) {
+      if (filteredData[0] !== prevFilteredData[0]) {
+        if (filteredAgeGroup) {
+          postToFilteredWorker("filteredAgeGroupData", filteredAgeGroup);
+        }
 
-  useEffect(() => {
-    if (filteredRaceArr) {
-      postToFilteredWorker("filteredRaceUniqueValues", filteredRaceArr);
-    }
-  }, [filteredRaceArr, postToFilteredWorker]);
+        if (filteredRaceArr) {
+          postToFilteredWorker("filteredRaceUniqueValues", filteredRaceArr);
+        }
 
-  useEffect(() => {
-    if (filteredSexArr) {
-      postToFilteredWorker("filteredSexUniqueValues", filteredSexArr);
-    }
-  }, [filteredSexArr, postToFilteredWorker]);
+        if (filteredSexArr) {
+          postToFilteredWorker("filteredSexUniqueValues", filteredSexArr);
+        }
 
-  useEffect(() => {
-    if (filteredBoroughArr) {
-      postToFilteredWorker("filteredBoroughUniqueValues", filteredBoroughArr);
-    }
-  }, [filteredBoroughArr, postToFilteredWorker]);
+        if (filteredBoroughArr) {
+          postToFilteredWorker(
+            "filteredBoroughUniqueValues",
+            filteredBoroughArr
+          );
+        }
 
-  useEffect(() => {
-    if (filteredOffenseDescriptionArr) {
-      postToFilteredWorker(
-        "filteredOffenseDescriptionUniqueValues",
-        filteredOffenseDescriptionArr
-      );
-    }
-  }, [filteredOffenseDescriptionArr, postToFilteredWorker]);
+        if (filteredOffenseDescriptionArr) {
+          postToFilteredWorker(
+            "filteredOffenseDescriptionUniqueValues",
+            filteredOffenseDescriptionArr
+          );
+        }
 
-  useEffect(() => {
-    if (ageGroup) {
-      postToFilteredWorker("ageGroupData", ageGroup);
-    }
-  }, [ageGroup, postToFilteredWorker]);
+        if (ageGroup) {
+          postToFilteredWorker("ageGroupData", ageGroup);
+        }
 
-  useEffect(() => {
-    if (raceArr) {
-      postToFilteredWorker("raceUniqueValues", raceArr);
-    }
-  }, [raceArr, postToFilteredWorker]);
+        if (raceArr) {
+          postToFilteredWorker("raceUniqueValues", raceArr);
+        }
 
-  useEffect(() => {
-    if (boroughArr) {
-      postToFilteredWorker("boroughUniqueValues", boroughArr);
-    }
-  }, [boroughArr, postToFilteredWorker]);
+        if (boroughArr) {
+          postToFilteredWorker("boroughUniqueValues", boroughArr);
+        }
 
-  useEffect(() => {
-    if (offenseDescriptionArr) {
-      postToFilteredWorker(
-        "offenseDescriptionUniqueValues",
-        offenseDescriptionArr
-      );
+        if (offenseDescriptionArr) {
+          postToFilteredWorker(
+            "offenseDescriptionUniqueValues",
+            offenseDescriptionArr
+          );
+        }
+      }
     }
-  }, [offenseDescriptionArr, postToFilteredWorker]);
+  }, [
+    filteredAgeGroup,
+    postToFilteredWorker,
+    filteredData,
+    prevFilteredData,
+    ageGroup,
+    boroughArr,
+    filteredBoroughArr,
+    filteredOffenseDescriptionArr,
+    filteredRaceArr,
+    filteredSexArr,
+    offenseDescriptionArr,
+    raceArr,
+  ]);
 
   useEffect(() => {
     if (!mapError) {
@@ -559,8 +572,6 @@ const App = () => {
       const yearOfChunk = dayjs(chunk[5]["ARREST_DATE"], "MM/DD/YYYY").format(
         "YYYY"
       );
-
-      console.log(chunk);
 
       return new ScatterplotLayer({
         id: `chunk-${chunkIndex}`,
