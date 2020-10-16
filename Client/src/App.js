@@ -13,7 +13,6 @@ import "./mapbox.css";
 import NavigationBar from "./NavigationBar/NavigationBar";
 import iNoBounce from "./inobounce";
 import BottomInfoPanel from "./BottomInfoPanel/BottomInfoPanel";
-import { css } from "@emotion/core";
 import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 import yearlyTotals from "./YearlyTotals";
@@ -22,18 +21,25 @@ import InitialLoader from "./InitialLoader";
 import SubsequentLoader from "./SubsequentLoader";
 import Modal from "react-modal";
 import { useDispatch, useSelector } from "react-redux";
+import ACTION_LOAD_DATA_CHUNKS_ADD_TO_YEAR from "./actions/loadDataChunks/ACTION_LOAD_DATA_CHUNKS_ADD_TO_YEAR";
+import ACTION_LOAD_DATA_CHUNKS_ADD_YEAR from "./actions/loadDataChunks/ACTION_LOAD_DATA_CHUNKS_ADD_YEAR";
+import ACTION_FILTERED_DATA_CHUNKS_ADD_TO_YEAR from "./actions/filteredDataChunks/ACTION_FILTERED_DATA_CHUNKS_ADD_TO_YEAR";
+import ACTION_FILTERED_DATA_CHUNKS_ADD_YEAR from "./actions/filteredDataChunks/ACTION_FILTERED_DATA_CHUNKS_ADD_YEAR";
+import ACTION_ASSIGN_FILTERED_DATA_CHUNKS from "./actions/filteredDataChunks/ACTION_ASSIGN_FILTERED_DATA_CHUNKS";
+import ACTION_INCREMENT_TOTAL_COUNT from "./actions/totalCount/ACTION_INCREMENT_TOTAL_COUNT";
 
 dayjs.extend(customParseFormat);
 
 const App = () => {
   const dispatch = useDispatch();
 
-  // const filteredDataChunks = useSelector(
-  //   (state) => state.filteredDataChunksReducer.data
-  // );
-  // const loadDataChunks = useSelector(
-  //   (state) => state.loadDataChunksReducer.data
-  // );
+  const filteredDataChunks = useSelector(
+    (state) => state.filteredDataChunksReducer.data
+  );
+  const loadDataChunks = useSelector(
+    (state) => state.loadDataChunksReducer.data
+  );
+  const totalCount = useSelector((state) => state.totalCountReducer.total);
 
   const [mapLoaded, changeMapLoaded] = useState(false);
   const [tooltipVisible, changeTooltipVisible] = useState(false);
@@ -81,14 +87,9 @@ const App = () => {
   const [currentScreenWidth, changeCurrentScreenWidth] = useState("");
 
   let layersRef = useRef([]);
-  let loadDataChunks = useRef([{}]);
-  let filteredDataChunks = useRef([]);
   let progressVal = useRef("");
 
-  // Returned Refs
-  let loadedData = useRef([]);
-
-  let loadData = loadedData ? loadedData.current.flat() : [""];
+  let loadData = filteredDataChunks ? filteredDataChunks.flat() : [""];
 
   // Needed for screen-readers
   useEffect(() => {
@@ -104,16 +105,14 @@ const App = () => {
     return ref.current;
   };
 
-  const loadedYears = Object.keys(loadDataChunks.current[0]).map((x) =>
-    Number(x)
-  );
+  const loadedYears = Object.keys(loadDataChunks[0]).map((x) => Number(x));
 
   const { countUp, update } = useCountUp({
     start: 0,
-    end: loadDataChunks.current[0]["2020"]
+    end: loadDataChunks[0]["2020"]
       ? Number(
           (
-            loadDataChunks.current[0]["2020"]
+            loadDataChunks[0]["2020"]
               .map((x) => x.length)
               .reduce((a, b) => a + b, 0) / yearlyTotals["2020"]
           ).toFixed(1)
@@ -124,11 +123,11 @@ const App = () => {
   });
 
   useEffect(() => {
-    if (loadDataChunks.current[0]["2020"]) {
+    if (loadDataChunks[0]["2020"]) {
       const newProgress =
         Number(
           (
-            loadDataChunks.current[0]["2020"]
+            loadDataChunks[0]["2020"]
               .map((x) => x.length)
               .reduce((a, b) => a + b, 0) / yearlyTotals["2020"]
           ).toFixed(1)
@@ -140,7 +139,7 @@ const App = () => {
         update(newProgress);
       }
     }
-  }, [update, countUp]);
+  }, [update, countUp, loadDataChunks]);
 
   const isSame = (arr1, arr2) =>
     arr1.length === arr2.length &&
@@ -162,12 +161,11 @@ const App = () => {
     };
   }, [currentScreenWidth]);
 
-  const override = css`
-    display: block;
-    margin: 0 auto;
-  `;
-
-  const filteredData = filteredDataChunks.current.flat();
+  const filteredData = filteredDataChunks
+    ? filteredDataChunks.length > 0
+      ? filteredDataChunks.flat()
+      : []
+    : [];
 
   const [ageGroup, changeAgeGroup] = useState([]);
   const [raceArr, changeRaceArr] = useState([]);
@@ -323,41 +321,29 @@ const App = () => {
   );
 
   useEffect(() => {
-    if (filteredDataChunks.current) {
+    if (filteredDataChunks) {
       postToMapFilterWorker(
-        filteredDataChunks.current,
+        filteredDataChunks,
         "filteredUniqueCategory",
         "LAW_CAT_CD"
       );
       postToMapFilterWorker(
-        filteredDataChunks.current,
+        filteredDataChunks,
         "filteredUniqueDates",
         "ARREST_DATE"
       );
 
-      postToTimelineWorker(
-        filteredDataChunks.current,
-        "age_group",
-        "AGE_GROUP"
-      );
+      postToTimelineWorker(filteredDataChunks, "age_group", "AGE_GROUP");
 
-      postToTimelineWorker(
-        filteredDataChunks.current,
-        "borough",
-        "ARREST_BORO"
-      );
+      postToTimelineWorker(filteredDataChunks, "borough", "ARREST_BORO");
 
-      postToTimelineWorker(
-        filteredDataChunks.current,
-        "category",
-        "LAW_CAT_CD"
-      );
+      postToTimelineWorker(filteredDataChunks, "category", "LAW_CAT_CD");
 
-      postToTimelineWorker(filteredDataChunks.current, "sex", "PERP_SEX");
+      postToTimelineWorker(filteredDataChunks, "sex", "PERP_SEX");
 
-      postToTimelineWorker(filteredDataChunks.current, "race", "PERP_RACE");
+      postToTimelineWorker(filteredDataChunks, "race", "PERP_RACE");
     }
-  }, [postToMapFilterWorker, postToTimelineWorker]);
+  }, [postToMapFilterWorker, postToTimelineWorker, filteredDataChunks]);
 
   const [filteredAgeGroupData, changeFilteredAgeGroupData] = useState([]);
   const [filteredRaceUniqueValues, changeFilteredRaceUniqueValues] = useState(
@@ -479,7 +465,7 @@ const App = () => {
 
   useEffect(() => {
     if (!mapError) {
-      while (loadedData.current.length) {
+      while (filteredDataChunks.length) {
         const colorChangeInterval = setInterval(() => {
           if (loaderColor === "rgb(93, 188, 210)") {
             changeLoaderColor("rgb(255, 255, 255)");
@@ -497,7 +483,7 @@ const App = () => {
     } else {
       changeLoaderColor("rgb(255, 0, 0)");
     }
-  }, [loadedData, loaderColor, mapError]);
+  }, [filteredDataChunks, loaderColor, mapError]);
 
   // Used to prevent rubber banding effect on mobile phones
   useEffect(() => {
@@ -565,14 +551,16 @@ const App = () => {
   );
 
   const renderLayers = useCallback(() => {
-    const yearsFiltered = filteredDataChunks.current.map((item) =>
+    const yearsFiltered = filteredDataChunks.map((item) =>
       Number(dayjs(item[5]["ARREST_DATE"], "MM/DD/YYYY").format("YYYY"))
     );
 
-    layersRef.current = filteredDataChunks.current.map((chunk, chunkIndex) => {
+    layersRef.current = filteredDataChunks.map((chunk, chunkIndex) => {
       const yearOfChunk = dayjs(chunk[5]["ARREST_DATE"], "MM/DD/YYYY").format(
         "YYYY"
       );
+
+      console.log(chunk);
 
       return new ScatterplotLayer({
         id: `chunk-${chunkIndex}`,
@@ -593,41 +581,27 @@ const App = () => {
     });
   }, [filteredDataChunks]);
 
-  const handleChangeLoadedData = (item) => {
-    if (loadedData) {
-      loadedData.current = item;
-    }
-  };
-
   const onNewDataArrive = useCallback(
     (chunk, dataIndex) => {
       const chunkYear = chunk.year;
-      const currentLoadedRef = loadDataChunks.current[0];
-      const currentFilteredRef = filteredDataChunks.current;
 
-      if (!currentLoadedRef[chunkYear.toString()]) {
-        currentLoadedRef[chunkYear.toString()] = [chunk.data];
-
-        // handleChangeLoadedDataChunks(currentLoadedRef);
+      // Year does not exist, create new year and add data
+      if (!loadDataChunks[0][chunkYear.toString()]) {
+        dispatch(ACTION_LOAD_DATA_CHUNKS_ADD_YEAR(chunk.data, chunkYear));
       } else {
-        currentLoadedRef[chunkYear.toString()].push(chunk.data);
-
-        // handleChangeLoadedDataChunks(currentLoadedRef);
+        // Year exists, add additional data to it
+        dispatch(ACTION_LOAD_DATA_CHUNKS_ADD_TO_YEAR(chunk.data, chunkYear));
       }
 
-      if (currentFilteredRef[dataIndex]) {
-        currentFilteredRef[dataIndex] = currentFilteredRef[dataIndex].concat(
-          chunk.data
+      if (filteredDataChunks[dataIndex]) {
+        dispatch(
+          ACTION_FILTERED_DATA_CHUNKS_ADD_TO_YEAR(chunk.data, dataIndex)
         );
-
-        handleChangeLoadedData(currentFilteredRef);
       } else {
-        currentFilteredRef.push(chunk.data);
-
-        handleChangeLoadedData(currentFilteredRef);
+        dispatch(ACTION_FILTERED_DATA_CHUNKS_ADD_YEAR(chunk.data));
       }
 
-      const currentYearDataLength = currentLoadedRef[chunkYear.toString()]
+      const currentYearDataLength = loadDataChunks[0][chunkYear.toString()]
         .map((x) => x.length)
         .reduce((a, b) => a + b, 0);
 
@@ -637,24 +611,24 @@ const App = () => {
 
       if (
         layersRef.current.length === 0 ||
-        layersRef.current.length !== filteredDataChunks.current.length
+        layersRef.current.length !== filteredDataChunks.length
       ) {
-        if (loadDataChunks.current[0][chunkYear.toString()]) {
+        if (loadDataChunks[0][chunkYear.toString()]) {
           if (currentYearDataLength === yearlyTotals[chunkYear]) {
             renderLayers();
           }
         }
       }
     },
-    [loadDataChunks, renderLayers]
+    [loadDataChunks, filteredDataChunks, renderLayers, dispatch]
   );
 
   useEffect(() => {
     if (
       fetchProgress !== 1 &&
-      (loadedData.current.length === 0 ||
-        (typeof loadedData.current === "object" &&
-          loadedData.current.flat().length < 70000))
+      (filteredDataChunks.length === 0 ||
+        (typeof filteredDataChunks === "object" &&
+          filteredDataChunks.flat().length < 70000))
     ) {
       const progressInt = setInterval(() => {
         if (Number(fetchProgress) !== Number(progressVal.current)) {
@@ -666,7 +640,7 @@ const App = () => {
         clearInterval(progressInt);
       };
     }
-  }, [fetchProgress]);
+  }, [fetchProgress, filteredDataChunks]);
 
   const dataFetch = useCallback(
     (year, dataIndex) => {
@@ -677,6 +651,8 @@ const App = () => {
         workerInstance.onmessage = (receivedData) => {
           const data = JSON.parse(receivedData.data);
 
+          dispatch(ACTION_INCREMENT_TOTAL_COUNT(JSON.parse(data.data).length));
+
           onNewDataArrive(
             { year: data.year, data: JSON.parse(data.data) },
             dataIndex
@@ -684,7 +660,7 @@ const App = () => {
         };
       }
     },
-    [onNewDataArrive, workerInstance]
+    [onNewDataArrive, workerInstance, dispatch]
   );
 
   const setFilters = (
@@ -695,7 +671,7 @@ const App = () => {
     race,
     sex,
     borough,
-    loadedData
+    suppliedData
   ) => {
     changeCurrentFilters({
       year: year,
@@ -707,56 +683,68 @@ const App = () => {
       borough: borough,
     });
 
-    filteredDataChunks.current = [loadedData].map((chunk) => {
-      return chunk.filter((x) => {
-        if (
-          (year.includes(
-            Number(dayjs(x.ARREST_DATE, "MM/DD/YYYY").format("YYYY"))
-          ) ||
-            year.length === 0) &&
-          (category.includes(x.LAW_CAT_CD) || category.length === 0) &&
-          (offense.includes(x.OFNS_DESC) || offense.length === 0) &&
-          (age.includes(x.AGE_GROUP) || age.length === 0) &&
-          (race.includes(x.PERP_RACE) || race.length === 0) &&
-          (sex.includes(x.PERP_SEX) || sex.length === 0) &&
-          (race.includes(x.PERP_RACE) || race.length === 0) &&
-          (borough.includes(
-            x.ARREST_BORO === "K" && Number(x.Latitude) > 40.77
-              ? "B"
-              : x.ARREST_BORO === "M" &&
-                Number(x.Longitude) > -73.920961 &&
-                Number(x.Latitude) < 40.800709
-              ? "Q"
-              : x.ARREST_BORO === "B" && Number(x.Latitude) < 40.697465
-              ? "K"
-              : (x.ARREST_BORO === "B" &&
-                  Number(x.Latitude) > 40.796669 &&
-                  Number(x.Longitude) < -73.932786) ||
-                (x.ARREST_BORO === "B" &&
-                  Number(x.Latitude) < 40.796669 &&
-                  Number(x.Longitude) < -73.98)
-              ? "M"
-              : x.ARREST_BORO === "Q" && Number(x.Longitude) < -73.962745
-              ? "M"
-              : x.ARREST_BORO === "Q" &&
-                Number(x.Longitude) < -73.878559 &&
-                Number(x.Latitude) > 40.787907
-              ? "B"
-              : x.ARREST_BORO
-          ) ||
-            borough.length === 0)
-        ) {
-          return true;
-        } else {
-          return false;
-        }
-      });
-    });
+    dispatch(
+      ACTION_ASSIGN_FILTERED_DATA_CHUNKS(
+        [suppliedData].map((chunk) => {
+          return chunk.filter((x) => {
+            if (
+              (year.includes(
+                Number(dayjs(x.ARREST_DATE, "MM/DD/YYYY").format("YYYY"))
+              ) ||
+                year.length === 0) &&
+              (category.includes(x.LAW_CAT_CD) || category.length === 0) &&
+              (offense.includes(x.OFNS_DESC) || offense.length === 0) &&
+              (age.includes(x.AGE_GROUP) || age.length === 0) &&
+              (race.includes(x.PERP_RACE) || race.length === 0) &&
+              (sex.includes(x.PERP_SEX) || sex.length === 0) &&
+              (race.includes(x.PERP_RACE) || race.length === 0) &&
+              (borough.includes(
+                x.ARREST_BORO === "K" && Number(x.Latitude) > 40.77
+                  ? "B"
+                  : x.ARREST_BORO === "M" &&
+                    Number(x.Longitude) > -73.920961 &&
+                    Number(x.Latitude) < 40.800709
+                  ? "Q"
+                  : x.ARREST_BORO === "B" && Number(x.Latitude) < 40.697465
+                  ? "K"
+                  : (x.ARREST_BORO === "B" &&
+                      Number(x.Latitude) > 40.796669 &&
+                      Number(x.Longitude) < -73.932786) ||
+                    (x.ARREST_BORO === "B" &&
+                      Number(x.Latitude) < 40.796669 &&
+                      Number(x.Longitude) < -73.98)
+                  ? "M"
+                  : x.ARREST_BORO === "Q" && Number(x.Longitude) < -73.962745
+                  ? "M"
+                  : x.ARREST_BORO === "Q" &&
+                    Number(x.Longitude) < -73.878559 &&
+                    Number(x.Latitude) > 40.787907
+                  ? "B"
+                  : x.ARREST_BORO
+              ) ||
+                borough.length === 0)
+            ) {
+              return true;
+            } else {
+              return false;
+            }
+          });
+        })
+      )
+    );
 
     setTimeout(() => changeLaddaLoading(false), 2000);
-
-    renderLayers();
   };
+
+  const prevFilters = usePrevious(currentFilters);
+
+  useEffect(() => {
+    if (currentFilters && prevFilters) {
+      if (!isSame(Object.values(currentFilters), Object.values(prevFilters))) {
+        renderLayers();
+      }
+    }
+  }, [currentFilters, prevFilters, renderLayers]);
 
   const handleDownloadYear = (year) => {
     changeLoadingYears([year]);
@@ -769,16 +757,7 @@ const App = () => {
     changeAgeFilter([]);
     changeFetchProgress(0);
     changeModalActive({ active: true, year: year });
-    setFilters(
-      [...loadedYears, year],
-      [],
-      [],
-      [],
-      [],
-      [],
-      [],
-      loadedData ? loadedData.current.flat() : [""]
-    );
+    setFilters([...loadedYears, year], [], [], [], [], [], [], loadData);
   };
 
   useEffect(() => {
@@ -1149,40 +1128,37 @@ const App = () => {
       if (!loadedYears.includes(2020)) {
         if (loadingYears.length === 0) {
           changeLoadingYears([2020]);
-          dataFetch(2020, loadedData.current.length);
+          dataFetch(2020, filteredDataChunks.length);
         }
       } else {
-        if (
-          loadingYears.length > 0 &&
-          !loadDataChunks.current[0][loadingYears[0]]
-        ) {
-          dataFetch(loadingYears[0], loadedData.current.length);
+        if (loadingYears.length > 0 && !loadDataChunks[0][loadingYears[0]]) {
+          dataFetch(loadingYears[0], filteredDataChunks.length);
           changeLoadingYears([]);
         }
       }
     }
-  }, [workerInstance, dataFetch, loadedYears, loadingYears]);
+  }, [
+    workerInstance,
+    dataFetch,
+    loadedYears,
+    loadingYears,
+    loadDataChunks,
+    filteredDataChunks.length,
+  ]);
 
   useEffect(() => {
-    if (
-      typeof loadedData.current === "object" &&
-      loadedData.current.flat().length > 70000
-    ) {
+    if (totalCount > 70000) {
       if (!mapVisible) {
         changeMapVisible(true);
       }
     }
-  }, [loadedData, mapVisible]);
+  }, [totalCount, mapVisible]);
 
   return (
     <>
-      {loadedData.current.length === 0 ||
-      (typeof loadedData.current === "object" &&
-        loadedData.current.flat().length < 70000) ? (
+      {totalCount < 70000 ? (
         <InitialLoader
           fetchProgress={fetchProgress}
-          override={override}
-          loadedData={loadedData.current}
           countUp={countUp}
           loaderColor={loaderColor}
           mapError={mapError}
@@ -1190,10 +1166,6 @@ const App = () => {
       ) : null}
       {modalActive.active && modalActive.year ? (
         <SubsequentLoader
-          loadingYears={loadingYears}
-          fetchProgress={fetchProgress}
-          loadedData={loadedData.current}
-          loadDataChunks={loadDataChunks}
           modalActive={modalActive}
           changeModalActive={changeModalActive}
         />
@@ -1201,16 +1173,11 @@ const App = () => {
       <div
         className="nypd_arrest_map_container"
         style={{
-          opacity:
-            loadedData.current.length === 0 ||
-            (typeof loadedData.current === "object" &&
-              loadedData.current.flat().length < 70000)
-              ? 0
-              : 1,
+          opacity: totalCount < 70000 ? 0 : 1,
         }}
       >
         <NavigationBar
-          loadData={loadedData ? loadedData.current.flat() : [""]}
+          loadData={loadData}
           raceUniqueValues={raceUniqueValues}
           boroughUniqueValues={boroughUniqueValues}
           offenseDescriptionUniqueValues={offenseDescriptionUniqueValues}
@@ -1222,7 +1189,7 @@ const App = () => {
           pointClicked={tooltipVisible}
           changeLaddaLoading={changeLaddaLoading}
           laddaLoading={laddaLoading}
-          filteredData={filteredDataChunks.current}
+          filteredData={filteredData}
           handleDownloadYear={handleDownloadYear}
           yearFilter={yearFilter}
           changeYearFilter={changeYearFilter}
@@ -1266,7 +1233,6 @@ const App = () => {
             isSame={isSame}
             mapVisible={mapVisible}
             loadData={loadData}
-            loadDataChunks={loadDataChunks.current}
             tooltipVisible={tooltipVisible}
             filteredArrestCategory={filteredArrestCategory}
             filteredAgeGroupData={filteredAgeGroupData}

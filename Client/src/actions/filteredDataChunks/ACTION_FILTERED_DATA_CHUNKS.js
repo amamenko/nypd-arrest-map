@@ -1,9 +1,0 @@
-const FILTERED_DATA_CHUNKS = "FILTERED_DATA_CHUNKS";
-
-const ACTION_FILTERED_DATA_CHUNKS = () => {
-  return {
-    type: FILTERED_DATA_CHUNKS,
-  };
-};
-
-export default ACTION_FILTERED_DATA_CHUNKS;

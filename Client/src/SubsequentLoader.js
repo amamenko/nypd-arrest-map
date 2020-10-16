@@ -8,9 +8,10 @@ import "react-circular-progressbar/dist/styles.css";
 import { useCountUp } from "react-countup";
 import Modal from "react-modal";
 import yearlyTotals from "./YearlyTotals";
+import { useSelector } from "react-redux";
 
 const SubsequentLoader = (props) => {
-  const { loadDataChunks, modalActive, changeModalActive } = props;
+  const { modalActive, changeModalActive } = props;
 
   const { countUp, update } = useCountUp({
     start: 0,
@@ -19,11 +20,15 @@ const SubsequentLoader = (props) => {
     duration: 1,
   });
 
+  const loadDataChunks = useSelector(
+    (state) => state.loadDataChunksReducer.data
+  );
+
   useEffect(() => {
-    if (loadDataChunks.current[0][modalActive.year.toString()]) {
+    if (loadDataChunks[0][modalActive.year.toString()]) {
       const newProgress =
         Number(
-          loadDataChunks.current[0][modalActive.year.toString()]
+          loadDataChunks[0][modalActive.year.toString()]
             .map((x) => x.length)
             .reduce((a, b) => a + b, 0) /
             yearlyTotals[modalActive.year.toString()]

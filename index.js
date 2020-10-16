@@ -47,7 +47,7 @@ wss.on("connection", (ws) => {
 
   ws.on("message", (message) => {
     const decodedMessage = decoder.write(Buffer.from(message));
-
+    console.log(decodedMessage);
     if (decodedMessage && decodedMessage !== ".") {
       if (yearlyTotals[decodedMessage]) {
         const bucket = storage.bucket(`${decodedMessage}_nypd_arrest_data`);

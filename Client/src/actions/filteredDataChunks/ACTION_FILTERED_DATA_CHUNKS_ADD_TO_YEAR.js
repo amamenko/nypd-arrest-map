@@ -1,0 +1,11 @@
+const FILTERED_DATA_CHUNKS_ADD_TO_YEAR = "FILTERED_DATA_CHUNKS_ADD_TO_YEAR";
+
+const ACTION_FILTERED_DATA_CHUNKS_ADD_TO_YEAR = (data, dataIndex) => {
+  return {
+    type: FILTERED_DATA_CHUNKS_ADD_TO_YEAR,
+    data,
+    dataIndex,
+  };
+};
+
+export default ACTION_FILTERED_DATA_CHUNKS_ADD_TO_YEAR;

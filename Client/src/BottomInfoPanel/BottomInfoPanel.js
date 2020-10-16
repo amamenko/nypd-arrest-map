@@ -16,6 +16,7 @@ import CategoryTimeline from "./CarouselItems/Category/CategoryTimeline";
 import GenderTimeline from "./CarouselItems/Gender/GenderTimeline";
 import RaceTimeline from "./CarouselItems/Race/RaceTimeline";
 import { RadioGroup, RadioButton } from "react-radio-buttons";
+import { useSelector } from "react-redux";
 
 const BottomInfoPanel = (props) => {
   const {
@@ -36,7 +37,6 @@ const BottomInfoPanel = (props) => {
 
     currentFilters,
     loadedYears,
-    loadDataChunks,
     isSame,
 
     filteredUniqueDates,
@@ -46,6 +46,10 @@ const BottomInfoPanel = (props) => {
     filteredTimelineSexData,
     filteredTimelineRaceData,
   } = props;
+
+  const loadDataChunks = useSelector(
+    (state) => state.loadDataChunksReducer.data
+  );
 
   let CarouselRef = useRef(null);
 

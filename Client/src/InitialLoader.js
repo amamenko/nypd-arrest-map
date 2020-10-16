@@ -5,17 +5,21 @@ import {
 } from "react-circular-progressbar";
 import { GiHandcuffs } from "react-icons/gi";
 import GridLoader from "react-spinners/GridLoader";
+import { css } from "@emotion/core";
 import "react-circular-progressbar/dist/styles.css";
+import { useSelector } from "react-redux";
 
 const InitialLoader = (props) => {
-  const {
-    fetchProgress,
-    override,
-    loadedData,
-    countUp,
-    loaderColor,
-    mapError,
-  } = props;
+  const { fetchProgress, countUp, loaderColor, mapError } = props;
+
+  const override = css`
+    display: block;
+    margin: 0 auto;
+  `;
+
+  const filteredDataChunks = useSelector(
+    (state) => state.filteredDataChunksReducer.data
+  );
 
   return (
     <div className="loading_container">
@@ -26,8 +30,9 @@ const InitialLoader = (props) => {
           color={loaderColor}
           style={{ transition: "all 0.5s ease" }}
           loading={
-            loadedData === "" ||
-            (typeof loadedData === "object" && loadedData.flat().length < 70000)
+            filteredDataChunks === "" ||
+            (typeof filteredDataChunks === "object" &&
+              filteredDataChunks.flat().length < 70000)
           }
         />
       ) : (

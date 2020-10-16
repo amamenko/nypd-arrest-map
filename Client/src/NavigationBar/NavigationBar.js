@@ -9,6 +9,7 @@ import "tippy.js/dist/tippy.css";
 import "./NavigationBar.css";
 import "./burgermenu.css";
 import InfoPopUp from "./InfoPopUp/InfoPopUp";
+import { useSelector } from "react-redux";
 
 const NavigationBar = (props) => {
   const {
@@ -41,6 +42,8 @@ const NavigationBar = (props) => {
     boroughFilter,
     changeBoroughFilter,
   } = props;
+
+  const totalCount = useSelector((state) => state.totalCountReducer.total);
 
   const logoContainerRef = useRef(null);
 
@@ -254,13 +257,12 @@ const NavigationBar = (props) => {
             </p>
             <p>
               Total Number of Arrests Shown: <br />
-              <strong>
-                {filteredData.flat().length.toLocaleString()}
-              </strong> of <strong>{loadData.length.toLocaleString()}</strong>
+              <strong>{filteredData.length.toLocaleString()}</strong> of{" "}
+              <strong>{totalCount.toLocaleString()}</strong>
             </p>
           </div>
         }
-        visible={typeof loadData === "object" && loadData.flat().length > 70000}
+        visible={totalCount > 70000}
         allowHTML={true}
         reference={
           !currentScreenWidth
@@ -304,7 +306,7 @@ const NavigationBar = (props) => {
             </div>
           </div>
         }
-        visible={typeof loadData === "object" && loadData.flat().length > 70000}
+        visible={totalCount > 70000}
         allowHTML={true}
         reference={mapboxAttribRef[0]}
         className="overview_tooltip legend_tooltip"
@@ -319,11 +321,7 @@ const NavigationBar = (props) => {
       </div>
       <Tippy
         content="Click here to set data filters"
-        visible={
-          tooltipVisible &&
-          typeof loadData === "object" &&
-          loadData.flat().length > 70000
-        }
+        visible={tooltipVisible && totalCount > 70000}
         reference={burgerMenu[0]}
         className="burger_tooltip"
         placement="bottom-end"
