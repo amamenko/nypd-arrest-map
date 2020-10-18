@@ -32,12 +32,14 @@ const NavigationBar = (props) => {
     changeLaddaLoading,
     laddaLoading,
     loadedYears,
-    filteredData,
     handleDownloadYear,
   } = props;
 
   const dispatch = useDispatch();
 
+  const filteredDataChunks = useSelector(
+    (state) => state.filteredDataChunksReducer.data
+  );
   const totalCount = useSelector((state) => state.totalCountReducer.total);
 
   // Filter states
@@ -295,8 +297,10 @@ const NavigationBar = (props) => {
             </p>
             <p>
               Total Number of Arrests Shown: <br />
-              <strong>{filteredData.length.toLocaleString()}</strong> of{" "}
-              <strong>{totalCount.toLocaleString()}</strong>
+              <strong>
+                {filteredDataChunks.flat().length.toLocaleString()}
+              </strong>{" "}
+              of <strong>{totalCount.toLocaleString()}</strong>
             </p>
           </div>
         }
