@@ -34,6 +34,7 @@ dayjs.extend(customParseFormat);
 const App = () => {
   const dispatch = useDispatch();
 
+  const filteredData = useSelector((state) => state.filteredDataReducer.data);
   const filteredDataChunks = useSelector(
     (state) => state.filteredDataChunksReducer.data
   );
@@ -104,6 +105,8 @@ const App = () => {
     });
     return ref.current;
   };
+
+  const prevFilters = usePrevious(currentFilters);
 
   const loadedYears = Object.keys(loadDataChunks[0]).map((x) => Number(x));
 
@@ -214,6 +217,7 @@ const App = () => {
           } else if (arrayName === "filteredArrestCategory") {
             changeFilteredArrestCategory(returnedArr);
           } else if (arrayName === "filteredAgeGroup") {
+            console.log(returnedArr);
             changeFilteredAgeGroup(returnedArr);
           } else if (arrayName === "filteredSexArr") {
             changeFilteredSexArr(returnedArr);
@@ -246,46 +250,6 @@ const App = () => {
       }
     }
   }, [loadData, postToMapFilterWorker, prevLoadData]);
-
-  useEffect(() => {
-    let prevLength = filteredDataChunks.flat().length;
-
-    const filteredInterval = setInterval(() => {
-      if (prevLength !== filteredDataChunks.flat().length) {
-        postToMapFilterWorker(
-          filteredDataChunks.flat(),
-          "filteredArrestCategory",
-          "LAW_CAT_CD"
-        );
-        postToMapFilterWorker(
-          filteredDataChunks.flat(),
-          "filteredAgeGroup",
-          "AGE_GROUP"
-        );
-        postToMapFilterWorker(
-          filteredDataChunks.flat(),
-          "filteredSexArr",
-          "PERP_SEX"
-        );
-        postToMapFilterWorker(
-          filteredDataChunks.flat(),
-          "filteredBoroughArr",
-          "ARREST_BORO"
-        );
-        postToMapFilterWorker(
-          filteredDataChunks.flat(),
-          "filteredOffenseDescriptionArr",
-          "OFNS_DESC"
-        );
-      }
-
-      prevLength = filteredDataChunks.flat().length;
-    }, 500);
-
-    return () => {
-      clearInterval(filteredInterval);
-    };
-  }, [filteredDataChunks, postToMapFilterWorker]);
 
   const [
     filteredTimelineAgeGroupData,
@@ -396,6 +360,7 @@ const App = () => {
           const returnedArr = parsedData.returnedArr;
 
           if (arrayName === "filteredAgeGroupData") {
+            console.log(returnedArr);
             changeFilteredAgeGroupData(returnedArr);
           } else if (arrayName === "filteredRaceUniqueValues") {
             changeFilteredRaceUniqueValues(returnedArr);
@@ -420,51 +385,82 @@ const App = () => {
     [filterWorkerInstance]
   );
 
+  const prevFilteredData = usePrevious(filteredData);
+
   useEffect(() => {
-    if (filteredDataChunks) {
-      if (filteredAgeGroup) {
-        postToFilteredWorker("filteredAgeGroupData", filteredAgeGroup);
-      }
+    const filteredDataInterval = setInterval(() => {
+      if (filteredData.length !== prevFilteredData.length) {
+        console.log("OD!");
+        if (filteredAgeGroup) {
+          postToFilteredWorker("filteredAgeGroupData", filteredAgeGroup);
+        }
 
-      if (filteredRaceArr) {
-        postToFilteredWorker("filteredRaceUniqueValues", filteredRaceArr);
-      }
+        if (filteredRaceArr) {
+          postToFilteredWorker("filteredRaceUniqueValues", filteredRaceArr);
+        }
 
-      if (filteredSexArr) {
-        postToFilteredWorker("filteredSexUniqueValues", filteredSexArr);
-      }
+        if (filteredSexArr) {
+          postToFilteredWorker("filteredSexUniqueValues", filteredSexArr);
+        }
 
-      if (filteredBoroughArr) {
-        postToFilteredWorker("filteredBoroughUniqueValues", filteredBoroughArr);
-      }
+        if (filteredBoroughArr) {
+          postToFilteredWorker(
+            "filteredBoroughUniqueValues",
+            filteredBoroughArr
+          );
+        }
 
-      if (filteredOffenseDescriptionArr) {
-        postToFilteredWorker(
-          "filteredOffenseDescriptionUniqueValues",
-          filteredOffenseDescriptionArr
+        if (filteredOffenseDescriptionArr) {
+          postToFilteredWorker(
+            "filteredOffenseDescriptionUniqueValues",
+            filteredOffenseDescriptionArr
+          );
+        }
+
+        if (ageGroup) {
+          postToFilteredWorker("ageGroupData", ageGroup);
+        }
+
+        if (raceArr) {
+          postToFilteredWorker("raceUniqueValues", raceArr);
+        }
+
+        if (boroughArr) {
+          postToFilteredWorker("boroughUniqueValues", boroughArr);
+        }
+
+        if (offenseDescriptionArr) {
+          postToFilteredWorker(
+            "offenseDescriptionUniqueValues",
+            offenseDescriptionArr
+          );
+        }
+
+        postToMapFilterWorker(
+          filteredData,
+          "filteredArrestCategory",
+          "LAW_CAT_CD"
+        );
+        postToMapFilterWorker(filteredData, "filteredAgeGroup", "AGE_GROUP");
+        postToMapFilterWorker(filteredData, "filteredSexArr", "PERP_SEX");
+        postToMapFilterWorker(
+          filteredData,
+          "filteredBoroughArr",
+          "ARREST_BORO"
+        );
+        postToMapFilterWorker(
+          filteredData,
+          "filteredOffenseDescriptionArr",
+          "OFNS_DESC"
         );
       }
+    }, 100);
 
-      if (ageGroup) {
-        postToFilteredWorker("ageGroupData", ageGroup);
-      }
-
-      if (raceArr) {
-        postToFilteredWorker("raceUniqueValues", raceArr);
-      }
-
-      if (boroughArr) {
-        postToFilteredWorker("boroughUniqueValues", boroughArr);
-      }
-
-      if (offenseDescriptionArr) {
-        postToFilteredWorker(
-          "offenseDescriptionUniqueValues",
-          offenseDescriptionArr
-        );
-      }
-    }
+    return () => {
+      clearInterval(filteredDataInterval);
+    };
   }, [
+    prevFilteredData,
     postToFilteredWorker,
     filteredDataChunks,
     filteredAgeGroup,
@@ -476,6 +472,8 @@ const App = () => {
     filteredSexArr,
     offenseDescriptionArr,
     raceArr,
+    filteredData,
+    postToMapFilterWorker,
   ]);
 
   useEffect(() => {
@@ -642,8 +640,7 @@ const App = () => {
     if (
       fetchProgress !== 1 &&
       (filteredDataChunks.length === 0 ||
-        (typeof filteredDataChunks === "object" &&
-          filteredDataChunks.flat().length < 70000))
+        (typeof filteredDataChunks === "object" && filteredData.length < 70000))
     ) {
       const progressInt = setInterval(() => {
         if (Number(fetchProgress) !== Number(progressVal.current)) {
@@ -655,7 +652,7 @@ const App = () => {
         clearInterval(progressInt);
       };
     }
-  }, [fetchProgress, filteredDataChunks]);
+  }, [fetchProgress, filteredDataChunks, filteredData]);
 
   const dataFetch = useCallback(
     (year, dataIndex) => {
@@ -698,60 +695,60 @@ const App = () => {
       borough: borough,
     });
 
-    dispatch(
-      ACTION_ASSIGN_FILTERED_DATA_CHUNKS(
-        [suppliedData].map((chunk) => {
-          return chunk.filter((x) => {
-            if (
-              (year.includes(
-                Number(dayjs(x.ARREST_DATE, "MM/DD/YYYY").format("YYYY"))
-              ) ||
-                year.length === 0) &&
-              (category.includes(x.LAW_CAT_CD) || category.length === 0) &&
-              (offense.includes(x.OFNS_DESC) || offense.length === 0) &&
-              (age.includes(x.AGE_GROUP) || age.length === 0) &&
-              (race.includes(x.PERP_RACE) || race.length === 0) &&
-              (sex.includes(x.PERP_SEX) || sex.length === 0) &&
-              (race.includes(x.PERP_RACE) || race.length === 0) &&
-              (borough.includes(
-                x.ARREST_BORO === "K" && Number(x.Latitude) > 40.77
-                  ? "B"
-                  : x.ARREST_BORO === "M" &&
-                    Number(x.Longitude) > -73.920961 &&
-                    Number(x.Latitude) < 40.800709
-                  ? "Q"
-                  : x.ARREST_BORO === "B" && Number(x.Latitude) < 40.697465
-                  ? "K"
-                  : (x.ARREST_BORO === "B" &&
-                      Number(x.Latitude) > 40.796669 &&
-                      Number(x.Longitude) < -73.932786) ||
-                    (x.ARREST_BORO === "B" &&
-                      Number(x.Latitude) < 40.796669 &&
-                      Number(x.Longitude) < -73.98)
-                  ? "M"
-                  : x.ARREST_BORO === "Q" && Number(x.Longitude) < -73.962745
-                  ? "M"
-                  : x.ARREST_BORO === "Q" &&
-                    Number(x.Longitude) < -73.878559 &&
-                    Number(x.Latitude) > 40.787907
-                  ? "B"
-                  : x.ARREST_BORO
-              ) ||
-                borough.length === 0)
-            ) {
-              return true;
-            } else {
-              return false;
-            }
-          });
-        })
-      )
-    );
+    const assignFilteredData = [suppliedData].map((chunk) => {
+      return chunk.filter((x) => {
+        if (
+          (year.includes(
+            Number(dayjs(x.ARREST_DATE, "MM/DD/YYYY").format("YYYY"))
+          ) ||
+            year.length === 0) &&
+          (category.includes(x.LAW_CAT_CD) || category.length === 0) &&
+          (offense.includes(x.OFNS_DESC) || offense.length === 0) &&
+          (age.includes(x.AGE_GROUP) || age.length === 0) &&
+          (race.includes(x.PERP_RACE) || race.length === 0) &&
+          (sex.includes(x.PERP_SEX) || sex.length === 0) &&
+          (race.includes(x.PERP_RACE) || race.length === 0) &&
+          (borough.includes(
+            x.ARREST_BORO === "K" && Number(x.Latitude) > 40.77
+              ? "B"
+              : x.ARREST_BORO === "M" &&
+                Number(x.Longitude) > -73.920961 &&
+                Number(x.Latitude) < 40.800709
+              ? "Q"
+              : x.ARREST_BORO === "B" && Number(x.Latitude) < 40.697465
+              ? "K"
+              : (x.ARREST_BORO === "B" &&
+                  Number(x.Latitude) > 40.796669 &&
+                  Number(x.Longitude) < -73.932786) ||
+                (x.ARREST_BORO === "B" &&
+                  Number(x.Latitude) < 40.796669 &&
+                  Number(x.Longitude) < -73.98)
+              ? "M"
+              : x.ARREST_BORO === "Q" && Number(x.Longitude) < -73.962745
+              ? "M"
+              : x.ARREST_BORO === "Q" &&
+                Number(x.Longitude) < -73.878559 &&
+                Number(x.Latitude) > 40.787907
+              ? "B"
+              : x.ARREST_BORO
+          ) ||
+            borough.length === 0)
+        ) {
+          return true;
+        } else {
+          return false;
+        }
+      });
+    });
+
+    const assignFilteredDataFlat = assignFilteredData.flat();
+
+    dispatch(ACTION_ASSIGN_FILTERED_DATA_CHUNKS(assignFilteredData));
+
+    dispatch(ACTION_ASSIGN_FILTERED_DATA(assignFilteredDataFlat));
 
     setTimeout(() => changeLaddaLoading(false), 2000);
   };
-
-  const prevFilters = usePrevious(currentFilters);
 
   useEffect(() => {
     if (currentFilters && prevFilters) {
@@ -759,7 +756,7 @@ const App = () => {
         renderLayers();
       }
     }
-  }, [currentFilters, prevFilters, renderLayers]);
+  }, [currentFilters, prevFilters, renderLayers, dispatch, filteredDataChunks]);
 
   const handleDownloadYear = (year) => {
     changeLoadingYears([year]);

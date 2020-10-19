@@ -10,9 +10,11 @@ import yearFilterReducer from "./reducers/filters/year/yearFilterReducer";
 import categoryFilterReducer from "./reducers/filters/category/categoryFilterReducer";
 import sexFilterReducer from "./reducers/filters/sex/sexFilterReducer";
 import boroughFilterReducer from "./reducers/filters/borough/boroughFilterReducer";
+import filteredDataReducer from "./reducers/filteredData/filteredDataReducer";
 
 const RootReducer = combineReducers({
   // General data states
+  filteredDataReducer: filteredDataReducer,
   filteredDataChunksReducer: filteredDataChunksReducer,
   loadDataChunksReducer: loadDataChunksReducer,
   totalCountReducer: totalCountReducer,
