@@ -1,15 +1,10 @@
 import React from "react";
 import { Chart } from "react-google-charts";
 import DoubleBounce from "better-react-spinkit/dist/DoubleBounce";
-import dayjs from "dayjs";
+import { useSelector } from "react-redux";
 
 const RaceTimeline = (props) => {
-  const {
-    filteredUniqueDates,
-    filteredTimelineRaceData,
-    filteredRaceUniqueValues,
-    graphOption,
-  } = props;
+  const { filteredRaceUniqueValues, graphOption } = props;
 
   const raceArr = filteredRaceUniqueValues.map((race) =>
     race
@@ -26,6 +21,10 @@ const RaceTimeline = (props) => {
       .join("/")
   );
 
+  const raceTimelineGraphData = useSelector(
+    (state) => state.raceTimelineGraphDataReducer.data
+  );
+
   return (
     <div
       className="bottom_info_panel_info_box"
@@ -40,56 +39,7 @@ const RaceTimeline = (props) => {
           data={
             [
               [[{ type: "date", label: "Date" }].concat(raceArr)].concat(
-                filteredUniqueDates.length > 0
-                  ? filteredUniqueDates[0]
-                      .sort((a, b) => {
-                        if (
-                          dayjs(a, "MM/DD/YYYY").isBefore(
-                            dayjs(b, "MM/DD/YYYY")
-                          )
-                        ) {
-                          return -1;
-                        } else {
-                          return 1;
-                        }
-                      })
-                      .map((date) => {
-                        const dateArr = date ? date.split("/") : null;
-                        const dateObj =
-                          dateArr.length > 0
-                            ? new Date(dateArr[2], dateArr[0] - 1, dateArr[1])
-                            : null;
-
-                        return [
-                          dateObj,
-                          raceArr.map(
-                            (item) =>
-                              filteredTimelineRaceData[0].filter(
-                                (x) =>
-                                  x.date === date &&
-                                  x.race
-                                    .split(" ")
-                                    .map(
-                                      (x) =>
-                                        x[0].toUpperCase() +
-                                        x.slice(1).toLowerCase()
-                                    )
-                                    .join(" ")
-                                    .split("/")
-                                    .map(
-                                      (x) =>
-                                        x[0].toUpperCase() +
-                                        x
-                                          .slice(1, x.indexOf(" "))
-                                          .toLowerCase() +
-                                        x.slice(x.indexOf(" "))
-                                    )
-                                    .join("/") === item
-                              ).length
-                          ),
-                        ].flat();
-                      })
-                  : []
+                raceTimelineGraphData
               ),
             ][0]
           }

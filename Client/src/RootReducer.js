@@ -12,6 +12,12 @@ import sexFilterReducer from "./reducers/filters/sex/sexFilterReducer";
 import boroughFilterReducer from "./reducers/filters/borough/boroughFilterReducer";
 import filteredDataReducer from "./reducers/filteredData/filteredDataReducer";
 
+import ageGroupTimelineGraphDataReducer from "./reducers/timelineGraphData/ageGroup/ageGroupTimelineGraphDataReducer";
+import boroughTimelineGraphDataReducer from "./reducers/timelineGraphData/borough/boroughTimelineGraphDataReducer";
+import categoryTimelineGraphDataReducer from "./reducers/timelineGraphData/category/categoryTimelineGraphDataReducer";
+import genderTimelineGraphDataReducer from "./reducers/timelineGraphData/gender/genderTimelineGraphDataReducer";
+import raceTimelineGraphDataReducer from "./reducers/timelineGraphData/race/raceTimelineGraphDataReducer";
+
 const RootReducer = combineReducers({
   // General data states
   filteredDataReducer: filteredDataReducer,
@@ -27,6 +33,13 @@ const RootReducer = combineReducers({
   raceFilterReducer: raceFilterReducer,
   sexFilterReducer: sexFilterReducer,
   boroughFilterReducer: boroughFilterReducer,
+
+  // Timeline graph data,
+  ageGroupTimelineGraphDataReducer: ageGroupTimelineGraphDataReducer,
+  boroughTimelineGraphDataReducer: boroughTimelineGraphDataReducer,
+  categoryTimelineGraphDataReducer: categoryTimelineGraphDataReducer,
+  genderTimelineGraphDataReducer: genderTimelineGraphDataReducer,
+  raceTimelineGraphDataReducer: raceTimelineGraphDataReducer,
 });
 
 export default RootReducer;

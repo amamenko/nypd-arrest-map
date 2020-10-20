@@ -1,27 +1,27 @@
 import React from "react";
 import { Chart } from "react-google-charts";
 import DoubleBounce from "better-react-spinkit/dist/DoubleBounce";
-import dayjs from "dayjs";
+import { useSelector } from "react-redux";
 
 const CategoryTimeline = (props) => {
-  const {
-    filteredUniqueDates,
-    filteredTimelineCategoryData,
-    filteredUniqueCategory,
-    graphOption,
-  } = props;
+  const { filteredUniqueCategory, graphOption } = props;
 
   const uniqueValues = (value, index, self) => {
     return self.indexOf(value) === index;
   };
 
-  const categoryArr = filteredUniqueCategory[0]
-    ? filteredUniqueCategory[0]
-        .map((x) =>
-          x === "F" ? "Felony" : x === "M" ? "Misdemeanor" : "Violation"
-        )
-        .filter(uniqueValues)
-    : [];
+  const categoryArr =
+    filteredUniqueCategory.length > 0
+      ? filteredUniqueCategory
+          .map((x) =>
+            x === "F" ? "Felony" : x === "M" ? "Misdemeanor" : "Violation"
+          )
+          .filter(uniqueValues)
+      : [];
+
+  const categoryTimelineGraphData = useSelector(
+    (state) => state.categoryTimelineGraphDataReducer.data
+  );
 
   return (
     <div
@@ -37,37 +37,7 @@ const CategoryTimeline = (props) => {
           data={
             [
               [[{ type: "date", label: "Date" }].concat(categoryArr)].concat(
-                filteredUniqueDates.length > 0
-                  ? filteredUniqueDates[0]
-                      .sort((a, b) => {
-                        if (
-                          dayjs(a, "MM/DD/YYYY").isBefore(
-                            dayjs(b, "MM/DD/YYYY")
-                          )
-                        ) {
-                          return -1;
-                        } else {
-                          return 1;
-                        }
-                      })
-                      .map((date) => {
-                        const dateArr = date ? date.split("/") : null;
-                        const dateObj =
-                          dateArr.length > 0
-                            ? new Date(dateArr[2], dateArr[0] - 1, dateArr[1])
-                            : null;
-
-                        return [
-                          dateObj,
-                          categoryArr.map(
-                            (item) =>
-                              filteredTimelineCategoryData[0].filter(
-                                (x) => x.date === date && x.category === item
-                              ).length
-                          ),
-                        ].flat();
-                      })
-                  : []
+                categoryTimelineGraphData
               ),
             ][0]
           }

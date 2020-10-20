@@ -1,18 +1,17 @@
 import React from "react";
 import { Chart } from "react-google-charts";
 import DoubleBounce from "better-react-spinkit/dist/DoubleBounce";
-import dayjs from "dayjs";
+import { useSelector } from "react-redux";
 
 const GenderTimeline = (props) => {
-  const {
-    filteredUniqueDates,
-    filteredTimelineSexData,
-    filteredSexUniqueValues,
-    graphOption,
-  } = props;
+  const { filteredSexUniqueValues, graphOption } = props;
 
   const genderArr = filteredSexUniqueValues.map((x) =>
     x === "F" ? "Female" : "Male"
+  );
+
+  const genderTimelineGraphData = useSelector(
+    (state) => state.genderTimelineGraphDataReducer.data
   );
 
   return (
@@ -29,37 +28,7 @@ const GenderTimeline = (props) => {
           data={
             [
               [[{ type: "date", label: "Date" }].concat(genderArr)].concat(
-                filteredUniqueDates.length > 0
-                  ? filteredUniqueDates[0]
-                      .sort((a, b) => {
-                        if (
-                          dayjs(a, "MM/DD/YYYY").isBefore(
-                            dayjs(b, "MM/DD/YYYY")
-                          )
-                        ) {
-                          return -1;
-                        } else {
-                          return 1;
-                        }
-                      })
-                      .map((date) => {
-                        const dateArr = date ? date.split("/") : null;
-                        const dateObj =
-                          dateArr.length > 0
-                            ? new Date(dateArr[2], dateArr[0] - 1, dateArr[1])
-                            : null;
-
-                        return [
-                          dateObj,
-                          genderArr.map(
-                            (item) =>
-                              filteredTimelineSexData[0].filter(
-                                (x) => x.date === date && x.sex === item
-                              ).length
-                          ),
-                        ].flat();
-                      })
-                  : []
+                genderTimelineGraphData
               ),
             ][0]
           }

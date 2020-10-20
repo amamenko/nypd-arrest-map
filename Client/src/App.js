@@ -28,6 +28,14 @@ import ACTION_FILTERED_DATA_CHUNKS_ADD_YEAR from "./actions/filteredDataChunks/A
 import ACTION_ASSIGN_FILTERED_DATA_CHUNKS from "./actions/filteredDataChunks/ACTION_ASSIGN_FILTERED_DATA_CHUNKS";
 import ACTION_INCREMENT_TOTAL_COUNT from "./actions/totalCount/ACTION_INCREMENT_TOTAL_COUNT";
 import ACTION_ASSIGN_FILTERED_DATA from "./actions/filteredData/ACTION_ASSIGN_FILTERED_DATA";
+import ACTION_FILTERED_DATA_CHANGED from "./actions/filteredData/ACTION_FILTERED_DATA_CHANGED";
+import ACTION_FILTERED_DATA_CHANGED_RESET from "./actions/filteredData/ACTION_FILTERED_DATA_CHANGED_RESET";
+import ACTION_TIMELINE_AGE_GROUP_GRAPH_DATA from "./actions/timelineGraphData/ageGroup/ACTION_TIMELINE_AGE_GROUP_GRAPH_DATA";
+import ACTION_TIMELINE_BOROUGH_GRAPH_DATA from "./actions/timelineGraphData/borough/ACTION_TIMELINE_BOROUGH_GRAPH_DATA";
+import ACTION_TIMELINE_CATEGORY_GRAPH_DATA from "./actions/timelineGraphData/category/ACTION_TIMELINE_CATEGORY_GRAPH_DATA";
+import ACTION_TIMELINE_GENDER_GRAPH_DATA from "./actions/timelineGraphData/gender/ACTION_TIMELINE_GENDER_GRAPH_DATA";
+import ACTION_TIMELINE_RACE_GRAPH_DATA from "./actions/timelineGraphData/race/ACTION_TIMELINE_RACE_GRAPH_DATA";
+import timelineGraphWorker from "worker-loader!./timelineGraphWorker.js"; // eslint-disable-line import/no-webpack-loader-syntax
 
 dayjs.extend(customParseFormat);
 
@@ -35,6 +43,9 @@ const App = () => {
   const dispatch = useDispatch();
 
   const filteredData = useSelector((state) => state.filteredDataReducer.data);
+  const filteredDataChanged = useSelector(
+    (state) => state.filteredDataReducer.changed
+  );
   const filteredDataChunks = useSelector(
     (state) => state.filteredDataChunksReducer.data
   );
@@ -42,6 +53,22 @@ const App = () => {
     (state) => state.loadDataChunksReducer.data
   );
   const totalCount = useSelector((state) => state.totalCountReducer.total);
+
+  // const ageGroupTimelineGraphData = useSelector(
+  //   (state) => state.ageGroupTimelineGraphDataReducer.data
+  // );
+  // const boroughTimelineGraphData = useSelector(
+  //   (state) => state.boroughTimelineGraphDataReducer.data
+  // );
+  // const categoryTimelineGraphData = useSelector(
+  //   (state) => state.categoryTimelineGraphDataReducer.data
+  // );
+  // const genderTimelineGraphData = useSelector(
+  //   (state) => state.genderTimelineGraphDataReducer.data
+  // );
+  // const raceTimelineGraphData = useSelector(
+  //   (state) => state.raceTimelineGraphDataReducer.data
+  // );
 
   const [mapLoaded, changeMapLoaded] = useState(false);
   const [tooltipVisible, changeTooltipVisible] = useState(false);
@@ -71,6 +98,10 @@ const App = () => {
   const [mapFilterWorkerInstance, changeMapFilterWorkerInstance] = useState("");
   const [filterWorkerInstance, changeFilterWorkerInstance] = useState("");
   const [timelineWorkerInstance, changeTimelineWorkerInstance] = useState("");
+  const [
+    timelineGraphWorkerInstance,
+    changeTimelineGraphWorkerInstance,
+  ] = useState("");
 
   const [mapVisible, changeMapVisible] = useState(false);
 
@@ -189,6 +220,57 @@ const App = () => {
   ] = useState([]);
   const [filteredUniqueCategory, changeFilteredUniqueCategory] = useState([]);
   const [filteredUniqueDates, changeFilteredUniqueDates] = useState([]);
+  const [
+    filteredTimelineAgeGroupData,
+    changeFilteredTimelineAgeGroupData,
+  ] = useState([]);
+  const [
+    filteredTimelineBoroughData,
+    changeFilteredTimelineBoroughData,
+  ] = useState([]);
+  const [
+    filteredTimelineCategoryData,
+    changeFilteredTimelineCategoryData,
+  ] = useState([]);
+  const [filteredTimelineSexData, changeFilteredTimelineSexData] = useState([]);
+  const [filteredTimelineRaceData, changeFilteredTimelineRaceData] = useState(
+    []
+  );
+
+  const postToTimelineGraphWorker = useCallback(
+    (arrName, generalName, arr, unique, dataArr) => {
+      if (timelineGraphWorkerInstance) {
+        // Send from main thread to web worker
+        timelineGraphWorkerInstance.postMessage({
+          arrName: arrName,
+          generalName: generalName,
+          arr: arr,
+          unique: unique,
+          dataArr: dataArr,
+        });
+
+        timelineGraphWorkerInstance.onmessage = (receivedData) => {
+          const parsedData = JSON.parse(receivedData.data);
+
+          const arrayName = parsedData.arrayName;
+          const returnedArr = parsedData.returnedArr;
+
+          if (arrayName === "ageGroupTimelineGraphData") {
+            dispatch(ACTION_TIMELINE_AGE_GROUP_GRAPH_DATA(returnedArr));
+          } else if (arrayName === "boroughTimelineGraphData") {
+            dispatch(ACTION_TIMELINE_BOROUGH_GRAPH_DATA(returnedArr));
+          } else if (arrayName === "categoryTimelineGraphData") {
+            dispatch(ACTION_TIMELINE_CATEGORY_GRAPH_DATA(returnedArr));
+          } else if (arrayName === "genderTimelineGraphData") {
+            dispatch(ACTION_TIMELINE_GENDER_GRAPH_DATA(returnedArr));
+          } else {
+            dispatch(ACTION_TIMELINE_RACE_GRAPH_DATA(returnedArr));
+          }
+        };
+      }
+    },
+    [timelineGraphWorkerInstance, dispatch]
+  );
 
   const postToMapFilterWorker = useCallback(
     (chunk, arrName, specificName) => {
@@ -217,7 +299,6 @@ const App = () => {
           } else if (arrayName === "filteredArrestCategory") {
             changeFilteredArrestCategory(returnedArr);
           } else if (arrayName === "filteredAgeGroup") {
-            console.log(returnedArr);
             changeFilteredAgeGroup(returnedArr);
           } else if (arrayName === "filteredSexArr") {
             changeFilteredSexArr(returnedArr);
@@ -251,23 +332,6 @@ const App = () => {
     }
   }, [loadData, postToMapFilterWorker, prevLoadData]);
 
-  const [
-    filteredTimelineAgeGroupData,
-    changeFilteredTimelineAgeGroupData,
-  ] = useState([]);
-  const [
-    filteredTimelineBoroughData,
-    changeFilteredTimelineBoroughData,
-  ] = useState([]);
-  const [
-    filteredTimelineCategoryData,
-    changeFilteredTimelineCategoryData,
-  ] = useState([]);
-  const [filteredTimelineSexData, changeFilteredTimelineSexData] = useState([]);
-  const [filteredTimelineRaceData, changeFilteredTimelineRaceData] = useState(
-    []
-  );
-
   const postToTimelineWorker = useCallback(
     (chunk, generalName, specificName) => {
       if (timelineWorkerInstance) {
@@ -284,7 +348,7 @@ const App = () => {
           const arrayName = parsedData.arrayName;
           const returnedArr = parsedData.returnedArr;
 
-          if (arrayName === "age") {
+          if (arrayName === "age_group") {
             changeFilteredTimelineAgeGroupData(returnedArr);
           } else if (arrayName === "borough") {
             changeFilteredTimelineBoroughData(returnedArr);
@@ -300,31 +364,6 @@ const App = () => {
     },
     [timelineWorkerInstance]
   );
-
-  useEffect(() => {
-    if (filteredDataChunks) {
-      postToMapFilterWorker(
-        filteredDataChunks,
-        "filteredUniqueCategory",
-        "LAW_CAT_CD"
-      );
-      postToMapFilterWorker(
-        filteredDataChunks,
-        "filteredUniqueDates",
-        "ARREST_DATE"
-      );
-
-      postToTimelineWorker(filteredDataChunks, "age_group", "AGE_GROUP");
-
-      postToTimelineWorker(filteredDataChunks, "borough", "ARREST_BORO");
-
-      postToTimelineWorker(filteredDataChunks, "category", "LAW_CAT_CD");
-
-      postToTimelineWorker(filteredDataChunks, "sex", "PERP_SEX");
-
-      postToTimelineWorker(filteredDataChunks, "race", "PERP_RACE");
-    }
-  }, [postToMapFilterWorker, postToTimelineWorker, filteredDataChunks]);
 
   const [filteredAgeGroupData, changeFilteredAgeGroupData] = useState([]);
   const [filteredRaceUniqueValues, changeFilteredRaceUniqueValues] = useState(
@@ -360,14 +399,45 @@ const App = () => {
           const returnedArr = parsedData.returnedArr;
 
           if (arrayName === "filteredAgeGroupData") {
-            console.log(returnedArr);
             changeFilteredAgeGroupData(returnedArr);
+
+            postToTimelineGraphWorker(
+              "ageGroupTimelineGraphData",
+              "age_group",
+              filteredUniqueDates,
+              returnedArr,
+              filteredTimelineAgeGroupData
+            );
           } else if (arrayName === "filteredRaceUniqueValues") {
             changeFilteredRaceUniqueValues(returnedArr);
+
+            postToTimelineGraphWorker(
+              "raceTimelineGraphData",
+              "race",
+              filteredUniqueDates,
+              returnedArr,
+              filteredTimelineRaceData
+            );
           } else if (arrayName === "filteredSexUniqueValues") {
             changeFilteredSexUniqueValues(returnedArr);
+
+            postToTimelineGraphWorker(
+              "genderTimelineGraphData",
+              "sex",
+              filteredUniqueDates,
+              filteredSexUniqueValues,
+              filteredTimelineSexData
+            );
           } else if (arrayName === "filteredBoroughUniqueValues") {
             changeFilteredBoroughUniqueValues(returnedArr);
+
+            postToTimelineGraphWorker(
+              "boroughTimelineGraphData",
+              "borough",
+              filteredUniqueDates,
+              returnedArr,
+              filteredTimelineBoroughData
+            );
           } else if (arrayName === "filteredOffenseDescriptionUniqueValues") {
             changeFilteredOffenseDescriptionUniqueValues(returnedArr);
           } else if (arrayName === "ageGroupData") {
@@ -382,98 +452,125 @@ const App = () => {
         };
       }
     },
-    [filterWorkerInstance]
+    [
+      filterWorkerInstance,
+      filteredSexUniqueValues,
+      filteredTimelineAgeGroupData,
+      filteredTimelineBoroughData,
+      filteredTimelineRaceData,
+      filteredTimelineSexData,
+      filteredUniqueDates,
+      postToTimelineGraphWorker,
+    ]
   );
 
-  const prevFilteredData = usePrevious(filteredData);
-
   useEffect(() => {
-    const filteredDataInterval = setInterval(() => {
-      if (filteredData.length !== prevFilteredData.length) {
-        console.log("OD!");
-        if (filteredAgeGroup) {
-          postToFilteredWorker("filteredAgeGroupData", filteredAgeGroup);
-        }
+    if (filteredDataChanged) {
+      dispatch(ACTION_FILTERED_DATA_CHANGED_RESET());
 
-        if (filteredRaceArr) {
-          postToFilteredWorker("filteredRaceUniqueValues", filteredRaceArr);
-        }
+      if (filteredAgeGroup) {
+        postToFilteredWorker("filteredAgeGroupData", filteredAgeGroup);
+      }
 
-        if (filteredSexArr) {
-          postToFilteredWorker("filteredSexUniqueValues", filteredSexArr);
-        }
+      if (filteredRaceArr) {
+        postToFilteredWorker("filteredRaceUniqueValues", filteredRaceArr);
+      }
 
-        if (filteredBoroughArr) {
-          postToFilteredWorker(
-            "filteredBoroughUniqueValues",
-            filteredBoroughArr
-          );
-        }
+      if (filteredSexArr) {
+        postToFilteredWorker("filteredSexUniqueValues", filteredSexArr);
+      }
 
-        if (filteredOffenseDescriptionArr) {
-          postToFilteredWorker(
-            "filteredOffenseDescriptionUniqueValues",
-            filteredOffenseDescriptionArr
-          );
-        }
+      if (filteredBoroughArr) {
+        postToFilteredWorker("filteredBoroughUniqueValues", filteredBoroughArr);
+      }
 
-        if (ageGroup) {
-          postToFilteredWorker("ageGroupData", ageGroup);
-        }
-
-        if (raceArr) {
-          postToFilteredWorker("raceUniqueValues", raceArr);
-        }
-
-        if (boroughArr) {
-          postToFilteredWorker("boroughUniqueValues", boroughArr);
-        }
-
-        if (offenseDescriptionArr) {
-          postToFilteredWorker(
-            "offenseDescriptionUniqueValues",
-            offenseDescriptionArr
-          );
-        }
-
-        postToMapFilterWorker(
-          filteredData,
-          "filteredArrestCategory",
-          "LAW_CAT_CD"
-        );
-        postToMapFilterWorker(filteredData, "filteredAgeGroup", "AGE_GROUP");
-        postToMapFilterWorker(filteredData, "filteredSexArr", "PERP_SEX");
-        postToMapFilterWorker(
-          filteredData,
-          "filteredBoroughArr",
-          "ARREST_BORO"
-        );
-        postToMapFilterWorker(
-          filteredData,
-          "filteredOffenseDescriptionArr",
-          "OFNS_DESC"
+      if (filteredOffenseDescriptionArr) {
+        postToFilteredWorker(
+          "filteredOffenseDescriptionUniqueValues",
+          filteredOffenseDescriptionArr
         );
       }
-    }, 100);
 
-    return () => {
-      clearInterval(filteredDataInterval);
-    };
+      if (ageGroup) {
+        postToFilteredWorker("ageGroupData", ageGroup);
+      }
+
+      if (raceArr) {
+        postToFilteredWorker("raceUniqueValues", raceArr);
+      }
+
+      if (boroughArr) {
+        postToFilteredWorker("boroughUniqueValues", boroughArr);
+      }
+
+      if (offenseDescriptionArr) {
+        postToFilteredWorker(
+          "offenseDescriptionUniqueValues",
+          offenseDescriptionArr
+        );
+      }
+
+      postToMapFilterWorker(
+        filteredData,
+        "filteredArrestCategory",
+        "LAW_CAT_CD"
+      );
+      postToMapFilterWorker(filteredData, "filteredAgeGroup", "AGE_GROUP");
+      postToMapFilterWorker(filteredData, "filteredSexArr", "PERP_SEX");
+      postToMapFilterWorker(filteredData, "filteredRaceArr", "PERP_RACE");
+      postToMapFilterWorker(filteredData, "filteredBoroughArr", "ARREST_BORO");
+      postToMapFilterWorker(
+        filteredData,
+        "filteredOffenseDescriptionArr",
+        "OFNS_DESC"
+      );
+
+      postToMapFilterWorker(
+        filteredDataChunks,
+        "filteredUniqueCategory",
+        "LAW_CAT_CD"
+      );
+      postToMapFilterWorker(
+        filteredDataChunks,
+        "filteredUniqueDates",
+        "ARREST_DATE"
+      );
+
+      postToTimelineWorker(filteredDataChunks, "age_group", "AGE_GROUP");
+      postToTimelineWorker(filteredDataChunks, "borough", "ARREST_BORO");
+      postToTimelineWorker(filteredDataChunks, "category", "LAW_CAT_CD");
+      postToTimelineWorker(filteredDataChunks, "sex", "PERP_SEX");
+      postToTimelineWorker(filteredDataChunks, "race", "PERP_RACE");
+
+      postToTimelineGraphWorker(
+        "categoryTimelineGraphData",
+        "category",
+        filteredUniqueDates,
+        filteredUniqueCategory,
+        filteredTimelineCategoryData
+      );
+    }
   }, [
-    prevFilteredData,
-    postToFilteredWorker,
-    filteredDataChunks,
-    filteredAgeGroup,
+    filteredDataChanged,
     ageGroup,
     boroughArr,
+    filteredAgeGroup,
     filteredBoroughArr,
+    filteredData,
     filteredOffenseDescriptionArr,
     filteredRaceArr,
     filteredSexArr,
     offenseDescriptionArr,
-    raceArr,
-    filteredData,
+    postToFilteredWorker,
     postToMapFilterWorker,
+    raceArr,
+    dispatch,
+    filteredDataChunks,
+    postToTimelineWorker,
+    filteredUniqueCategory,
+    postToTimelineGraphWorker,
+    filteredTimelineCategoryData,
+    filteredUniqueDates,
   ]);
 
   useEffect(() => {
@@ -609,9 +706,11 @@ const App = () => {
           ACTION_FILTERED_DATA_CHUNKS_ADD_TO_YEAR(chunk.data, dataIndex)
         );
         dispatch(ACTION_ASSIGN_FILTERED_DATA(filteredDataChunks.flat()));
+        dispatch(ACTION_FILTERED_DATA_CHANGED());
       } else {
         dispatch(ACTION_FILTERED_DATA_CHUNKS_ADD_YEAR(chunk.data));
         dispatch(ACTION_ASSIGN_FILTERED_DATA(filteredDataChunks.flat()));
+        dispatch(ACTION_FILTERED_DATA_CHANGED());
       }
 
       const currentYearDataLength = loadDataChunks[0][chunkYear.toString()]
@@ -747,6 +846,8 @@ const App = () => {
 
     dispatch(ACTION_ASSIGN_FILTERED_DATA(assignFilteredDataFlat));
 
+    dispatch(ACTION_FILTERED_DATA_CHANGED());
+
     setTimeout(() => changeLaddaLoading(false), 2000);
   };
 
@@ -788,7 +889,7 @@ const App = () => {
 
                 const dataSent = e.data;
 
-                const chunk = dataSent.chunk;
+                const chunk = dataSent.chunk.flat();
                 const arrName = dataSent.arrName;
                 const filterExactName = dataSent.filterExactName;
 
@@ -1001,6 +1102,14 @@ const App = () => {
       changeTimelineWorkerInstance(timelineWorker);
     }
   }, [timelineWorkerInstance]);
+
+  useEffect(() => {
+    if (!timelineGraphWorkerInstance) {
+      const worker = new timelineGraphWorker();
+
+      changeTimelineGraphWorkerInstance(worker);
+    }
+  }, [timelineGraphWorkerInstance]);
 
   useEffect(() => {
     if (!filterWorkerInstance) {

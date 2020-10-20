@@ -1,0 +1,9 @@
+const FILTERED_DATA_CHANGED = "FILTERED_DATA_CHANGED";
+
+const ACTION_FILTERED_DATA_CHANGED = () => {
+  return {
+    type: FILTERED_DATA_CHANGED,
+  };
+};
+
+export default ACTION_FILTERED_DATA_CHANGED;

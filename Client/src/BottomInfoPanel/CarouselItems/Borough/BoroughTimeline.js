@@ -1,15 +1,14 @@
 import React from "react";
 import { Chart } from "react-google-charts";
 import DoubleBounce from "better-react-spinkit/dist/DoubleBounce";
-import dayjs from "dayjs";
+import { useSelector } from "react-redux";
 
 const BoroughTimeline = (props) => {
-  const {
-    filteredUniqueDates,
-    filteredTimelineBoroughData,
-    filteredBoroughUniqueValues,
-    graphOption,
-  } = props;
+  const { filteredBoroughUniqueValues, graphOption } = props;
+
+  const boroughTimelineGraphData = useSelector(
+    (state) => state.boroughTimelineGraphDataReducer.data
+  );
 
   return (
     <div
@@ -40,40 +39,7 @@ const BoroughTimeline = (props) => {
                       : "Unknown"
                   )
                 ),
-              ].concat(
-                filteredUniqueDates.length > 0 &&
-                  filteredBoroughUniqueValues.length > 0
-                  ? filteredUniqueDates[0]
-                      .sort((a, b) => {
-                        if (
-                          dayjs(a, "MM/DD/YYYY").isBefore(
-                            dayjs(b, "MM/DD/YYYY")
-                          )
-                        ) {
-                          return -1;
-                        } else {
-                          return 1;
-                        }
-                      })
-                      .map((date) => {
-                        const dateArr = date ? date.split("/") : null;
-                        const dateObj =
-                          dateArr.length > 0
-                            ? new Date(dateArr[2], dateArr[0] - 1, dateArr[1])
-                            : null;
-
-                        return [
-                          dateObj,
-                          filteredBoroughUniqueValues.map(
-                            (item) =>
-                              filteredTimelineBoroughData[0].filter(
-                                (x) => x.date === date && x.borough === item
-                              ).length
-                          ),
-                        ].flat();
-                      })
-                  : []
-              ),
+              ].concat(boroughTimelineGraphData),
             ][0]
           }
           options={{
