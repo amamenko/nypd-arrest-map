@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import AliceCarousel from "react-alice-carousel";
 import "react-alice-carousel/lib/alice-carousel.css";
@@ -52,8 +52,21 @@ const BottomInfoPanel = (props) => {
   );
 
   let CarouselRef = useRef(null);
+  let CarouselTimelineRef = useRef(null);
 
   const [graphOption, changeGraphOption] = useState("overview");
+
+  useEffect(() => {
+    if (graphOption === "overview") {
+      if (CarouselTimelineRef.current) {
+        CarouselTimelineRef.current.style.display = "none";
+      }
+    } else {
+      if (CarouselRef.current) {
+        CarouselRef.current.style.display = "none";
+      }
+    }
+  }, [graphOption]);
 
   return (
     <div
@@ -209,7 +222,10 @@ const BottomInfoPanel = (props) => {
         <FaChevronLeft
           color="rgb(0, 0, 0)"
           className="carousel_left_arrow"
-          onClick={() => CarouselRef.slidePrev()}
+          onClick={() => {
+            CarouselRef.slidePrev();
+            CarouselTimelineRef.slidePrev();
+          }}
         />
         <AliceCarousel
           ref={(el) => (CarouselRef = el)}
@@ -264,6 +280,23 @@ const BottomInfoPanel = (props) => {
               }
               graphOption={graphOption}
             />,
+          ]}
+        />
+        <AliceCarousel
+          ref={(el) => (CarouselTimelineRef = el)}
+          autoPlayInterval={5000}
+          autoPlay={true}
+          fadeOutAnimation={true}
+          dotsDisabled={true}
+          buttonsDisabled={true}
+          mouseTrackingEnabled={true}
+          playButtonEnabled={false}
+          disableAutoPlayOnAction={false}
+          responsive={{
+            0: { items: 4 },
+          }}
+          preservePosition={true}
+          items={[
             <CategoryTimeline
               key="trends"
               filteredTimelineCategoryData={filteredTimelineCategoryData}
@@ -300,12 +333,15 @@ const BottomInfoPanel = (props) => {
               filteredTimelineSexData={filteredTimelineSexData}
               graphOption={graphOption}
             />,
-          ].filter((item) => item.key === graphOption)}
+          ]}
         />
         <FaChevronRight
           color="rgb(0, 0, 0)"
           className="carousel_right_arrow"
-          onClick={() => CarouselRef.slideNext()}
+          onClick={() => {
+            CarouselRef.slideNext();
+            CarouselTimelineRef.slideNext();
+          }}
         />
       </div>
     </div>

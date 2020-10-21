@@ -29,7 +29,7 @@ const AgeGroupTimeline = (props) => {
                     item === "65" ? "65+" : item
                   )
                 ),
-              ].concat([ageGroupTimelineGraphData]),
+              ].concat(ageGroupTimelineGraphData),
             ][0]
           }
           options={{

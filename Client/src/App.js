@@ -54,9 +54,9 @@ const App = () => {
   );
   const totalCount = useSelector((state) => state.totalCountReducer.total);
 
-  // const ageGroupTimelineGraphData = useSelector(
-  //   (state) => state.ageGroupTimelineGraphDataReducer.data
-  // );
+  const ageGroupTimelineGraphData = useSelector(
+    (state) => state.ageGroupTimelineGraphDataReducer.data
+  );
   // const boroughTimelineGraphData = useSelector(
   //   (state) => state.boroughTimelineGraphDataReducer.data
   // );
@@ -250,10 +250,9 @@ const App = () => {
         });
 
         timelineGraphWorkerInstance.onmessage = (receivedData) => {
-          const parsedData = JSON.parse(receivedData.data);
+          const arrayName = receivedData.data.arrayName;
 
-          const arrayName = parsedData.arrayName;
-          const returnedArr = parsedData.returnedArr;
+          const returnedArr = receivedData.data.returnedArr;
 
           if (arrayName === "ageGroupTimelineGraphData") {
             dispatch(ACTION_TIMELINE_AGE_GROUP_GRAPH_DATA(returnedArr));
@@ -310,13 +309,26 @@ const App = () => {
             changeFilteredOffenseDescriptionArr(returnedArr);
           } else if (arrayName === "filteredUniqueCategory") {
             changeFilteredUniqueCategory(returnedArr);
+
+            postToTimelineGraphWorker(
+              "categoryTimelineGraphData",
+              "category",
+              filteredUniqueDates,
+              returnedArr,
+              filteredTimelineCategoryData
+            );
           } else {
             changeFilteredUniqueDates(returnedArr);
           }
         };
       }
     },
-    [mapFilterWorkerInstance]
+    [
+      mapFilterWorkerInstance,
+      filteredTimelineCategoryData,
+      filteredUniqueDates,
+      postToTimelineGraphWorker,
+    ]
   );
 
   const prevLoadData = usePrevious(loadData);
@@ -425,7 +437,7 @@ const App = () => {
               "genderTimelineGraphData",
               "sex",
               filteredUniqueDates,
-              filteredSexUniqueValues,
+              returnedArr,
               filteredTimelineSexData
             );
           } else if (arrayName === "filteredBoroughUniqueValues") {
@@ -454,7 +466,6 @@ const App = () => {
     },
     [
       filterWorkerInstance,
-      filteredSexUniqueValues,
       filteredTimelineAgeGroupData,
       filteredTimelineBoroughData,
       filteredTimelineRaceData,
@@ -467,6 +478,32 @@ const App = () => {
   useEffect(() => {
     if (filteredDataChanged) {
       dispatch(ACTION_FILTERED_DATA_CHANGED_RESET());
+
+      postToMapFilterWorker(
+        filteredData,
+        "filteredArrestCategory",
+        "LAW_CAT_CD"
+      );
+      postToMapFilterWorker(filteredData, "filteredAgeGroup", "AGE_GROUP");
+      postToMapFilterWorker(filteredData, "filteredSexArr", "PERP_SEX");
+      postToMapFilterWorker(filteredData, "filteredRaceArr", "PERP_RACE");
+      postToMapFilterWorker(filteredData, "filteredBoroughArr", "ARREST_BORO");
+      postToMapFilterWorker(
+        filteredData,
+        "filteredOffenseDescriptionArr",
+        "OFNS_DESC"
+      );
+
+      postToMapFilterWorker(
+        filteredDataChunks,
+        "filteredUniqueCategory",
+        "LAW_CAT_CD"
+      );
+      postToMapFilterWorker(
+        filteredDataChunks,
+        "filteredUniqueDates",
+        "ARREST_DATE"
+      );
 
       if (filteredAgeGroup) {
         postToFilteredWorker("filteredAgeGroupData", filteredAgeGroup);
@@ -510,45 +547,11 @@ const App = () => {
         );
       }
 
-      postToMapFilterWorker(
-        filteredData,
-        "filteredArrestCategory",
-        "LAW_CAT_CD"
-      );
-      postToMapFilterWorker(filteredData, "filteredAgeGroup", "AGE_GROUP");
-      postToMapFilterWorker(filteredData, "filteredSexArr", "PERP_SEX");
-      postToMapFilterWorker(filteredData, "filteredRaceArr", "PERP_RACE");
-      postToMapFilterWorker(filteredData, "filteredBoroughArr", "ARREST_BORO");
-      postToMapFilterWorker(
-        filteredData,
-        "filteredOffenseDescriptionArr",
-        "OFNS_DESC"
-      );
-
-      postToMapFilterWorker(
-        filteredDataChunks,
-        "filteredUniqueCategory",
-        "LAW_CAT_CD"
-      );
-      postToMapFilterWorker(
-        filteredDataChunks,
-        "filteredUniqueDates",
-        "ARREST_DATE"
-      );
-
       postToTimelineWorker(filteredDataChunks, "age_group", "AGE_GROUP");
       postToTimelineWorker(filteredDataChunks, "borough", "ARREST_BORO");
       postToTimelineWorker(filteredDataChunks, "category", "LAW_CAT_CD");
       postToTimelineWorker(filteredDataChunks, "sex", "PERP_SEX");
       postToTimelineWorker(filteredDataChunks, "race", "PERP_RACE");
-
-      postToTimelineGraphWorker(
-        "categoryTimelineGraphData",
-        "category",
-        filteredUniqueDates,
-        filteredUniqueCategory,
-        filteredTimelineCategoryData
-      );
     }
   }, [
     filteredDataChanged,
@@ -1273,7 +1276,7 @@ const App = () => {
         changeMapVisible(true);
       }
     }
-  }, [totalCount, mapVisible]);
+  }, [totalCount, mapVisible, ageGroupTimelineGraphData.length]);
 
   return (
     <>
