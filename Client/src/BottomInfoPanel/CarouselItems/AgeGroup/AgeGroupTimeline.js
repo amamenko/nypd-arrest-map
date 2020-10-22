@@ -9,7 +9,6 @@ const AgeGroupTimeline = (props) => {
   const ageGroupTimelineGraphData = useSelector(
     (state) => state.ageGroupTimelineGraphDataReducer.data
   );
-
   return (
     <div
       className="bottom_info_panel_info_box"
