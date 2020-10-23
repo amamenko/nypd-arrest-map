@@ -4,14 +4,10 @@ import DoubleBounce from "better-react-spinkit/dist/DoubleBounce";
 import { useSelector } from "react-redux";
 
 const GenderTimeline = (props) => {
-  const { filteredSexUniqueValues, graphOption } = props;
+  const { graphOption } = props;
 
-  const genderArr = filteredSexUniqueValues.map((x) =>
-    x === "F" ? "Female" : "Male"
-  );
-
-  const genderTimelineGraphData = useSelector(
-    (state) => state.genderTimelineGraphDataReducer.data
+  const sexTimelineColumns = useSelector(
+    (state) => state.sexTimelineColumnsReducer.columns
   );
 
   return (
@@ -25,13 +21,7 @@ const GenderTimeline = (props) => {
         <Chart
           chartType="LineChart"
           loader={<DoubleBounce size={100} color="rgb(93, 188, 210)" />}
-          data={
-            [
-              [[{ type: "date", label: "Date" }].concat(genderArr)].concat(
-                genderTimelineGraphData
-              ),
-            ][0]
-          }
+          data={sexTimelineColumns}
           options={{
             backgroundColor: "transparent",
             width: 500,

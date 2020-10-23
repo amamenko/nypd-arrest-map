@@ -1,0 +1,10 @@
+const BOROUGH_TIMELINE_COLUMNS = "BOROUGH_TIMELINE_COLUMNS";
+
+const ACTION_BOROUGH_TIMELINE_COLUMNS = (columns) => {
+  return {
+    type: BOROUGH_TIMELINE_COLUMNS,
+    columns,
+  };
+};
+
+export default ACTION_BOROUGH_TIMELINE_COLUMNS;

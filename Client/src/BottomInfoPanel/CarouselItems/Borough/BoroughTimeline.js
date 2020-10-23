@@ -4,10 +4,10 @@ import DoubleBounce from "better-react-spinkit/dist/DoubleBounce";
 import { useSelector } from "react-redux";
 
 const BoroughTimeline = (props) => {
-  const { filteredBoroughUniqueValues, graphOption } = props;
+  const { graphOption } = props;
 
-  const boroughTimelineGraphData = useSelector(
-    (state) => state.boroughTimelineGraphDataReducer.data
+  const boroughTimelineColumns = useSelector(
+    (state) => state.boroughTimelineColumnsReducer.columns
   );
 
   return (
@@ -21,27 +21,7 @@ const BoroughTimeline = (props) => {
         <Chart
           chartType="LineChart"
           loader={<DoubleBounce size={100} color="rgb(93, 188, 210)" />}
-          data={
-            [
-              [
-                [{ type: "date", label: "Date" }].concat(
-                  filteredBoroughUniqueValues.map((borough) =>
-                    borough === "B"
-                      ? "Bronx"
-                      : borough === "Q"
-                      ? "Queens"
-                      : borough === "M"
-                      ? "Manhattan"
-                      : borough === "K"
-                      ? "Brooklyn"
-                      : borough === "S"
-                      ? "Staten Island"
-                      : "Unknown"
-                  )
-                ),
-              ].concat(boroughTimelineGraphData),
-            ][0]
-          }
+          data={boroughTimelineColumns}
           options={{
             backgroundColor: "transparent",
             width: 500,

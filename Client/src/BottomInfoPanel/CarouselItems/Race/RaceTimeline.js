@@ -4,25 +4,10 @@ import DoubleBounce from "better-react-spinkit/dist/DoubleBounce";
 import { useSelector } from "react-redux";
 
 const RaceTimeline = (props) => {
-  const { filteredRaceUniqueValues, graphOption } = props;
+  const { graphOption } = props;
 
-  const raceArr = filteredRaceUniqueValues.map((race) =>
-    race
-      .split(" ")
-      .map((x) => x[0].toUpperCase() + x.slice(1).toLowerCase())
-      .join(" ")
-      .split("/")
-      .map(
-        (x) =>
-          x[0].toUpperCase() +
-          x.slice(1, x.indexOf(" ")).toLowerCase() +
-          x.slice(x.indexOf(" "))
-      )
-      .join("/")
-  );
-
-  const raceTimelineGraphData = useSelector(
-    (state) => state.raceTimelineGraphDataReducer.data
+  const raceTimelineColumns = useSelector(
+    (state) => state.raceTimelineColumnsReducer.columns
   );
 
   return (
@@ -36,13 +21,7 @@ const RaceTimeline = (props) => {
         <Chart
           chartType="LineChart"
           loader={<DoubleBounce size={100} color="rgb(93, 188, 210)" />}
-          data={
-            [
-              [[{ type: "date", label: "Date" }].concat(raceArr)].concat(
-                raceTimelineGraphData
-              ),
-            ][0]
-          }
+          data={raceTimelineColumns}
           options={{
             backgroundColor: "transparent",
             width: 500,

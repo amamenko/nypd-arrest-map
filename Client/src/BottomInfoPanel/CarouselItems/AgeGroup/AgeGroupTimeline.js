@@ -4,11 +4,12 @@ import DoubleBounce from "better-react-spinkit/dist/DoubleBounce";
 import { useSelector } from "react-redux";
 
 const AgeGroupTimeline = (props) => {
-  const { filteredAgeGroupData, graphOption } = props;
+  const { graphOption } = props;
 
-  const ageGroupTimelineGraphData = useSelector(
-    (state) => state.ageGroupTimelineGraphDataReducer.data
+  const ageTimelineColumns = useSelector(
+    (state) => state.ageTimelineColumnsReducer.columns
   );
+
   return (
     <div
       className="bottom_info_panel_info_box"
@@ -20,17 +21,7 @@ const AgeGroupTimeline = (props) => {
         <Chart
           chartType="LineChart"
           loader={<DoubleBounce size={100} color="rgb(93, 188, 210)" />}
-          data={
-            [
-              [
-                [{ type: "date", label: "Date" }].concat(
-                  filteredAgeGroupData.map((item) =>
-                    item === "65" ? "65+" : item
-                  )
-                ),
-              ].concat(ageGroupTimelineGraphData),
-            ][0]
-          }
+          data={ageTimelineColumns}
           options={{
             backgroundColor: "transparent",
             width: 500,

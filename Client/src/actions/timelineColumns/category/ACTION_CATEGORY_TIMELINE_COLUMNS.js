@@ -1,0 +1,10 @@
+const CATEGORY_TIMELINE_COLUMNS = "CATEGORY_TIMELINE_COLUMNS";
+
+const ACTION_CATEGORY_TIMELINE_COLUMNS = (columns) => {
+  return {
+    type: CATEGORY_TIMELINE_COLUMNS,
+    columns,
+  };
+};
+
+export default ACTION_CATEGORY_TIMELINE_COLUMNS;

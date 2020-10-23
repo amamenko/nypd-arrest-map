@@ -33,6 +33,11 @@ const NavigationBar = (props) => {
     laddaLoading,
     loadedYears,
     handleDownloadYear,
+    ageGroupTimelineGraphData,
+    menuClicked,
+    changeMenuClicked,
+    collapseOpen,
+    changeCollapseOpen,
   } = props;
 
   const dispatch = useDispatch();
@@ -65,8 +70,6 @@ const NavigationBar = (props) => {
   );
 
   const [tooltipVisible, changeTooltipVisible] = useState(true);
-  const [menuClicked, changeMenuClicked] = useState(false);
-  const [collapseOpen, changeCollapseOpen] = useState("");
 
   const filterByYear = () => {
     return (
@@ -304,7 +307,7 @@ const NavigationBar = (props) => {
             </p>
           </div>
         }
-        visible={totalCount > 70000}
+        visible={totalCount > 70000 && ageGroupTimelineGraphData.length > 0}
         allowHTML={true}
         reference={
           !currentScreenWidth
@@ -348,7 +351,7 @@ const NavigationBar = (props) => {
             </div>
           </div>
         }
-        visible={totalCount > 70000}
+        visible={totalCount > 70000 && ageGroupTimelineGraphData.length > 0}
         allowHTML={true}
         reference={mapboxAttribRef[0]}
         className="overview_tooltip legend_tooltip"
@@ -363,7 +366,11 @@ const NavigationBar = (props) => {
       </div>
       <Tippy
         content="Click here to set data filters"
-        visible={tooltipVisible && totalCount > 70000}
+        visible={
+          tooltipVisible &&
+          totalCount > 70000 &&
+          ageGroupTimelineGraphData.length > 0
+        }
         reference={burgerMenu[0]}
         className="burger_tooltip"
         placement="bottom-end"
@@ -474,7 +481,8 @@ const NavigationBar = (props) => {
           className="nav_item"
         >
           <div className="nav_item_content_container">
-            {!offenseDescriptionUniqueValues
+            {!offenseDescriptionUniqueValues ||
+            offenseDescriptionUniqueValues.length === 0
               ? null
               : offenseDescriptionUniqueValues.map((desc, i) => {
                   if (

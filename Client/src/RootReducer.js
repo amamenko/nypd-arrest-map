@@ -18,12 +18,25 @@ import categoryTimelineGraphDataReducer from "./reducers/timelineGraphData/categ
 import genderTimelineGraphDataReducer from "./reducers/timelineGraphData/gender/genderTimelineGraphDataReducer";
 import raceTimelineGraphDataReducer from "./reducers/timelineGraphData/race/raceTimelineGraphDataReducer";
 
+import ageTimelineColumnsReducer from "./reducers/timelineColumns/age/ageTimelineColumnsReducer";
+import boroughTimelineColumnsReducer from "./reducers/timelineColumns/borough/boroughTimelineColumnsReducer";
+import categoryTimelineColumnsReducer from "./reducers/timelineColumns/category/categoryTimelineColumnsReducer";
+import raceTimelineColumnsReducer from "./reducers/timelineColumns/race/raceTimelineColumnsReducer";
+import sexTimelineColumnsReducer from "./reducers/timelineColumns/sex/sexTimelineColumnsReducer";
+
 const RootReducer = combineReducers({
   // General data states
   filteredDataReducer: filteredDataReducer,
   filteredDataChunksReducer: filteredDataChunksReducer,
   loadDataChunksReducer: loadDataChunksReducer,
   totalCountReducer: totalCountReducer,
+
+  // Timeline columns
+  ageTimelineColumnsReducer: ageTimelineColumnsReducer,
+  boroughTimelineColumnsReducer: boroughTimelineColumnsReducer,
+  categoryTimelineColumnsReducer: categoryTimelineColumnsReducer,
+  raceTimelineColumnsReducer: raceTimelineColumnsReducer,
+  sexTimelineColumnsReducer: sexTimelineColumnsReducer,
 
   // Filters
   yearFilterReducer: yearFilterReducer,
@@ -34,7 +47,7 @@ const RootReducer = combineReducers({
   sexFilterReducer: sexFilterReducer,
   boroughFilterReducer: boroughFilterReducer,
 
-  // Timeline graph data,
+  // Timeline graph data
   ageGroupTimelineGraphDataReducer: ageGroupTimelineGraphDataReducer,
   boroughTimelineGraphDataReducer: boroughTimelineGraphDataReducer,
   categoryTimelineGraphDataReducer: categoryTimelineGraphDataReducer,
