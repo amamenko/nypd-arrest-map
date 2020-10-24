@@ -74,6 +74,9 @@ const App = () => {
   const raceTimelineGraphData = useSelector(
     (state) => state.raceTimelineGraphDataReducer.data
   );
+  const ageTimelineColumns = useSelector(
+    (state) => state.ageTimelineColumnsReducer.columns
+  );
 
   const [mapLoaded, changeMapLoaded] = useState(false);
   const [tooltipVisible, changeTooltipVisible] = useState(false);
@@ -512,8 +515,6 @@ const App = () => {
       filteredUniqueDates !== prevFilteredUniqueDates ||
       filteredUniqueCategory !== prevFilteredUniqueCategory
     ) {
-      console.log(filteredUniqueCategory);
-
       postToTimelineGraphWorker(
         "categoryTimelineGraphData",
         "category",
@@ -997,10 +998,10 @@ const App = () => {
             sex: sex,
             borough: borough,
           });
+
+          dispatch(ACTION_FILTERED_DATA_CHANGED());
         }
       };
-
-      dispatch(ACTION_FILTERED_DATA_CHANGED());
 
       setTimeout(() => changeLaddaLoading(false), 1000);
     }
@@ -1423,7 +1424,7 @@ const App = () => {
                 }
 
                 ws.onopen = () => {
-                  // Send one bite to websocket every 55 seconds to keep socket from closing itself on idle
+                  // Send one byte to websocket every 55 seconds to keep socket from closing itself on idle
                   setInterval(() => {
                     ws.send(".");
                   }, 55000);
@@ -1478,16 +1479,16 @@ const App = () => {
   ]);
 
   useEffect(() => {
-    if (totalCount > 70000 && ageGroupTimelineGraphData.length === 0) {
+    if (totalCount > 70000 && ageTimelineColumns.length === 0) {
       if (!mapVisible) {
         changeMapVisible(true);
       }
     }
-  }, [totalCount, mapVisible, ageGroupTimelineGraphData.length]);
+  }, [totalCount, mapVisible, ageTimelineColumns.length]);
 
   return (
     <>
-      {totalCount < 70000 || ageGroupTimelineGraphData.length === 0 ? (
+      {totalCount < 70000 || ageTimelineColumns.length === 0 ? (
         <InitialLoader
           fetchProgress={fetchProgress}
           countUp={countUp}
@@ -1505,9 +1506,7 @@ const App = () => {
         className="nypd_arrest_map_container"
         style={{
           opacity:
-            totalCount < 70000 || ageGroupTimelineGraphData.length === 0
-              ? 0
-              : 1,
+            totalCount < 70000 || ageTimelineColumns.length === 0 ? 0 : 1,
         }}
       >
         <NavigationBar

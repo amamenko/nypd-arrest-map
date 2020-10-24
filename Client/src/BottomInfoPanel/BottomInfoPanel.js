@@ -229,8 +229,7 @@ const BottomInfoPanel = (props) => {
         />
         <AliceCarousel
           ref={(el) => (CarouselRef = el)}
-          autoPlayInterval={5000}
-          autoPlay={true}
+          autoPlay={false}
           fadeOutAnimation={true}
           dotsDisabled={true}
           buttonsDisabled={true}
@@ -284,8 +283,7 @@ const BottomInfoPanel = (props) => {
         />
         <AliceCarousel
           ref={(el) => (CarouselTimelineRef = el)}
-          autoPlayInterval={5000}
-          autoPlay={true}
+          autoPlay={false}
           fadeOutAnimation={true}
           dotsDisabled={true}
           buttonsDisabled={true}
