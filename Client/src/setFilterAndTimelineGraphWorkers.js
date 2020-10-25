@@ -70,10 +70,6 @@ onmessage = (e) => {
     });
   } else {
     // Timeline graph calculations
-    const uniqueValues = (value, index, self) => {
-      return self.indexOf(value) === index;
-    };
-
     const name = dataSent.arrName;
     const arr = dataSent.arr;
     const generalName = dataSent.generalName;
@@ -140,20 +136,23 @@ onmessage = (e) => {
                 return [
                   new Date(dateArr[2], dateArr[0] - 1, dateArr[1]),
                   unique
-                    .map((x) =>
-                      x === "F"
-                        ? "Felony"
-                        : x === "M"
-                        ? "Misdemeanor"
-                        : "Violation"
-                    )
-                    .filter(uniqueValues)
-                    .map(
-                      (item) =>
-                        dataArr[0].filter(
-                          (x) => x.date === date && x[generalName] === item
-                        ).length
-                    ),
+                    ? [
+                        ...new Set(
+                          unique.map((x) =>
+                            x === "F"
+                              ? "Felony"
+                              : x === "M"
+                              ? "Misdemeanor"
+                              : "Violation"
+                          )
+                        ),
+                      ].map(
+                        (item) =>
+                          dataArr[0].filter(
+                            (x) => x.date === date && x[generalName] === item
+                          ).length
+                      )
+                    : [],
                 ].flat();
               } else if (name === "genderTimelineGraphData") {
                 return [

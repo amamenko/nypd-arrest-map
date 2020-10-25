@@ -33,7 +33,6 @@ const NavigationBar = (props) => {
     laddaLoading,
     loadedYears,
     handleDownloadYear,
-    ageGroupTimelineGraphData,
     menuClicked,
     changeMenuClicked,
     collapseOpen,
@@ -61,6 +60,9 @@ const NavigationBar = (props) => {
     (state) => state.offenseFilterReducer.offense
   );
   const raceFilter = useSelector((state) => state.raceFilterReducer.race);
+  const ageTimelineColumns = useSelector(
+    (state) => state.ageTimelineColumnsReducer.columns
+  );
 
   const logoContainerRef = useRef(null);
 
@@ -307,7 +309,7 @@ const NavigationBar = (props) => {
             </p>
           </div>
         }
-        visible={totalCount > 70000 && ageGroupTimelineGraphData.length > 0}
+        visible={totalCount > 70000 && ageTimelineColumns.length > 0}
         allowHTML={true}
         reference={
           !currentScreenWidth
@@ -351,7 +353,7 @@ const NavigationBar = (props) => {
             </div>
           </div>
         }
-        visible={totalCount > 70000 && ageGroupTimelineGraphData.length > 0}
+        visible={totalCount > 70000 && ageTimelineColumns.length > 0}
         allowHTML={true}
         reference={mapboxAttribRef[0]}
         className="overview_tooltip legend_tooltip"
@@ -367,9 +369,7 @@ const NavigationBar = (props) => {
       <Tippy
         content="Click here to set data filters"
         visible={
-          tooltipVisible &&
-          totalCount > 70000 &&
-          ageGroupTimelineGraphData.length > 0
+          tooltipVisible && totalCount > 70000 && ageTimelineColumns.length > 0
         }
         reference={burgerMenu[0]}
         className="burger_tooltip"
@@ -406,9 +406,7 @@ const NavigationBar = (props) => {
                     loadedYears.includes(year) ? null : "unfetched_year_button"
                   }
                   onClick={() => {
-                    if (loadedYears.includes(year)) {
-                      handleYearFilters(year);
-                    } else {
+                    if (!loadedYears.includes(year)) {
                       handleDownloadYear(year);
                       changeMenuClicked(false);
                     }
@@ -419,7 +417,14 @@ const NavigationBar = (props) => {
                       <input
                         name="my-checkbox"
                         type="checkbox"
-                        defaultChecked={loadedYears.includes(year)}
+                        checked={
+                          yearFilter.length === 0 || yearFilter.includes(year)
+                        }
+                        onChange={() => {
+                          if (loadedYears.includes(year)) {
+                            handleYearFilters(year);
+                          }
+                        }}
                       />
                     ) : (
                       <FaCloudDownloadAlt className="year_download_icon" />
@@ -446,7 +451,8 @@ const NavigationBar = (props) => {
                 <input
                   name="my-checkbox"
                   type="checkbox"
-                  onClick={() => handleCategoryFilters("F")}
+                  checked={categoryFilter.includes("F")}
+                  onChange={() => handleCategoryFilters("F")}
                 />
                 Felony
               </label>
@@ -456,7 +462,8 @@ const NavigationBar = (props) => {
                 <input
                   name="my-checkbox"
                   type="checkbox"
-                  onClick={() => handleCategoryFilters("M")}
+                  checked={categoryFilter.includes("M")}
+                  onChange={() => handleCategoryFilters("M")}
                 />
                 Misdemeanor
               </label>
@@ -466,7 +473,8 @@ const NavigationBar = (props) => {
                 <input
                   name="my-checkbox"
                   type="checkbox"
-                  onClick={() => handleCategoryFilters("V")}
+                  checked={categoryFilter.includes("V")}
+                  onChange={() => handleCategoryFilters("V")}
                 />
                 Violation
               </label>
@@ -495,7 +503,8 @@ const NavigationBar = (props) => {
                           <input
                             name="my-checkbox"
                             type="checkbox"
-                            onClick={() => handleOffenseFilters(desc)}
+                            checked={offenseFilter.includes(desc)}
+                            onChange={() => handleOffenseFilters(desc)}
                           />
                           {desc
                             .split(" ")
@@ -538,7 +547,8 @@ const NavigationBar = (props) => {
                         <input
                           name="my-checkbox"
                           type="checkbox"
-                          onClick={() => handleAgeFilters(age)}
+                          checked={ageFilter.includes(age)}
+                          onChange={() => handleAgeFilters(age)}
                         />
                         {age === "65" ? "65+" : age}
                       </label>
@@ -565,7 +575,8 @@ const NavigationBar = (props) => {
                           <input
                             name="my-checkbox"
                             type="checkbox"
-                            onClick={() => handleRaceFilters(race)}
+                            checked={raceFilter.includes(race)}
+                            onChange={() => handleRaceFilters(race)}
                           />
                           {race &&
                             race
@@ -605,7 +616,8 @@ const NavigationBar = (props) => {
                 <input
                   name="my-checkbox"
                   type="checkbox"
-                  onClick={() => handleSexFilters("F")}
+                  checked={sexFilter.includes("F")}
+                  onChange={() => handleSexFilters("F")}
                 />
                 Female
               </label>
@@ -615,7 +627,8 @@ const NavigationBar = (props) => {
                 <input
                   name="my-checkbox"
                   type="checkbox"
-                  onClick={() => handleSexFilters("M")}
+                  checked={sexFilter.includes("M")}
+                  onChange={() => handleSexFilters("M")}
                 />
                 Male
               </label>
@@ -639,7 +652,8 @@ const NavigationBar = (props) => {
                         <input
                           name="my-checkbox"
                           type="checkbox"
-                          onClick={() => handleBoroughFilters(borough)}
+                          checked={boroughFilter.includes(borough)}
+                          onChange={() => handleBoroughFilters(borough)}
                         />
                         {borough === "B"
                           ? "Bronx"

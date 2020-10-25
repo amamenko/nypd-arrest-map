@@ -11,9 +11,12 @@ const filteredDataChunksReducer = (state = { data: [] }, action) => {
       return { ...state, data: newPushState };
     case FILTERED_DATA_CHUNKS_ADD_TO_YEAR:
       const newConcatState = state.data;
-      newConcatState[action.dataIndex] = newConcatState[
-        action.dataIndex
-      ].concat(action.data);
+
+      if (newConcatState[action.dataIndex]) {
+        newConcatState[action.dataIndex] = newConcatState[
+          action.dataIndex
+        ].concat(action.data);
+      }
 
       return {
         ...state,

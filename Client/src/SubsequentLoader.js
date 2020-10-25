@@ -1,11 +1,10 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import {
   CircularProgressbarWithChildren,
   buildStyles,
 } from "react-circular-progressbar";
 import { GiHandcuffs } from "react-icons/gi";
 import "react-circular-progressbar/dist/styles.css";
-import { useCountUp } from "react-countup";
 import Modal from "react-modal";
 import yearlyTotals from "./YearlyTotals";
 import { useSelector } from "react-redux";
@@ -13,20 +12,15 @@ import { useSelector } from "react-redux";
 const SubsequentLoader = (props) => {
   const { modalActive, changeModalActive } = props;
 
-  const { countUp, update } = useCountUp({
-    start: 0,
-    end: 0,
-    delay: 0,
-    duration: 1,
-  });
-
   const loadDataChunks = useSelector(
     (state) => state.loadDataChunksReducer.data
   );
 
+  const [newProgress, changeNewProgress] = useState(0);
+
   useEffect(() => {
     if (loadDataChunks[0][modalActive.year.toString()]) {
-      const newProgress =
+      const progress =
         Number(
           loadDataChunks[0][modalActive.year.toString()]
             .map((x) => x.length)
@@ -34,16 +28,15 @@ const SubsequentLoader = (props) => {
             yearlyTotals[modalActive.year.toString()]
         ).toFixed(1) * 100;
 
-      if (newProgress >= 80 && countUp !== 100) {
-        update(100);
+      if (newProgress === 100) {
         changeModalActive({ active: false, year: null });
       } else {
-        if (newProgress && newProgress !== countUp) {
-          update(newProgress);
+        if (progress && progress !== newProgress) {
+          changeNewProgress(progress);
         }
       }
     }
-  }, [update, countUp, loadDataChunks, modalActive.year, changeModalActive]);
+  }, [loadDataChunks, modalActive.year, changeModalActive, newProgress]);
 
   return (
     <Modal
@@ -73,7 +66,7 @@ const SubsequentLoader = (props) => {
       }}
     >
       <CircularProgressbarWithChildren
-        value={countUp}
+        value={newProgress}
         styles={buildStyles({
           strokeLinecap: "butt",
           trailColor: "#eee",
@@ -81,7 +74,7 @@ const SubsequentLoader = (props) => {
       >
         <GiHandcuffs color="#fff" size="4rem" />
         <div style={{ fontSize: 30, marginTop: 20, color: "#fff" }}>
-          <strong>{countUp}%</strong>
+          <strong>{newProgress}%</strong>
         </div>
       </CircularProgressbarWithChildren>
       <p>Loading {modalActive.year} Arrest Data</p>

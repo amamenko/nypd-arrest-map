@@ -38,6 +38,7 @@ const BottomInfoPanel = (props) => {
     currentFilters,
     loadedYears,
     isSame,
+    usePrevious,
 
     filteredUniqueDates,
     filteredTimelineAgeGroupData,
@@ -278,6 +279,8 @@ const BottomInfoPanel = (props) => {
                 filteredOffenseDescriptionUniqueValues
               }
               graphOption={graphOption}
+              isSame={isSame}
+              usePrevious={usePrevious}
             />,
           ]}
         />

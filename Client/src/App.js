@@ -41,6 +41,13 @@ import ACTION_BOROUGH_TIMELINE_COLUMNS from "./actions/timelineColumns/borough/A
 import ACTION_CATEGORY_TIMELINE_COLUMNS from "./actions/timelineColumns/category/ACTION_CATEGORY_TIMELINE_COLUMNS";
 import ACTION_SEX_TIMELINE_COLUMNS from "./actions/timelineColumns/sex/ACTION_SEX_TIMELINE_COLUMNS";
 import ACTION_RACE_TIMELINE_COLUMNS from "./actions/timelineColumns/race/ACTION_RACE_TIMELINE_COLUMNS";
+import ACTION_CHANGE_YEAR_FILTER from "./actions/filters/year/ACTION_CHANGE_YEAR_FILTER";
+import ACTION_CHANGE_CATEGORY_FILTER from "./actions/filters/category/ACTION_CHANGE_CATEGORY_FILTER";
+import ACTION_CHANGE_OFFENSE_FILTER from "./actions/filters/offense/ACTION_CHANGE_OFFENSE_FILTER";
+import ACTION_CHANGE_RACE_FILTER from "./actions/filters/race/ACTION_CHANGE_RACE_FILTER";
+import ACTION_CHANGE_AGE_FILTER from "./actions/filters/age/ACTION_CHANGE_AGE_FILTER";
+import ACTION_CHANGE_SEX_FILTER from "./actions/filters/sex/ACTION_CHANGE_SEX_FILTER";
+import ACTION_CHANGE_BOROUGH_FILTER from "./actions/filters/borough/ACTION_CHANGE_BOROUGH_FILTER";
 
 dayjs.extend(customParseFormat);
 
@@ -86,15 +93,6 @@ const App = () => {
     active: false,
     year: null,
   });
-
-  // Filters
-  const [categoryFilter, changeCategoryFilter] = useState([]);
-  const [offenseFilter, changeOffenseFilter] = useState([]);
-  const [ageFilter, changeAgeFilter] = useState([]);
-  const [raceFilter, changeRaceFilter] = useState([]);
-  const [sexFilter, changeSexFilter] = useState([]);
-  const [boroughFilter, changeBoroughFilter] = useState([]);
-  const [yearFilter, changeYearFilter] = useState([2020]);
 
   const [currentFilters, changeCurrentFilters] = useState({
     year: [],
@@ -150,10 +148,6 @@ const App = () => {
   };
 
   const prevFilters = usePrevious(currentFilters);
-
-  const uniqueValues = (value, index, self) => {
-    return self.indexOf(value) === index;
-  };
 
   const loadedYears = Object.keys(loadDataChunks[0]).map((x) => Number(x));
 
@@ -383,9 +377,9 @@ const App = () => {
               returnedArr
             );
           } else if (arrayName === "filteredUniqueCategory") {
-            console.log(returnedArr);
             changeFilteredUniqueCategory(returnedArr);
           } else {
+            console.log(returnedArr);
             changeFilteredUniqueDates(returnedArr);
           }
         };
@@ -642,97 +636,115 @@ const App = () => {
 
   useEffect(() => {
     if (ageGroupTimelineGraphData !== prevAgeGroupTimelineGraphData) {
-      dispatch(
-        ACTION_AGE_TIMELINE_COLUMNS(
-          [
-            [{ type: "date", label: "Date" }].concat(
-              filteredAgeGroupData.map((item) => (item === "65" ? "65+" : item))
-            ),
-          ].concat(ageGroupTimelineGraphData)
-        )
-      );
+      if (ageGroupTimelineGraphData.length > 0) {
+        dispatch(
+          ACTION_AGE_TIMELINE_COLUMNS(
+            [
+              [{ type: "date", label: "Date" }].concat(
+                filteredAgeGroupData.map((item) =>
+                  item === "65" ? "65+" : item
+                )
+              ),
+            ].concat(ageGroupTimelineGraphData)
+          )
+        );
+      }
     }
 
     if (boroughTimelineGraphData !== prevBoroughTimelineGraphData) {
-      dispatch(
-        ACTION_BOROUGH_TIMELINE_COLUMNS(
-          [
-            [{ type: "date", label: "Date" }].concat(
-              filteredBoroughUniqueValues.map((borough) =>
-                borough === "B"
-                  ? "Bronx"
-                  : borough === "Q"
-                  ? "Queens"
-                  : borough === "M"
-                  ? "Manhattan"
-                  : borough === "K"
-                  ? "Brooklyn"
-                  : borough === "S"
-                  ? "Staten Island"
-                  : "Unknown"
-              )
-            ),
-          ].concat(boroughTimelineGraphData)
-        )
-      );
+      if (boroughTimelineGraphData.length > 0) {
+        dispatch(
+          ACTION_BOROUGH_TIMELINE_COLUMNS(
+            [
+              [{ type: "date", label: "Date" }].concat(
+                filteredBoroughUniqueValues.map((borough) =>
+                  borough === "B"
+                    ? "Bronx"
+                    : borough === "Q"
+                    ? "Queens"
+                    : borough === "M"
+                    ? "Manhattan"
+                    : borough === "K"
+                    ? "Brooklyn"
+                    : borough === "S"
+                    ? "Staten Island"
+                    : "Unknown"
+                )
+              ),
+            ].concat(boroughTimelineGraphData)
+          )
+        );
+      }
     }
 
     if (categoryTimelineGraphData !== prevCategoryTimelineGraphData) {
-      const categoryArr =
-        filteredUniqueCategory.length > 0
-          ? filteredUniqueCategory
-              .map((x) =>
-                x === "F" ? "Felony" : x === "M" ? "Misdemeanor" : "Violation"
-              )
-              .filter(uniqueValues)
-          : [];
+      if (categoryTimelineGraphData.length > 0) {
+        const categoryArr =
+          filteredUniqueCategory.length > 0
+            ? [
+                ...new Set(
+                  filteredUniqueCategory.map((x) =>
+                    x === "F"
+                      ? "Felony"
+                      : x === "M"
+                      ? "Misdemeanor"
+                      : "Violation"
+                  )
+                ),
+              ]
+            : [];
 
-      dispatch(
-        ACTION_CATEGORY_TIMELINE_COLUMNS(
-          [[{ type: "date", label: "Date" }].concat(categoryArr)].concat(
-            categoryTimelineGraphData
+        dispatch(
+          ACTION_CATEGORY_TIMELINE_COLUMNS(
+            [[{ type: "date", label: "Date" }].concat(categoryArr)].concat(
+              categoryTimelineGraphData
+            )
           )
-        )
-      );
+        );
+      }
     }
 
     if (genderTimelineGraphData !== prevGenderTimelineGraphData) {
-      const genderArr = filteredSexUniqueValues.map((x) =>
-        x === "F" ? "Female" : "Male"
-      );
+      if (genderTimelineGraphData.length > 0) {
+        const genderArr = filteredSexUniqueValues.map((x) =>
+          x === "F" ? "Female" : "Male"
+        );
 
-      dispatch(
-        ACTION_SEX_TIMELINE_COLUMNS(
-          [[{ type: "date", label: "Date" }].concat(genderArr)].concat(
-            genderTimelineGraphData
+        dispatch(
+          ACTION_SEX_TIMELINE_COLUMNS(
+            [[{ type: "date", label: "Date" }].concat(genderArr)].concat(
+              genderTimelineGraphData
+            )
           )
-        )
-      );
+        );
+      }
     }
 
     if (raceTimelineGraphData !== prevRaceTimelineGraphData) {
-      const raceArr = filteredRaceUniqueValues.map((race) =>
-        race
-          .split(" ")
-          .map((x) => x[0].toUpperCase() + x.slice(1).toLowerCase())
-          .join(" ")
-          .split("/")
-          .map(
-            (x) =>
-              x[0].toUpperCase() +
-              x.slice(1, x.indexOf(" ")).toLowerCase() +
-              x.slice(x.indexOf(" "))
-          )
-          .join("/")
-      );
+      if (raceTimelineGraphData.length > 0) {
+        const raceArr = filteredRaceUniqueValues.map((race) =>
+          race
+            .split(" ")
+            .map((x) => x[0].toUpperCase() + x.slice(1).toLowerCase())
+            .join(" ")
+            .split("/")
+            .map(
+              (x) =>
+                x[0].toUpperCase() +
+                x.slice(1, x.indexOf(" ")).toLowerCase() +
+                x.slice(x.indexOf(" "))
+            )
+            .join("/")
+        );
 
-      dispatch(
-        ACTION_RACE_TIMELINE_COLUMNS(
-          [[{ type: "date", label: "Date" }].concat(raceArr)].concat(
-            raceTimelineGraphData
+        dispatch(
+          ACTION_RACE_TIMELINE_COLUMNS(
+            [[{ type: "date", label: "Date" }].concat(raceArr)].concat(
+              raceTimelineGraphData
+            )
           )
-        )
-      );
+        );
+      }
     }
   }, [
     ageGroupTimelineGraphData,
@@ -876,19 +888,17 @@ const App = () => {
       // Year does not exist, create new year and add data
       if (!loadDataChunks[0][chunkYear.toString()]) {
         dispatch(ACTION_LOAD_DATA_CHUNKS_ADD_YEAR(chunk.data, chunkYear));
-      } else {
-        // Year exists, add additional data to it
-        dispatch(ACTION_LOAD_DATA_CHUNKS_ADD_TO_YEAR(chunk.data, chunkYear));
-      }
 
-      if (filteredDataChunks[dataIndex]) {
-        dispatch(
-          ACTION_FILTERED_DATA_CHUNKS_ADD_TO_YEAR(chunk.data, dataIndex)
-        );
+        dispatch(ACTION_FILTERED_DATA_CHUNKS_ADD_YEAR(chunk.data));
         dispatch(ACTION_ASSIGN_FILTERED_DATA(filteredDataChunks.flat()));
         dispatch(ACTION_FILTERED_DATA_CHANGED());
       } else {
-        dispatch(ACTION_FILTERED_DATA_CHUNKS_ADD_YEAR(chunk.data));
+        // Year exists, add additional data to it
+        dispatch(ACTION_LOAD_DATA_CHUNKS_ADD_TO_YEAR(chunk.data, chunkYear));
+
+        dispatch(
+          ACTION_FILTERED_DATA_CHUNKS_ADD_TO_YEAR(chunk.data, dataIndex)
+        );
         dispatch(ACTION_ASSIGN_FILTERED_DATA(filteredDataChunks.flat()));
         dispatch(ACTION_FILTERED_DATA_CHANGED());
       }
@@ -945,7 +955,10 @@ const App = () => {
           dispatch(ACTION_INCREMENT_TOTAL_COUNT(JSON.parse(data.data).length));
 
           onNewDataArrive(
-            { year: data.year, data: JSON.parse(data.data) },
+            {
+              year: data.year,
+              data: JSON.parse(data.data),
+            },
             dataIndex
           );
         };
@@ -1016,19 +1029,22 @@ const App = () => {
   }, [currentFilters, prevFilters, renderLayers, dispatch, filteredDataChunks]);
 
   const handleDownloadYear = (year) => {
+    const newYearArr = [...loadedYears, year];
+
+    dispatch(ACTION_CHANGE_YEAR_FILTER(newYearArr));
+    dispatch(ACTION_CHANGE_CATEGORY_FILTER([]));
+    dispatch(ACTION_CHANGE_OFFENSE_FILTER([]));
+    dispatch(ACTION_CHANGE_RACE_FILTER([]));
+    dispatch(ACTION_CHANGE_AGE_FILTER([]));
+    dispatch(ACTION_CHANGE_SEX_FILTER([]));
+    dispatch(ACTION_CHANGE_BOROUGH_FILTER([]));
+
+    setFilters(newYearArr, [], [], [], [], [], [], loadData);
     changeLoadingYears([year]);
-    changeYearFilter([...yearFilter, year]);
-    changeCategoryFilter([]);
-    changeBoroughFilter([]);
-    changeOffenseFilter([]);
-    changeSexFilter([]);
-    changeRaceFilter([]);
-    changeAgeFilter([]);
     changeFetchProgress(0);
     changeCollapseOpen("");
     changeMenuClicked(false);
     changeModalActive({ active: true, year: year });
-    setFilters([...loadedYears, year], [], [], [], [], [], [], loadData);
   };
 
   useEffect(() => {
@@ -1041,34 +1057,66 @@ const App = () => {
 
             (() => {
               onmessage = (e) => {
-                const uniqueValues = (value, index, self) => {
-                  return self.indexOf(value) === index;
-                };
-
                 const dataSent = e.data;
 
+                const splitChunks = dataSent.chunk;
                 const chunk = dataSent.chunk.flat();
                 const arrName = dataSent.arrName;
                 const filterExactName = dataSent.filterExactName;
                 const filterArr = dataSent.filterArr;
 
-                if (
-                  arrName === "filteredUniqueCategory" ||
-                  arrName === "filteredUniqueDates"
-                ) {
+                if (arrName === "filteredUniqueDates") {
+                  const yearsArr = splitChunks.map((x) => {
+                    const date = x[5][filterExactName];
+
+                    return Number(date.substring(date.length - 4, date.length));
+                  });
+
                   postMessage(
                     JSON.stringify({
                       arrayName: arrName,
-                      returnedArr: chunk
-                        .map((x) => x[filterExactName])
-                        .filter(
-                          (x) =>
-                            x !== filterExactName &&
-                            (filterArr.length > 0
-                              ? filterArr.includes(x)
-                              : true)
-                        )
-                        .filter(uniqueValues),
+                      returnedArr: splitChunks
+                        .map((x, i) => [
+                          ...new Set(
+                            x
+                              .map((y) => y[filterExactName])
+                              .filter((z) => {
+                                if (z !== filterExactName) {
+                                  if (filterArr.length > 0) {
+                                    if (filterArr.includes(yearsArr[i])) {
+                                      return true;
+                                    } else {
+                                      return false;
+                                    }
+                                  } else {
+                                    return true;
+                                  }
+                                } else {
+                                  return false;
+                                }
+                              })
+                          ),
+                        ])
+                        .flat(),
+                    })
+                  );
+                } else if (arrName === "filteredUniqueCategory") {
+                  postMessage(
+                    JSON.stringify({
+                      arrayName: arrName,
+                      returnedArr: [
+                        ...new Set(
+                          chunk
+                            .map((x) => x[filterExactName])
+                            .filter(
+                              (x) =>
+                                x !== filterExactName &&
+                                (filterArr.length > 0
+                                  ? filterArr.includes(x)
+                                  : true)
+                            )
+                        ),
+                      ],
                     })
                   );
                 } else if (
@@ -1332,10 +1380,6 @@ const App = () => {
 
             (() => {
               onmessage = (e) => {
-                const uniqueValues = (value, index, self) => {
-                  return self.indexOf(value) === index;
-                };
-
                 const hasNumber = (input) => {
                   return /\d/.test(input);
                 };
@@ -1353,7 +1397,7 @@ const App = () => {
                     JSON.stringify({
                       arrayName: name,
                       returnedArr: arr
-                        ? arr.filter(uniqueValues).sort((a, b) => {
+                        ? [...new Set(arr)].sort((a, b) => {
                             const first = hasNumber(a)
                               ? Number(
                                   a.split(a[0] === "<" ? "<" : "-")[
@@ -1378,7 +1422,7 @@ const App = () => {
                   postMessage(
                     JSON.stringify({
                       arrayName: name,
-                      returnedArr: arr ? arr.filter(uniqueValues).sort() : [],
+                      returnedArr: arr ? [...new Set(arr)].sort() : [],
                     })
                   );
                 }
@@ -1523,21 +1567,6 @@ const App = () => {
           changeLaddaLoading={changeLaddaLoading}
           laddaLoading={laddaLoading}
           handleDownloadYear={handleDownloadYear}
-          yearFilter={yearFilter}
-          changeYearFilter={changeYearFilter}
-          categoryFilter={categoryFilter}
-          changeCategoryFilter={changeCategoryFilter}
-          offenseFilter={offenseFilter}
-          changeOffenseFilter={changeOffenseFilter}
-          ageFilter={ageFilter}
-          changeAgeFilter={changeAgeFilter}
-          raceFilter={raceFilter}
-          changeRaceFilter={changeRaceFilter}
-          sexFilter={sexFilter}
-          changeSexFilter={changeSexFilter}
-          boroughFilter={boroughFilter}
-          changeBoroughFilter={changeBoroughFilter}
-          ageGroupTimelineGraphData={ageGroupTimelineGraphData}
           menuClicked={menuClicked}
           changeMenuClicked={changeMenuClicked}
           collapseOpen={collapseOpen}
@@ -1586,6 +1615,7 @@ const App = () => {
             filteredBoroughArr={filteredBoroughArr}
             filteredOffenseDescriptionArr={filteredOffenseDescriptionArr}
             loadedYears={loadedYears}
+            usePrevious={usePrevious}
             currentFilters={currentFilters}
             filteredUniqueDates={filteredUniqueDates}
             filteredTimelineAgeGroupData={filteredTimelineAgeGroupData}

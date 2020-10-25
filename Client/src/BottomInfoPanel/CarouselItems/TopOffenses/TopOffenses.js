@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Chart } from "react-google-charts";
 import DoubleBounce from "better-react-spinkit/dist/DoubleBounce";
 
@@ -7,13 +7,31 @@ const TopOffenses = (props) => {
     filteredOffenseDescriptionArr,
     filteredOffenseDescriptionUniqueValues,
     graphOption,
+    isSame,
+    usePrevious,
   } = props;
 
-  const sortedArr =
-    filteredOffenseDescriptionArr &&
-    filteredOffenseDescriptionArr.length > 0 &&
-    filteredOffenseDescriptionUniqueValues.length > 0
-      ? filteredOffenseDescriptionUniqueValues
+  const [sortedArr, changeSortedArr] = useState([]);
+
+  const prevFilteredOffenseDescriptionArr = usePrevious(
+    filteredOffenseDescriptionArr
+  );
+  const prevFilteredOffenseDescriptionUniqueValues = usePrevious(
+    filteredOffenseDescriptionUniqueValues
+  );
+
+  useEffect(() => {
+    if (
+      filteredOffenseDescriptionArr &&
+      filteredOffenseDescriptionArr.length > 0 &&
+      filteredOffenseDescriptionUniqueValues.length > 0
+    ) {
+      if (
+        filteredOffenseDescriptionArr !== prevFilteredOffenseDescriptionArr ||
+        filteredOffenseDescriptionUniqueValues !==
+          prevFilteredOffenseDescriptionUniqueValues
+      ) {
+        const offenseData = filteredOffenseDescriptionUniqueValues
           .map((item) => [
             item,
             filteredOffenseDescriptionArr.filter((x) => x === item).length,
@@ -24,8 +42,21 @@ const TopOffenses = (props) => {
             } else {
               return -1;
             }
-          })
-      : null;
+          });
+
+        if (!isSame(offenseData, sortedArr)) {
+          changeSortedArr(offenseData);
+        }
+      }
+    }
+  }, [
+    isSame,
+    filteredOffenseDescriptionArr,
+    filteredOffenseDescriptionUniqueValues,
+    sortedArr,
+    prevFilteredOffenseDescriptionArr,
+    prevFilteredOffenseDescriptionUniqueValues,
+  ]);
 
   return (
     <div
@@ -33,7 +64,7 @@ const TopOffenses = (props) => {
       onDragStart={(e) => e.preventDefault()}
       style={{ display: graphOption === "overview" ? "block" : "none" }}
     >
-      {sortedArr ? (
+      {sortedArr.length > 0 ? (
         <>
           <p className="bottom_info_section_title">Top 5 Offenses</p>
           <div className="bottom_info_pie_container">
@@ -43,7 +74,7 @@ const TopOffenses = (props) => {
               data={
                 [
                   [["Offense Description", "Number of Arrests"]].concat(
-                    sortedArr
+                    sortedArr.length > 0
                       ? sortedArr
                           .slice(sortedArr.length - 5, sortedArr.length)
                           .sort((a, b) => {
