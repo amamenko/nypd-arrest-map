@@ -60,8 +60,8 @@ const NavigationBar = (props) => {
     (state) => state.offenseFilterReducer.offense
   );
   const raceFilter = useSelector((state) => state.raceFilterReducer.race);
-  const ageTimelineColumns = useSelector(
-    (state) => state.ageTimelineColumnsReducer.columns
+  const categoryTimelineColumns = useSelector(
+    (state) => state.categoryTimelineColumnsReducer.columns
   );
 
   const logoContainerRef = useRef(null);
@@ -309,7 +309,7 @@ const NavigationBar = (props) => {
             </p>
           </div>
         }
-        visible={totalCount > 70000 && ageTimelineColumns.length > 0}
+        visible={totalCount > 70000 && categoryTimelineColumns.length > 0}
         allowHTML={true}
         reference={
           !currentScreenWidth
@@ -353,7 +353,7 @@ const NavigationBar = (props) => {
             </div>
           </div>
         }
-        visible={totalCount > 70000 && ageTimelineColumns.length > 0}
+        visible={totalCount > 70000 && categoryTimelineColumns.length > 0}
         allowHTML={true}
         reference={mapboxAttribRef[0]}
         className="overview_tooltip legend_tooltip"
@@ -369,7 +369,9 @@ const NavigationBar = (props) => {
       <Tippy
         content="Click here to set data filters"
         visible={
-          tooltipVisible && totalCount > 70000 && ageTimelineColumns.length > 0
+          tooltipVisible &&
+          totalCount > 70000 &&
+          categoryTimelineColumns.length > 0
         }
         reference={burgerMenu[0]}
         className="burger_tooltip"

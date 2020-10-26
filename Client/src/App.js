@@ -81,8 +81,8 @@ const App = () => {
   const raceTimelineGraphData = useSelector(
     (state) => state.raceTimelineGraphDataReducer.data
   );
-  const ageTimelineColumns = useSelector(
-    (state) => state.ageTimelineColumnsReducer.columns
+  const categoryTimelineColumns = useSelector(
+    (state) => state.categoryTimelineColumnsReducer.columns
   );
 
   const [mapLoaded, changeMapLoaded] = useState(false);
@@ -379,7 +379,6 @@ const App = () => {
           } else if (arrayName === "filteredUniqueCategory") {
             changeFilteredUniqueCategory(returnedArr);
           } else {
-            console.log(returnedArr);
             changeFilteredUniqueDates(returnedArr);
           }
         };
@@ -463,6 +462,9 @@ const App = () => {
   );
   const prevFilteredUniqueCategory = usePrevious(filteredUniqueCategory);
   const prevFilteredUniqueDates = usePrevious(filteredUniqueDates);
+  const prevFilteredTimelineCategoryData = usePrevious(
+    filteredTimelineCategoryData
+  );
 
   useEffect(() => {
     if (filteredAgeGroupData !== prevFilteredAgeGroupData) {
@@ -507,7 +509,8 @@ const App = () => {
 
     if (
       filteredUniqueDates !== prevFilteredUniqueDates ||
-      filteredUniqueCategory !== prevFilteredUniqueCategory
+      filteredUniqueCategory !== prevFilteredUniqueCategory ||
+      filteredTimelineCategoryData !== prevFilteredTimelineCategoryData
     ) {
       postToTimelineGraphWorker(
         "categoryTimelineGraphData",
@@ -536,11 +539,43 @@ const App = () => {
     prevFilteredSexUniqueValues,
     prevFilteredUniqueCategory,
     prevFilteredUniqueDates,
+    prevFilteredTimelineCategoryData,
   ]);
+
+  const renderLayers = useCallback(() => {
+    const yearsFiltered = filteredDataChunks.map((item) =>
+      Number(dayjs(item[5]["ARREST_DATE"], "MM/DD/YYYY").format("YYYY"))
+    );
+
+    layersRef.current = filteredDataChunks.map((chunk, chunkIndex) => {
+      const yearOfChunk = dayjs(chunk[5]["ARREST_DATE"], "MM/DD/YYYY").format(
+        "YYYY"
+      );
+
+      return new ScatterplotLayer({
+        id: `chunk-${chunkIndex}`,
+        data: chunk,
+        visible: yearsFiltered.flat().includes(Number(yearOfChunk)),
+        filled: true,
+        radiusMinPixels: 2,
+        getPosition: (d) => [Number(d.Longitude), Number(d.Latitude)],
+        getFillColor: (d) =>
+          d.LAW_CAT_CD === "F"
+            ? [255, 0, 0]
+            : d.LAW_CAT_CD === "M"
+            ? [255, 116, 0]
+            : [255, 193, 0],
+        pickable: true,
+        useDevicePixels: false,
+      });
+    });
+  }, [filteredDataChunks]);
 
   useEffect(() => {
     if (filteredDataChanged) {
       dispatch(ACTION_FILTERED_DATA_CHANGED_RESET());
+
+      renderLayers();
 
       const expectedTotal = loadedYears
         .map((x) => yearlyTotals[x])
@@ -607,6 +642,7 @@ const App = () => {
   }, [
     currentFilters,
     filteredDataChanged,
+    renderLayers,
     ageGroup,
     boroughArr,
     filteredAgeGroup,
@@ -678,21 +714,17 @@ const App = () => {
     }
 
     if (categoryTimelineGraphData !== prevCategoryTimelineGraphData) {
-      if (categoryTimelineGraphData.length > 0) {
-        const categoryArr =
-          filteredUniqueCategory.length > 0
-            ? [
-                ...new Set(
-                  filteredUniqueCategory.map((x) =>
-                    x === "F"
-                      ? "Felony"
-                      : x === "M"
-                      ? "Misdemeanor"
-                      : "Violation"
-                  )
-                ),
-              ]
-            : [];
+      if (
+        categoryTimelineGraphData.length > 0 &&
+        filteredUniqueCategory.length > 0
+      ) {
+        const categoryArr = [
+          ...new Set(
+            filteredUniqueCategory.map((x) =>
+              x === "F" ? "Felony" : x === "M" ? "Misdemeanor" : "Violation"
+            )
+          ),
+        ];
 
         dispatch(
           ACTION_CATEGORY_TIMELINE_COLUMNS(
@@ -852,35 +884,6 @@ const App = () => {
     [tooltipVisible]
   );
 
-  const renderLayers = useCallback(() => {
-    const yearsFiltered = filteredDataChunks.map((item) =>
-      Number(dayjs(item[5]["ARREST_DATE"], "MM/DD/YYYY").format("YYYY"))
-    );
-
-    layersRef.current = filteredDataChunks.map((chunk, chunkIndex) => {
-      const yearOfChunk = dayjs(chunk[5]["ARREST_DATE"], "MM/DD/YYYY").format(
-        "YYYY"
-      );
-
-      return new ScatterplotLayer({
-        id: `chunk-${chunkIndex}`,
-        data: chunk,
-        visible: yearsFiltered.flat().includes(Number(yearOfChunk)),
-        filled: true,
-        radiusMinPixels: 2,
-        getPosition: (d) => [Number(d.Longitude), Number(d.Latitude)],
-        getFillColor: (d) =>
-          d.LAW_CAT_CD === "F"
-            ? [255, 0, 0]
-            : d.LAW_CAT_CD === "M"
-            ? [255, 116, 0]
-            : [255, 193, 0],
-        pickable: true,
-        useDevicePixels: false,
-      });
-    });
-  }, [filteredDataChunks]);
-
   const onNewDataArrive = useCallback(
     (chunk, dataIndex) => {
       const chunkYear = chunk.year;
@@ -890,8 +893,11 @@ const App = () => {
         dispatch(ACTION_LOAD_DATA_CHUNKS_ADD_YEAR(chunk.data, chunkYear));
 
         dispatch(ACTION_FILTERED_DATA_CHUNKS_ADD_YEAR(chunk.data));
-        dispatch(ACTION_ASSIGN_FILTERED_DATA(filteredDataChunks.flat()));
-        dispatch(ACTION_FILTERED_DATA_CHANGED());
+        dispatch(
+          ACTION_ASSIGN_FILTERED_DATA(
+            Object.values(loadDataChunks[0]).flat().flat()
+          )
+        );
       } else {
         // Year exists, add additional data to it
         dispatch(ACTION_LOAD_DATA_CHUNKS_ADD_TO_YEAR(chunk.data, chunkYear));
@@ -899,8 +905,19 @@ const App = () => {
         dispatch(
           ACTION_FILTERED_DATA_CHUNKS_ADD_TO_YEAR(chunk.data, dataIndex)
         );
-        dispatch(ACTION_ASSIGN_FILTERED_DATA(filteredDataChunks.flat()));
-        dispatch(ACTION_FILTERED_DATA_CHANGED());
+        dispatch(
+          ACTION_ASSIGN_FILTERED_DATA(
+            Object.values(loadDataChunks[0]).flat().flat()
+          )
+        );
+
+        if (
+          loadDataChunks[0][chunkYear.toString()]
+            .map((x) => x.length)
+            .reduce((a, b) => a + b, 0) === yearlyTotals[chunkYear]
+        ) {
+          dispatch(ACTION_FILTERED_DATA_CHANGED());
+        }
       }
 
       const currentYearDataLength = loadDataChunks[0][chunkYear.toString()]
@@ -910,19 +927,8 @@ const App = () => {
       progressVal.current = (
         currentYearDataLength / yearlyTotals[chunkYear]
       ).toFixed(1);
-
-      if (
-        layersRef.current.length === 0 ||
-        layersRef.current.length !== filteredDataChunks.length
-      ) {
-        if (loadDataChunks[0][chunkYear.toString()]) {
-          if (currentYearDataLength === yearlyTotals[chunkYear]) {
-            renderLayers();
-          }
-        }
-      }
     },
-    [loadDataChunks, filteredDataChunks, renderLayers, dispatch]
+    [loadDataChunks, dispatch]
   );
 
   useEffect(() => {
@@ -935,7 +941,7 @@ const App = () => {
         if (Number(fetchProgress) !== Number(progressVal.current)) {
           changeFetchProgress(Number(progressVal.current));
         }
-      }, 500);
+      }, 2000);
 
       return () => {
         clearInterval(progressInt);
@@ -1523,16 +1529,16 @@ const App = () => {
   ]);
 
   useEffect(() => {
-    if (totalCount > 70000 && ageTimelineColumns.length === 0) {
+    if (totalCount > 70000 && categoryTimelineColumns.length === 0) {
       if (!mapVisible) {
         changeMapVisible(true);
       }
     }
-  }, [totalCount, mapVisible, ageTimelineColumns.length]);
+  }, [totalCount, mapVisible, categoryTimelineColumns.length]);
 
   return (
     <>
-      {totalCount < 70000 || ageTimelineColumns.length === 0 ? (
+      {totalCount < 70000 || categoryTimelineColumns.length === 0 ? (
         <InitialLoader
           fetchProgress={fetchProgress}
           countUp={countUp}
@@ -1544,13 +1550,14 @@ const App = () => {
         <SubsequentLoader
           modalActive={modalActive}
           changeModalActive={changeModalActive}
+          loadedYears={loadedYears}
         />
       ) : null}
       <div
         className="nypd_arrest_map_container"
         style={{
           opacity:
-            totalCount < 70000 || ageTimelineColumns.length === 0 ? 0 : 1,
+            totalCount < 70000 || categoryTimelineColumns.length === 0 ? 0 : 1,
         }}
       >
         <NavigationBar

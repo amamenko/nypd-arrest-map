@@ -133,27 +133,29 @@ onmessage = (e) => {
                     ),
                 ].flat();
               } else if (name === "categoryTimelineGraphData") {
-                return [
-                  new Date(dateArr[2], dateArr[0] - 1, dateArr[1]),
-                  unique
-                    ? [
-                        ...new Set(
-                          unique.map((x) =>
-                            x === "F"
-                              ? "Felony"
-                              : x === "M"
-                              ? "Misdemeanor"
-                              : "Violation"
-                          )
-                        ),
-                      ].map(
-                        (item) =>
-                          dataArr[0].filter(
-                            (x) => x.date === date && x[generalName] === item
-                          ).length
-                      )
-                    : [],
-                ].flat();
+                if (dataArr[0]) {
+                  return [
+                    new Date(dateArr[2], dateArr[0] - 1, dateArr[1]),
+                    unique
+                      ? [
+                          ...new Set(
+                            unique.map((x) =>
+                              x === "F"
+                                ? "Felony"
+                                : x === "M"
+                                ? "Misdemeanor"
+                                : "Violation"
+                            )
+                          ),
+                        ].map(
+                          (item) =>
+                            dataArr[0].filter(
+                              (x) => x.date === date && x[generalName] === item
+                            ).length
+                        )
+                      : [],
+                  ].flat();
+                }
               } else if (name === "genderTimelineGraphData") {
                 return [
                   new Date(dateArr[2], dateArr[0] - 1, dateArr[1]),

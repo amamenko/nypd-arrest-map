@@ -26,6 +26,12 @@ const AgeGroupTimeline = (props) => {
             backgroundColor: "transparent",
             width: 500,
             chartArea: { width: "50%", height: "50%" },
+            hAxis: {
+              title: "Dates",
+            },
+            vAxis: {
+              title: "# of Arrests",
+            },
           }}
         />
       </div>
