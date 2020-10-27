@@ -10,7 +10,7 @@ import "react-circular-progressbar/dist/styles.css";
 import { useSelector } from "react-redux";
 
 const InitialLoader = (props) => {
-  const { fetchProgress, countUp, loaderColor, mapError } = props;
+  const { countUp, loaderColor, mapError } = props;
 
   const override = css`
     display: block;
@@ -21,9 +21,11 @@ const InitialLoader = (props) => {
     (state) => state.filteredDataChunksReducer.data
   );
 
+  const totalCount = useSelector((state) => state.totalCountReducer.total);
+
   return (
     <div className="loading_container">
-      {fetchProgress === 0 ? (
+      {totalCount === 0 ? (
         <GridLoader
           css={override}
           size={50}
@@ -52,7 +54,7 @@ const InitialLoader = (props) => {
       <p>
         {mapError
           ? "Error Initializing NYPD Arrest Map"
-          : fetchProgress === 0
+          : totalCount === 0
           ? "Initializing NYPD Arrest Map"
           : countUp >= 60
           ? "Rendering NYPD Arrest Map"

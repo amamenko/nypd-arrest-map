@@ -238,7 +238,10 @@ const BottomInfoPanel = (props) => {
           playButtonEnabled={false}
           disableAutoPlayOnAction={false}
           responsive={{
-            0: { items: 4 },
+            0: { items: 1 },
+            768: { items: 2 },
+            1200: { items: 3 },
+            1600: { items: 4 },
           }}
           preservePosition={true}
           items={[
@@ -294,7 +297,10 @@ const BottomInfoPanel = (props) => {
           playButtonEnabled={false}
           disableAutoPlayOnAction={false}
           responsive={{
-            0: { items: 4 },
+            0: { items: 1 },
+            768: { items: 2 },
+            1200: { items: 3 },
+            1600: { items: 4 },
           }}
           preservePosition={true}
           items={[
