@@ -40,11 +40,7 @@ const initialState = {
   totalCountReducer: { total: 0 },
 };
 
-const store = wrapStore(
-  new storeWorker(),
-  initialState,
-  window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__()
-);
+const store = wrapStore(new storeWorker(), initialState);
 
 ReactDOM.render(
   <Provider store={store}>
