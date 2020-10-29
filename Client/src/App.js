@@ -274,7 +274,12 @@ const App = () => {
           } else if (arrayName === "boroughTimelineGraphData") {
             dispatch(ACTION_TIMELINE_BOROUGH_GRAPH_DATA(returnedArr));
           } else if (arrayName === "categoryTimelineGraphData") {
-            dispatch(ACTION_TIMELINE_CATEGORY_GRAPH_DATA(returnedArr));
+            if (
+              !isSame(categoryTimelineGraphData, returnedArr) &&
+              returnedArr.length > 0
+            ) {
+              dispatch(ACTION_TIMELINE_CATEGORY_GRAPH_DATA(returnedArr));
+            }
           } else if (arrayName === "genderTimelineGraphData") {
             dispatch(ACTION_TIMELINE_GENDER_GRAPH_DATA(returnedArr));
           } else {
@@ -283,7 +288,11 @@ const App = () => {
         };
       }
     },
-    [setFilterAndTimelineGraphWorkersInstance, dispatch]
+    [
+      setFilterAndTimelineGraphWorkersInstance,
+      dispatch,
+      categoryTimelineGraphData,
+    ]
   );
 
   const postToFilteredWorker = useCallback(
@@ -394,19 +403,6 @@ const App = () => {
     [mapFilterWorkerInstance, postToFilteredWorker]
   );
 
-  const prevLoadData = usePrevious(loadData);
-
-  useEffect(() => {
-    if (loadData && loadData.length > 0 && prevLoadData) {
-      if (loadData[0] !== prevLoadData[0]) {
-        postToMapFilterWorker(loadData, "ageGroup", "AGE_GROUP");
-        postToMapFilterWorker(loadData, "raceArr", "PERP_RACE");
-        postToMapFilterWorker(loadData, "boroughArr", "ARREST_BORO");
-        postToMapFilterWorker(loadData, "offenseDescriptionArr", "OFNS_DESC");
-      }
-    }
-  }, [loadData, postToMapFilterWorker, prevLoadData]);
-
   const postToTimelineWorker = useCallback(
     (chunk, generalName, specificName) => {
       if (timelineWorkerInstance) {
@@ -474,64 +470,63 @@ const App = () => {
     filteredTimelineCategoryData
   );
 
+  const [mapPostsCompleted, changeMapPostsCompleted] = useState(false);
+
   useEffect(() => {
-    if (filteredDataChanged) {
-      if (filteredAgeGroupData !== prevFilteredAgeGroupData) {
-        postToTimelineGraphWorker(
-          "ageGroupTimelineGraphData",
-          "age_group",
-          filteredUniqueDates,
-          filteredAgeGroupData,
-          filteredTimelineAgeGroupData
-        );
-      }
+    if (filteredAgeGroupData !== prevFilteredAgeGroupData) {
+      postToTimelineGraphWorker(
+        "ageGroupTimelineGraphData",
+        "age_group",
+        filteredUniqueDates,
+        filteredAgeGroupData,
+        filteredTimelineAgeGroupData
+      );
+    }
 
-      if (filteredRaceUniqueValues !== prevFilteredRaceUniqueValues) {
-        postToTimelineGraphWorker(
-          "raceTimelineGraphData",
-          "race",
-          filteredUniqueDates,
-          filteredRaceUniqueValues,
-          filteredTimelineRaceData
-        );
-      }
+    if (filteredRaceUniqueValues !== prevFilteredRaceUniqueValues) {
+      postToTimelineGraphWorker(
+        "raceTimelineGraphData",
+        "race",
+        filteredUniqueDates,
+        filteredRaceUniqueValues,
+        filteredTimelineRaceData
+      );
+    }
 
-      if (filteredSexUniqueValues !== prevFilteredSexUniqueValues) {
-        postToTimelineGraphWorker(
-          "genderTimelineGraphData",
-          "sex",
-          filteredUniqueDates,
-          filteredSexUniqueValues,
-          filteredTimelineSexData
-        );
-      }
+    if (filteredSexUniqueValues !== prevFilteredSexUniqueValues) {
+      postToTimelineGraphWorker(
+        "genderTimelineGraphData",
+        "sex",
+        filteredUniqueDates,
+        filteredSexUniqueValues,
+        filteredTimelineSexData
+      );
+    }
 
-      if (filteredBoroughUniqueValues !== prevFilteredBoroughUniqueValues) {
-        postToTimelineGraphWorker(
-          "boroughTimelineGraphData",
-          "borough",
-          filteredUniqueDates,
-          filteredBoroughUniqueValues,
-          filteredTimelineBoroughData
-        );
-      }
+    if (filteredBoroughUniqueValues !== prevFilteredBoroughUniqueValues) {
+      postToTimelineGraphWorker(
+        "boroughTimelineGraphData",
+        "borough",
+        filteredUniqueDates,
+        filteredBoroughUniqueValues,
+        filteredTimelineBoroughData
+      );
+    }
 
-      if (
-        filteredUniqueDates !== prevFilteredUniqueDates ||
-        filteredUniqueCategory !== prevFilteredUniqueCategory ||
-        filteredTimelineCategoryData !== prevFilteredTimelineCategoryData
-      ) {
-        postToTimelineGraphWorker(
-          "categoryTimelineGraphData",
-          "category",
-          filteredUniqueDates,
-          filteredUniqueCategory,
-          filteredTimelineCategoryData
-        );
-      }
+    if (
+      filteredUniqueDates !== prevFilteredUniqueDates ||
+      filteredUniqueCategory !== prevFilteredUniqueCategory ||
+      filteredTimelineCategoryData !== prevFilteredTimelineCategoryData
+    ) {
+      postToTimelineGraphWorker(
+        "categoryTimelineGraphData",
+        "category",
+        filteredUniqueDates,
+        filteredUniqueCategory,
+        filteredTimelineCategoryData
+      );
     }
   }, [
-    filteredDataChanged,
     filteredAgeGroupData,
     filteredBoroughUniqueValues,
     filteredRaceUniqueValues,
@@ -583,78 +578,120 @@ const App = () => {
   }, [filteredDataChunks]);
 
   useEffect(() => {
-    if (filteredDataChanged) {
-      dispatch(ACTION_FILTERED_DATA_CHANGED_RESET());
-    }
-  }, [dispatch, filteredDataChanged]);
+    const expectedTotal = loadedYears
+      .map((x) => yearlyTotals[x])
+      .reduce((a, b) => a + b, 0);
 
-  useEffect(() => {
-    if (filteredDataChanged) {
-      renderLayers();
+    if (loadDataChunks && prevLoadChunks) {
+      if (
+        !isSame(
+          Object.values(loadDataChunks[0]),
+          Object.values(prevLoadChunks[0])
+        )
+      ) {
+        if (totalCount === expectedTotal) {
+          if (filteredData.length !== totalCount) {
+            dispatch(
+              ACTION_ASSIGN_FILTERED_DATA(
+                Object.values(loadDataChunks[0]).flat().flat()
+              )
+            );
 
-      const expectedTotal = loadedYears
-        .map((x) => yearlyTotals[x])
-        .reduce((a, b) => a + b, 0);
-
-      if (totalCount === expectedTotal) {
-        postToMapFilterWorker(
-          filteredData,
-          "filteredArrestCategory",
-          "LAW_CAT_CD",
-          currentFilters.category
-        );
-        postToMapFilterWorker(
-          filteredData,
-          "filteredAgeGroup",
-          "AGE_GROUP",
-          currentFilters.age
-        );
-        postToMapFilterWorker(
-          filteredData,
-          "filteredSexArr",
-          "PERP_SEX",
-          currentFilters.sex
-        );
-        postToMapFilterWorker(
-          filteredData,
-          "filteredRaceArr",
-          "PERP_RACE",
-          currentFilters.race
-        );
-        postToMapFilterWorker(
-          filteredData,
-          "filteredBoroughArr",
-          "ARREST_BORO",
-          currentFilters.borough
-        );
-        postToMapFilterWorker(
-          filteredData,
-          "filteredOffenseDescriptionArr",
-          "OFNS_DESC",
-          currentFilters.offense
-        );
-
-        postToMapFilterWorker(
-          filteredDataChunks,
-          "filteredUniqueCategory",
-          "LAW_CAT_CD",
-          currentFilters.category
-        );
-        postToMapFilterWorker(
-          filteredDataChunks,
-          "filteredUniqueDates",
-          "ARREST_DATE",
-          currentFilters.year
-        );
-
-        postToTimelineWorker(filteredDataChunks, "age_group", "AGE_GROUP");
-        postToTimelineWorker(filteredDataChunks, "borough", "ARREST_BORO");
-        postToTimelineWorker(filteredDataChunks, "category", "LAW_CAT_CD");
-        postToTimelineWorker(filteredDataChunks, "sex", "PERP_SEX");
-        postToTimelineWorker(filteredDataChunks, "race", "PERP_RACE");
+            dispatch(ACTION_FILTERED_DATA_CHANGED());
+          }
+        }
       }
     }
   }, [
+    dispatch,
+    loadDataChunks,
+    loadedYears,
+    prevLoadChunks,
+    totalCount,
+    filteredData.length,
+  ]);
+
+  useEffect(() => {
+    const expectedTotal = loadedYears
+      .map((x) => yearlyTotals[x])
+      .reduce((a, b) => a + b, 0);
+
+    if (totalCount === expectedTotal) {
+      if (filteredDataChanged) {
+        renderLayers();
+
+        if (!mapPostsCompleted) {
+          postToMapFilterWorker(loadData, "ageGroup", "AGE_GROUP");
+          postToMapFilterWorker(loadData, "raceArr", "PERP_RACE");
+          postToMapFilterWorker(loadData, "boroughArr", "ARREST_BORO");
+          postToMapFilterWorker(loadData, "offenseDescriptionArr", "OFNS_DESC");
+
+          postToMapFilterWorker(
+            filteredData,
+            "filteredArrestCategory",
+            "LAW_CAT_CD",
+            currentFilters.category
+          );
+          postToMapFilterWorker(
+            filteredData,
+            "filteredAgeGroup",
+            "AGE_GROUP",
+            currentFilters.age
+          );
+          postToMapFilterWorker(
+            filteredData,
+            "filteredSexArr",
+            "PERP_SEX",
+            currentFilters.sex
+          );
+          postToMapFilterWorker(
+            filteredData,
+            "filteredRaceArr",
+            "PERP_RACE",
+            currentFilters.race
+          );
+          postToMapFilterWorker(
+            filteredData,
+            "filteredBoroughArr",
+            "ARREST_BORO",
+            currentFilters.borough
+          );
+          postToMapFilterWorker(
+            filteredData,
+            "filteredOffenseDescriptionArr",
+            "OFNS_DESC",
+            currentFilters.offense
+          );
+
+          postToMapFilterWorker(
+            filteredDataChunks,
+            "filteredUniqueCategory",
+            "LAW_CAT_CD",
+            currentFilters.category
+          );
+
+          postToMapFilterWorker(
+            filteredDataChunks,
+            "filteredUniqueDates",
+            "ARREST_DATE",
+            currentFilters.year
+          );
+
+          postToTimelineWorker(filteredDataChunks, "age_group", "AGE_GROUP");
+          postToTimelineWorker(filteredDataChunks, "borough", "ARREST_BORO");
+          postToTimelineWorker(filteredDataChunks, "category", "LAW_CAT_CD");
+          postToTimelineWorker(filteredDataChunks, "sex", "PERP_SEX");
+          postToTimelineWorker(filteredDataChunks, "race", "PERP_RACE");
+
+          dispatch(ACTION_FILTERED_DATA_CHANGED_RESET());
+        }
+
+        changeMapPostsCompleted(true);
+      }
+    }
+  }, [
+    loadData,
+    mapPostsCompleted,
     currentFilters,
     filteredDataChanged,
     renderLayers,
@@ -860,24 +897,24 @@ const App = () => {
           PERP_RACE,
         } = object;
         el.innerHTML = `
-    <p><strong>Date of Arrest:</strong> ${ARREST_DATE}</p>
-    <p><strong>Category:</strong> ${
-      LAW_CAT_CD === "F"
-        ? "Felony"
-        : LAW_CAT_CD === "M"
-        ? "Misdemeanor"
-        : "Violation"
-    }</p>
-    <p><strong>Offense:</strong> ${OFNS_DESC}</p>
-    <p><strong>Offense Description:</strong> ${PD_DESC}</p>
-    <p><strong>Perpetrator's Age Group:</strong> ${AGE_GROUP}</p>
-    <p><strong>Perpetrator's Sex:</strong> ${
-      PERP_SEX === "M" ? "Male" : "Female"
-    }</p>
-    <p><strong>Perpetrator's Race:</strong> ${PERP_RACE.toLowerCase()
-      .split(" ")
-      .map((x) => x[0].toUpperCase() + x.slice(1))
-      .join(" ")}</p>
+  <p><strong>Date of Arrest:</strong> ${ARREST_DATE}</p>
+  <p><strong>Category:</strong> ${
+    LAW_CAT_CD === "F"
+      ? "Felony"
+      : LAW_CAT_CD === "M"
+      ? "Misdemeanor"
+      : "Violation"
+  }</p>
+  <p><strong>Offense:</strong> ${OFNS_DESC}</p>
+  <p><strong>Offense Description:</strong> ${PD_DESC}</p>
+  <p><strong>Perpetrator's Age Group:</strong> ${AGE_GROUP}</p>
+  <p><strong>Perpetrator's Sex:</strong> ${
+    PERP_SEX === "M" ? "Male" : "Female"
+  }</p>
+  <p><strong>Perpetrator's Race:</strong> ${PERP_RACE.toLowerCase()
+    .split(" ")
+    .map((x) => x[0].toUpperCase() + x.slice(1))
+    .join(" ")}</p>
 `;
         el.style.display = "inline-block";
         el.style.background = "#000";
@@ -899,20 +936,6 @@ const App = () => {
     [tooltipVisible]
   );
 
-  const prevFilteredDataChunks = usePrevious(filteredDataChunks);
-
-  useEffect(() => {
-    if (filteredDataChunks && prevFilteredDataChunks) {
-      if (!isSame(filteredDataChunks, prevFilteredDataChunks)) {
-        dispatch(
-          ACTION_ASSIGN_FILTERED_DATA(
-            Object.values(loadDataChunks[0]).flat().flat()
-          )
-        );
-      }
-    }
-  }, [filteredDataChunks, prevFilteredDataChunks, dispatch, loadDataChunks]);
-
   const onNewDataArrive = useCallback(
     (chunk, dataIndex, firstMessage, lastMessage) => {
       const chunkYear = chunk.year;
@@ -922,12 +945,6 @@ const App = () => {
         dispatch(ACTION_LOAD_DATA_CHUNKS_ADD_YEAR(chunk.data, chunkYear));
 
         dispatch(ACTION_FILTERED_DATA_CHUNKS_ADD_YEAR(chunk.data));
-
-        dispatch(
-          ACTION_ASSIGN_FILTERED_DATA(
-            Object.values(loadDataChunks[0]).flat().flat()
-          )
-        );
       } else {
         // Year exists, add additional data to it
         dispatch(ACTION_LOAD_DATA_CHUNKS_ADD_TO_YEAR(chunk.data, chunkYear));
@@ -936,12 +953,13 @@ const App = () => {
           ACTION_FILTERED_DATA_CHUNKS_ADD_TO_YEAR(chunk.data, dataIndex)
         );
 
-        if (lastMessage) {
-          dispatch(ACTION_FILTERED_DATA_CHANGED());
-        }
+        // if (lastMessage) {
+        //   dispatch(ACTION_FILTERED_DATA_CHANGED());
+        //   changeNewDataReady(true);
+        // }
       }
     },
-    [loadDataChunks, dispatch]
+    [dispatch]
   );
 
   const dataFetch = useCallback(

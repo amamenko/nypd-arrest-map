@@ -1,8 +1,6 @@
 import { createStore, combineReducers } from "redux";
 import { exposeStore } from "redux-in-worker";
 
-console.log("REDUX WORKER FIRED");
-
 const initialState = {
   filteredDataReducer: {
     data: [],
@@ -223,8 +221,10 @@ const loadDataChunksReducer = (
       };
     // Year exists, add additional data to its initial data
     case LOAD_DATA_CHUNKS_ADD_TO_YEAR:
-      const newPushState = Object.assign({}, state.data[0]);
-      newPushState[action.year.toString()].push(action.data);
+      let newPushState = Object.assign({}, state.data[0]);
+      newPushState[action.year.toString()] = newPushState[
+        action.year.toString()
+      ].concat([action.data]);
 
       return {
         ...state,
