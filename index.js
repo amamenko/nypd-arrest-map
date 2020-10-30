@@ -57,7 +57,6 @@ wss.on("connection", (ws) => {
         let chunkArr = [];
         let totalLength = 0;
         let firstMessage = true;
-        let lastMessage = false;
 
         oboe(stream).node(
           "{ARREST_DATE PD_DESC OFNS_DESC LAW_CAT_CD ARREST_BORO AGE_GROUP PERP_SEX PERP_RACE Latitude Longitude}",
@@ -71,14 +70,9 @@ wss.on("connection", (ws) => {
             ) {
               console.log(chunkArr.length);
 
-              if (totalLength === yearlyTotals[decodedMessage]) {
-                lastMessage = true;
-              }
-
               const stringifiedJSON = JSON.stringify({
                 chunkArr: chunkArr,
                 firstMessage: firstMessage,
-                lastMessage: lastMessage,
               });
 
               ws.send(stringifiedJSON);

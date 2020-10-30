@@ -92,7 +92,13 @@ onmessage = (e) => {
 
                 if (name === "raceTimelineGraphData") {
                   return [
-                    new Date(dateArr[2], dateArr[0] - 1, dateArr[1]),
+                    "Date(" +
+                      dateArr[2] +
+                      ", " +
+                      (dateArr[0] - 1) +
+                      ", " +
+                      Number(dateArr[1]).toString() +
+                      ", 0, 0, 0, 0)",
                     unique
                       .map((race) =>
                         race
@@ -137,7 +143,13 @@ onmessage = (e) => {
                 } else if (name === "categoryTimelineGraphData") {
                   if (dataArr[0]) {
                     return [
-                      new Date(dateArr[2], dateArr[0] - 1, dateArr[1]),
+                      "Date(" +
+                        dateArr[2] +
+                        ", " +
+                        (dateArr[0] - 1) +
+                        ", " +
+                        Number(dateArr[1]).toString() +
+                        ", 0, 0, 0, 0)",
                       unique
                         ? [
                             ...new Set(
@@ -161,7 +173,13 @@ onmessage = (e) => {
                   }
                 } else if (name === "genderTimelineGraphData") {
                   return [
-                    new Date(dateArr[2], dateArr[0] - 1, dateArr[1]),
+                    "Date(" +
+                      dateArr[2] +
+                      ", " +
+                      (dateArr[0] - 1) +
+                      ", " +
+                      Number(dateArr[1]).toString() +
+                      ", 0, 0, 0, 0)",
                     unique
                       .map((x) => (x === "F" ? "Female" : "Male"))
                       .map(
@@ -173,7 +191,13 @@ onmessage = (e) => {
                   ].flat();
                 } else {
                   return [
-                    new Date(dateArr[2], dateArr[0] - 1, dateArr[1]),
+                    "Date(" +
+                      dateArr[2] +
+                      ", " +
+                      (dateArr[0] - 1) +
+                      ", " +
+                      Number(dateArr[1]).toString() +
+                      ", 0, 0, 0, 0)",
                     unique.map(
                       (item) =>
                         dataArr[0].filter(
