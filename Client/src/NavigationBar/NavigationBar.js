@@ -60,8 +60,22 @@ const NavigationBar = (props) => {
     (state) => state.offenseFilterReducer.offense
   );
   const raceFilter = useSelector((state) => state.raceFilterReducer.race);
+
+  // Timeline Column Data
+  const ageTimelineColumns = useSelector(
+    (state) => state.ageTimelineColumnsReducer.columns
+  );
+  const boroughTimelineColumns = useSelector(
+    (state) => state.boroughTimelineColumnsReducer.columns
+  );
   const categoryTimelineColumns = useSelector(
     (state) => state.categoryTimelineColumnsReducer.columns
+  );
+  const raceTimelineColumns = useSelector(
+    (state) => state.raceTimelineColumnsReducer.columns
+  );
+  const sexTimelineColumns = useSelector(
+    (state) => state.sexTimelineColumnsReducer.columns
   );
 
   const logoContainerRef = useRef(null);
@@ -309,7 +323,18 @@ const NavigationBar = (props) => {
             </p>
           </div>
         }
-        visible={totalCount > 70000 && categoryTimelineColumns.length > 0}
+        visible={
+          totalCount > 70000 &&
+          (ageTimelineColumns ? ageTimelineColumns.length > 0 : false) &&
+          (boroughTimelineColumns
+            ? boroughTimelineColumns.length > 0
+            : false) &&
+          (categoryTimelineColumns
+            ? categoryTimelineColumns.length > 0
+            : false) &&
+          (raceTimelineColumns ? raceTimelineColumns.length > 0 : false) &&
+          (sexTimelineColumns ? sexTimelineColumns.length > 0 : false)
+        }
         allowHTML={true}
         reference={
           !currentScreenWidth
@@ -353,7 +378,18 @@ const NavigationBar = (props) => {
             </div>
           </div>
         }
-        visible={totalCount > 70000 && categoryTimelineColumns.length > 0}
+        visible={
+          totalCount > 70000 &&
+          (ageTimelineColumns ? ageTimelineColumns.length > 0 : false) &&
+          (boroughTimelineColumns
+            ? boroughTimelineColumns.length > 0
+            : false) &&
+          (categoryTimelineColumns
+            ? categoryTimelineColumns.length > 0
+            : false) &&
+          (raceTimelineColumns ? raceTimelineColumns.length > 0 : false) &&
+          (sexTimelineColumns ? sexTimelineColumns.length > 0 : false)
+        }
         allowHTML={true}
         reference={mapboxAttribRef[0]}
         className="overview_tooltip legend_tooltip"
@@ -371,7 +407,15 @@ const NavigationBar = (props) => {
         visible={
           tooltipVisible &&
           totalCount > 70000 &&
-          categoryTimelineColumns.length > 0
+          (ageTimelineColumns ? ageTimelineColumns.length > 0 : false) &&
+          (boroughTimelineColumns
+            ? boroughTimelineColumns.length > 0
+            : false) &&
+          (categoryTimelineColumns
+            ? categoryTimelineColumns.length > 0
+            : false) &&
+          (raceTimelineColumns ? raceTimelineColumns.length > 0 : false) &&
+          (sexTimelineColumns ? sexTimelineColumns.length > 0 : false)
         }
         reference={burgerMenu[0]}
         className="burger_tooltip"

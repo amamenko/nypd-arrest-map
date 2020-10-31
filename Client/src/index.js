@@ -10,6 +10,8 @@ require("dotenv").config();
 
 // const store = createStore(RootReducer);
 const initialState = {
+  loadDataChunksReducer: { data: [{}] },
+  loadDataReducer: { data: [] },
   filteredDataReducer: {
     data: [],
     changed: false,
@@ -26,7 +28,6 @@ const initialState = {
   raceFilterReducer: { race: [] },
   sexFilterReducer: { sex: [] },
   yearFilterReducer: { year: [] },
-  loadDataChunksReducer: { data: [{}] },
   ageTimelineColumnsReducer: { columns: [] },
   boroughTimelineColumnsReducer: { columns: [] },
   categoryTimelineColumnsReducer: { columns: [] },

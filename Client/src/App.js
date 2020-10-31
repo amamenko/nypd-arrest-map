@@ -27,6 +27,7 @@ import ACTION_FILTERED_DATA_CHUNKS_ADD_TO_YEAR from "./actions/filteredDataChunk
 import ACTION_FILTERED_DATA_CHUNKS_ADD_YEAR from "./actions/filteredDataChunks/ACTION_FILTERED_DATA_CHUNKS_ADD_YEAR";
 import ACTION_ASSIGN_FILTERED_DATA_CHUNKS from "./actions/filteredDataChunks/ACTION_ASSIGN_FILTERED_DATA_CHUNKS";
 import ACTION_INCREMENT_TOTAL_COUNT from "./actions/totalCount/ACTION_INCREMENT_TOTAL_COUNT";
+import ACTION_ASSIGN_LOAD_DATA from "./actions/loadData/ACTION_ASSIGN_LOAD_DATA";
 import ACTION_ASSIGN_FILTERED_DATA from "./actions/filteredData/ACTION_ASSIGN_FILTERED_DATA";
 import ACTION_FILTERED_DATA_CHANGED from "./actions/filteredData/ACTION_FILTERED_DATA_CHANGED";
 import ACTION_FILTERED_DATA_CHANGED_RESET from "./actions/filteredData/ACTION_FILTERED_DATA_CHANGED_RESET";
@@ -54,6 +55,7 @@ dayjs.extend(customParseFormat);
 const App = () => {
   const dispatch = useDispatch();
 
+  const loadData = useSelector((state) => state.loadDataReducer.data);
   const filteredData = useSelector((state) => state.filteredDataReducer.data);
   const filteredDataChanged = useSelector(
     (state) => state.filteredDataReducer.changed
@@ -81,8 +83,22 @@ const App = () => {
   const raceTimelineGraphData = useSelector(
     (state) => state.raceTimelineGraphDataReducer.data
   );
+
+  // Timeline Column Data
+  const ageTimelineColumns = useSelector(
+    (state) => state.ageTimelineColumnsReducer.columns
+  );
+  const boroughTimelineColumns = useSelector(
+    (state) => state.boroughTimelineColumnsReducer.columns
+  );
   const categoryTimelineColumns = useSelector(
     (state) => state.categoryTimelineColumnsReducer.columns
+  );
+  const raceTimelineColumns = useSelector(
+    (state) => state.raceTimelineColumnsReducer.columns
+  );
+  const sexTimelineColumns = useSelector(
+    (state) => state.sexTimelineColumnsReducer.columns
   );
 
   const [mapLoaded, changeMapLoaded] = useState(false);
@@ -107,7 +123,6 @@ const App = () => {
 
   const [laddaLoading, changeLaddaLoading] = useState(false);
   const [loadingYears, changeLoadingYears] = useState([]);
-  const [loadData, changeLoadData] = useState([]);
 
   // Web Worker Instances
   const [workerInstance, changeWorkerInstance] = useState("");
@@ -211,21 +226,6 @@ const App = () => {
   }, [currentScreenWidth]);
 
   const prevLoadChunks = usePrevious(loadDataChunks);
-
-  useEffect(() => {
-    const valuesArr = Object.values(loadDataChunks[0])[0];
-
-    if (valuesArr) {
-      if (
-        loadDataChunks !== prevLoadChunks ||
-        valuesArr.flat().length !== totalCount
-      ) {
-        if (valuesArr) {
-          changeLoadData(valuesArr.flat());
-        }
-      }
-    }
-  }, [loadDataChunks, prevLoadChunks, totalCount]);
 
   const [ageGroup, changeAgeGroup] = useState([]);
   const [raceArr, changeRaceArr] = useState([]);
@@ -554,7 +554,6 @@ const App = () => {
   ]);
 
   const renderLayers = useCallback(() => {
-    console.log(filteredDataChunks);
     const yearsFiltered = filteredDataChunks.map((item) =>
       Number(dayjs(item[5]["ARREST_DATE"], "MM/DD/YYYY").format("YYYY"))
     );
@@ -740,43 +739,53 @@ const App = () => {
   useEffect(() => {
     if (ageGroupTimelineGraphData !== prevAgeGroupTimelineGraphData) {
       if (ageGroupTimelineGraphData.length > 0) {
-        dispatch(
-          ACTION_AGE_TIMELINE_COLUMNS(
-            [
-              [{ type: "date", label: "Date" }].concat(
-                filteredAgeGroupData.map((item) =>
-                  item === "65" ? "65+" : item
-                )
-              ),
-            ].concat(ageGroupTimelineGraphData)
-          )
-        );
+        if (
+          filteredAgeGroupData.length ===
+          ageGroupTimelineGraphData[0].length - 1
+        ) {
+          dispatch(
+            ACTION_AGE_TIMELINE_COLUMNS(
+              [
+                [{ type: "date", label: "Date" }].concat(
+                  filteredAgeGroupData.map((item) =>
+                    item === "65" ? "65+" : item
+                  )
+                ),
+              ].concat(ageGroupTimelineGraphData)
+            )
+          );
+        }
       }
     }
 
     if (boroughTimelineGraphData !== prevBoroughTimelineGraphData) {
       if (boroughTimelineGraphData.length > 0) {
-        dispatch(
-          ACTION_BOROUGH_TIMELINE_COLUMNS(
-            [
-              [{ type: "date", label: "Date" }].concat(
-                filteredBoroughUniqueValues.map((borough) =>
-                  borough === "B"
-                    ? "Bronx"
-                    : borough === "Q"
-                    ? "Queens"
-                    : borough === "M"
-                    ? "Manhattan"
-                    : borough === "K"
-                    ? "Brooklyn"
-                    : borough === "S"
-                    ? "Staten Island"
-                    : "Unknown"
-                )
-              ),
-            ].concat(boroughTimelineGraphData)
-          )
-        );
+        if (
+          filteredBoroughUniqueValues.length ===
+          boroughTimelineGraphData[0].length - 1
+        ) {
+          dispatch(
+            ACTION_BOROUGH_TIMELINE_COLUMNS(
+              [
+                [{ type: "date", label: "Date" }].concat(
+                  filteredBoroughUniqueValues.map((borough) =>
+                    borough === "B"
+                      ? "Bronx"
+                      : borough === "Q"
+                      ? "Queens"
+                      : borough === "M"
+                      ? "Manhattan"
+                      : borough === "K"
+                      ? "Brooklyn"
+                      : borough === "S"
+                      ? "Staten Island"
+                      : "Unknown"
+                  )
+                ),
+              ].concat(boroughTimelineGraphData)
+            )
+          );
+        }
       }
     }
 
@@ -793,13 +802,15 @@ const App = () => {
           ),
         ];
 
-        dispatch(
-          ACTION_CATEGORY_TIMELINE_COLUMNS(
-            [[{ type: "date", label: "Date" }].concat(categoryArr)].concat(
-              categoryTimelineGraphData
+        if (categoryArr.length === categoryTimelineGraphData[0].length - 1) {
+          dispatch(
+            ACTION_CATEGORY_TIMELINE_COLUMNS(
+              [[{ type: "date", label: "Date" }].concat(categoryArr)].concat(
+                categoryTimelineGraphData
+              )
             )
-          )
-        );
+          );
+        }
       }
     }
 
@@ -809,13 +820,15 @@ const App = () => {
           x === "F" ? "Female" : "Male"
         );
 
-        dispatch(
-          ACTION_SEX_TIMELINE_COLUMNS(
-            [[{ type: "date", label: "Date" }].concat(genderArr)].concat(
-              genderTimelineGraphData
+        if (genderArr.length === genderTimelineGraphData[0].length - 1) {
+          dispatch(
+            ACTION_SEX_TIMELINE_COLUMNS(
+              [[{ type: "date", label: "Date" }].concat(genderArr)].concat(
+                genderTimelineGraphData
+              )
             )
-          )
-        );
+          );
+        }
       }
     }
 
@@ -836,13 +849,15 @@ const App = () => {
             .join("/")
         );
 
-        dispatch(
-          ACTION_RACE_TIMELINE_COLUMNS(
-            [[{ type: "date", label: "Date" }].concat(raceArr)].concat(
-              raceTimelineGraphData
+        if (raceArr.length === raceTimelineGraphData[0].length - 1) {
+          dispatch(
+            ACTION_RACE_TIMELINE_COLUMNS(
+              [[{ type: "date", label: "Date" }].concat(raceArr)].concat(
+                raceTimelineGraphData
+              )
             )
-          )
-        );
+          );
+        }
       }
     }
   }, [
@@ -960,6 +975,8 @@ const App = () => {
         dispatch(ACTION_LOAD_DATA_CHUNKS_ADD_YEAR(chunk.data, chunkYear));
 
         dispatch(ACTION_FILTERED_DATA_CHUNKS_ADD_YEAR(chunk.data));
+
+        dispatch(ACTION_ASSIGN_LOAD_DATA(chunk.data));
       } else {
         // Year exists, add additional data to it
         dispatch(ACTION_LOAD_DATA_CHUNKS_ADD_TO_YEAR(chunk.data, chunkYear));
@@ -967,6 +984,8 @@ const App = () => {
         dispatch(
           ACTION_FILTERED_DATA_CHUNKS_ADD_TO_YEAR(chunk.data, dataIndex)
         );
+
+        dispatch(ACTION_ASSIGN_LOAD_DATA(chunk.data));
       }
     },
     [dispatch]
@@ -1486,7 +1505,9 @@ const App = () => {
 
             (() => {
               // Creates new websocket instance
-              let ws = new WebSocket("ws://localhost:4000");
+              let ws = new WebSocket(
+                "wss://4000-b2ce8d99-5e44-4450-8082-212ab58e5318.ws-us02.gitpod.io"
+              );
 
               if (process.env.NODE_ENV === "production") {
                 const host = window.location.href.replace(/^http/, "ws");
@@ -1558,16 +1579,47 @@ const App = () => {
   ]);
 
   useEffect(() => {
-    if (totalCount > 70000 && categoryTimelineColumns.length === 0) {
-      if (!mapVisible) {
-        changeMapVisible(true);
+    if (totalCount > 70000) {
+      if (
+        ageTimelineColumns &&
+        boroughTimelineColumns &&
+        categoryTimelineColumns &&
+        raceTimelineColumns &&
+        sexTimelineColumns
+      ) {
+        if (ageTimelineColumns.length > 0) {
+          if (boroughTimelineColumns.length > 0) {
+            if (categoryTimelineColumns.length > 0) {
+              if (raceTimelineColumns.length > 0) {
+                if (sexTimelineColumns.length > 0) {
+                  if (!mapVisible) {
+                    changeMapVisible(true);
+                  }
+                }
+              }
+            }
+          }
+        }
       }
     }
-  }, [totalCount, mapVisible, categoryTimelineColumns.length]);
+  }, [
+    totalCount,
+    mapVisible,
+    ageTimelineColumns,
+    boroughTimelineColumns,
+    categoryTimelineColumns,
+    raceTimelineColumns,
+    sexTimelineColumns,
+  ]);
 
   return (
     <>
-      {totalCount < 70000 || categoryTimelineColumns.length === 0 ? (
+      {totalCount < 70000 ||
+      (ageTimelineColumns ? ageTimelineColumns.length === 0 : true) ||
+      (boroughTimelineColumns ? boroughTimelineColumns.length === 0 : true) ||
+      (categoryTimelineColumns ? categoryTimelineColumns.length === 0 : true) ||
+      (raceTimelineColumns ? raceTimelineColumns.length === 0 : true) ||
+      (sexTimelineColumns ? sexTimelineColumns.length === 0 : true) ? (
         <InitialLoader
           countUp={countUp}
           loaderColor={loaderColor}
@@ -1585,7 +1637,18 @@ const App = () => {
         className="nypd_arrest_map_container"
         style={{
           opacity:
-            totalCount < 70000 || categoryTimelineColumns.length === 0 ? 0 : 1,
+            totalCount < 70000 ||
+            (ageTimelineColumns ? ageTimelineColumns.length === 0 : true) ||
+            (boroughTimelineColumns
+              ? boroughTimelineColumns.length === 0
+              : true) ||
+            (categoryTimelineColumns
+              ? categoryTimelineColumns.length === 0
+              : true) ||
+            (raceTimelineColumns ? raceTimelineColumns.length === 0 : true) ||
+            (sexTimelineColumns ? sexTimelineColumns.length === 0 : true)
+              ? 0
+              : 1,
         }}
       >
         <NavigationBar
