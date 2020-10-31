@@ -49,6 +49,9 @@ import ACTION_CHANGE_RACE_FILTER from "./actions/filters/race/ACTION_CHANGE_RACE
 import ACTION_CHANGE_AGE_FILTER from "./actions/filters/age/ACTION_CHANGE_AGE_FILTER";
 import ACTION_CHANGE_SEX_FILTER from "./actions/filters/sex/ACTION_CHANGE_SEX_FILTER";
 import ACTION_CHANGE_BOROUGH_FILTER from "./actions/filters/borough/ACTION_CHANGE_BOROUGH_FILTER";
+import ACTION_APPLYING_FILTERS from "./actions/applyingFilters/ACTION_APPLYING_FILTERS";
+import ACTION_APPLYING_FILTERS_RESET from "./actions/applyingFilters/ACTION_APPLYING_FILTERS_RESET";
+import ApplyingFiltersPopUp from "./ApplyingFiltersPopUp/ApplyingFiltersPopUp";
 
 dayjs.extend(customParseFormat);
 
@@ -63,6 +66,7 @@ const App = () => {
   const filteredDataChunks = useSelector(
     (state) => state.filteredDataChunksReducer.data
   );
+
   const loadDataChunks = useSelector(
     (state) => state.loadDataChunksReducer.data
   );
@@ -275,7 +279,7 @@ const App = () => {
           console.log("FILTER & TIMELINE WORKER FIRED");
           const arrayName = receivedData.data.arrayName;
           const returnedArr = receivedData.data.returnedArr;
-
+          console.log(arrayName);
           if (arrayName === "ageGroupTimelineGraphData") {
             dispatch(ACTION_TIMELINE_AGE_GROUP_GRAPH_DATA(returnedArr));
           } else if (arrayName === "boroughTimelineGraphData") {
@@ -478,7 +482,12 @@ const App = () => {
   );
 
   useEffect(() => {
-    if (filteredAgeGroupData !== prevFilteredAgeGroupData) {
+    if (
+      !isSame(
+        filteredAgeGroupData,
+        prevFilteredAgeGroupData ? prevFilteredAgeGroupData : []
+      )
+    ) {
       postToTimelineGraphWorker(
         "ageGroupTimelineGraphData",
         "age_group",
@@ -488,7 +497,12 @@ const App = () => {
       );
     }
 
-    if (filteredRaceUniqueValues !== prevFilteredRaceUniqueValues) {
+    if (
+      !isSame(
+        filteredRaceUniqueValues,
+        prevFilteredRaceUniqueValues ? prevFilteredRaceUniqueValues : []
+      )
+    ) {
       postToTimelineGraphWorker(
         "raceTimelineGraphData",
         "race",
@@ -498,7 +512,12 @@ const App = () => {
       );
     }
 
-    if (filteredSexUniqueValues !== prevFilteredSexUniqueValues) {
+    if (
+      !isSame(
+        filteredSexUniqueValues,
+        prevFilteredSexUniqueValues ? prevFilteredSexUniqueValues : []
+      )
+    ) {
       postToTimelineGraphWorker(
         "genderTimelineGraphData",
         "sex",
@@ -508,7 +527,12 @@ const App = () => {
       );
     }
 
-    if (filteredBoroughUniqueValues !== prevFilteredBoroughUniqueValues) {
+    if (
+      !isSame(
+        filteredBoroughUniqueValues,
+        prevFilteredBoroughUniqueValues ? prevFilteredBoroughUniqueValues : []
+      )
+    ) {
       postToTimelineGraphWorker(
         "boroughTimelineGraphData",
         "borough",
@@ -519,9 +543,15 @@ const App = () => {
     }
 
     if (
-      filteredUniqueDates !== prevFilteredUniqueDates ||
-      filteredUniqueCategory !== prevFilteredUniqueCategory ||
-      filteredTimelineCategoryData !== prevFilteredTimelineCategoryData
+      (filteredUniqueDates.length > 0 &&
+        !isSame(
+          filteredUniqueCategory,
+          prevFilteredUniqueCategory ? prevFilteredUniqueCategory : []
+        )) ||
+      !isSame(
+        filteredTimelineCategoryData,
+        prevFilteredTimelineCategoryData ? prevFilteredTimelineCategoryData : []
+      )
     ) {
       postToTimelineGraphWorker(
         "categoryTimelineGraphData",
@@ -810,6 +840,8 @@ const App = () => {
               )
             )
           );
+
+          dispatch(ACTION_APPLYING_FILTERS_RESET());
         }
       }
     }
@@ -1045,6 +1077,10 @@ const App = () => {
         borough: borough,
         suppliedData: suppliedData,
       });
+
+      if (!downloadYear) {
+        dispatch(ACTION_APPLYING_FILTERS());
+      }
 
       setFilterAndTimelineGraphWorkersInstance.onmessage = (receivedData) => {
         const assignFilteredData = receivedData.data.assignFilteredData;
@@ -1505,9 +1541,7 @@ const App = () => {
 
             (() => {
               // Creates new websocket instance
-              let ws = new WebSocket(
-                "wss://4000-b2ce8d99-5e44-4450-8082-212ab58e5318.ws-us02.gitpod.io"
-              );
+              let ws = new WebSocket("ws://localhost:4000");
 
               if (process.env.NODE_ENV === "production") {
                 const host = window.location.href.replace(/^http/, "ws");
@@ -1693,35 +1727,38 @@ const App = () => {
           />
         </DeckGL>
         {mapLoaded ? (
-          <BottomInfoPanel
-            isSame={isSame}
-            mapVisible={mapVisible}
-            loadData={loadData}
-            tooltipVisible={tooltipVisible}
-            filteredArrestCategory={filteredArrestCategory}
-            filteredAgeGroupData={filteredAgeGroupData}
-            filteredRaceUniqueValues={filteredRaceUniqueValues}
-            filteredSexUniqueValues={filteredSexUniqueValues}
-            filteredBoroughUniqueValues={filteredBoroughUniqueValues}
-            filteredOffenseDescriptionUniqueValues={
-              filteredOffenseDescriptionUniqueValues
-            }
-            filteredUniqueCategory={filteredUniqueCategory}
-            filteredAgeGroup={filteredAgeGroup}
-            filteredRaceArr={filteredRaceArr}
-            filteredSexArr={filteredSexArr}
-            filteredBoroughArr={filteredBoroughArr}
-            filteredOffenseDescriptionArr={filteredOffenseDescriptionArr}
-            loadedYears={loadedYears}
-            usePrevious={usePrevious}
-            currentFilters={currentFilters}
-            filteredUniqueDates={filteredUniqueDates}
-            filteredTimelineAgeGroupData={filteredTimelineAgeGroupData}
-            filteredTimelineBoroughData={filteredTimelineBoroughData}
-            filteredTimelineCategoryData={filteredTimelineCategoryData}
-            filteredTimelineSexData={filteredTimelineSexData}
-            filteredTimelineRaceData={filteredTimelineRaceData}
-          />
+          <>
+            <ApplyingFiltersPopUp />
+            <BottomInfoPanel
+              isSame={isSame}
+              mapVisible={mapVisible}
+              loadData={loadData}
+              tooltipVisible={tooltipVisible}
+              filteredArrestCategory={filteredArrestCategory}
+              filteredAgeGroupData={filteredAgeGroupData}
+              filteredRaceUniqueValues={filteredRaceUniqueValues}
+              filteredSexUniqueValues={filteredSexUniqueValues}
+              filteredBoroughUniqueValues={filteredBoroughUniqueValues}
+              filteredOffenseDescriptionUniqueValues={
+                filteredOffenseDescriptionUniqueValues
+              }
+              filteredUniqueCategory={filteredUniqueCategory}
+              filteredAgeGroup={filteredAgeGroup}
+              filteredRaceArr={filteredRaceArr}
+              filteredSexArr={filteredSexArr}
+              filteredBoroughArr={filteredBoroughArr}
+              filteredOffenseDescriptionArr={filteredOffenseDescriptionArr}
+              loadedYears={loadedYears}
+              usePrevious={usePrevious}
+              currentFilters={currentFilters}
+              filteredUniqueDates={filteredUniqueDates}
+              filteredTimelineAgeGroupData={filteredTimelineAgeGroupData}
+              filteredTimelineBoroughData={filteredTimelineBoroughData}
+              filteredTimelineCategoryData={filteredTimelineCategoryData}
+              filteredTimelineSexData={filteredTimelineSexData}
+              filteredTimelineRaceData={filteredTimelineRaceData}
+            />
+          </>
         ) : null}
       </div>
     </>

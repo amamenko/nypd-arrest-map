@@ -33,6 +33,7 @@ const initialState = {
   genderTimelineGraphDataReducer: { data: [] },
   raceTimelineGraphDataReducer: { data: [] },
   totalCountReducer: { total: 0 },
+  applyingFiltersReducer: { filters: false },
 };
 
 const LOAD_DATA_CHUNKS_ADD_YEAR = "LOAD_DATA_CHUNKS_ADD_YEAR";
@@ -439,6 +440,29 @@ const totalCountReducer = (state = initialState.totalCountReducer, action) => {
   }
 };
 
+const APPLYING_FILTERS = "APPLYING_FILTERS";
+const APPLYING_FILTERS_RESET = "APPLYING_FILTERS_RESET";
+
+const applyingFiltersReducer = (
+  state = initialState.applyingFiltersReducer,
+  action
+) => {
+  switch (action.type) {
+    case APPLYING_FILTERS:
+      return {
+        ...state,
+        filters: true,
+      };
+    case APPLYING_FILTERS_RESET:
+      return {
+        ...state,
+        filters: false,
+      };
+    default:
+      return { ...state };
+  }
+};
+
 const RootReducer = combineReducers({
   // General data states
   loadDataChunksReducer: loadDataChunksReducer,
@@ -462,6 +486,7 @@ const RootReducer = combineReducers({
   raceFilterReducer: raceFilterReducer,
   sexFilterReducer: sexFilterReducer,
   boroughFilterReducer: boroughFilterReducer,
+  applyingFiltersReducer: applyingFiltersReducer,
 
   // Timeline graph data
   ageGroupTimelineGraphDataReducer: ageGroupTimelineGraphDataReducer,

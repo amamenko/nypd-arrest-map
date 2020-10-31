@@ -39,6 +39,7 @@ const initialState = {
   genderTimelineGraphDataReducer: { data: [] },
   raceTimelineGraphDataReducer: { data: [] },
   totalCountReducer: { total: 0 },
+  applyingFiltersReducer: { filters: false },
 };
 
 const store = wrapStore(new storeWorker(), initialState);

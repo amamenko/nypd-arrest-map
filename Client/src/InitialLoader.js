@@ -5,6 +5,7 @@ import {
 } from "react-circular-progressbar";
 import { GiHandcuffs } from "react-icons/gi";
 import GridLoader from "react-spinners/GridLoader";
+import BounceLoader from "react-spinners/BounceLoader";
 import { css } from "@emotion/core";
 import "react-circular-progressbar/dist/styles.css";
 import { useSelector } from "react-redux";
@@ -37,6 +38,14 @@ const InitialLoader = (props) => {
               filteredDataChunks.flat().length < 70000)
           }
         />
+      ) : countUp > 90 ? (
+        <BounceLoader
+          css={override}
+          size={200}
+          color={"rgb(93, 188, 210)"}
+          style={{ transition: "all 0.5s ease" }}
+          loading={countUp > 90}
+        />
       ) : (
         <CircularProgressbarWithChildren
           value={countUp}
@@ -56,8 +65,10 @@ const InitialLoader = (props) => {
           ? "Error Initializing NYPD Arrest Map"
           : totalCount === 0
           ? "Initializing NYPD Arrest Map"
-          : countUp >= 60
-          ? "Rendering NYPD Arrest Map"
+          : countUp >= 60 && countUp < 90
+          ? "Rendering Map"
+          : countUp > 90
+          ? "Launching Map"
           : "Loading Most Recent Arrest Data"}
       </p>
     </div>
