@@ -11,7 +11,7 @@ import "react-circular-progressbar/dist/styles.css";
 import { useSelector } from "react-redux";
 
 const InitialLoader = (props) => {
-  const { countUp, loaderColor, mapError } = props;
+  const { countUp, loaderColor, mapError, applyingFiltersProgressRef } = props;
 
   const override = css`
     display: block;
@@ -38,13 +38,13 @@ const InitialLoader = (props) => {
               filteredDataChunks.flat().length < 70000)
           }
         />
-      ) : countUp > 90 ? (
+      ) : countUp > 95 ? (
         <BounceLoader
           css={override}
           size={200}
           color={"rgb(93, 188, 210)"}
           style={{ transition: "all 0.5s ease" }}
-          loading={countUp > 90}
+          loading={countUp > 95}
         />
       ) : (
         <CircularProgressbarWithChildren
@@ -65,10 +65,8 @@ const InitialLoader = (props) => {
           ? "Error Initializing NYPD Arrest Map"
           : totalCount === 0
           ? "Initializing NYPD Arrest Map"
-          : countUp >= 60 && countUp < 90
-          ? "Rendering Map"
-          : countUp > 90
-          ? "Launching Map"
+          : countUp > 95
+          ? `Launching Map (${applyingFiltersProgressRef.current}% Done)`
           : "Loading Most Recent Arrest Data"}
       </p>
     </div>

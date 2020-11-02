@@ -34,6 +34,7 @@ const initialState = {
   raceTimelineGraphDataReducer: { data: [] },
   totalCountReducer: { total: 0 },
   applyingFiltersReducer: { filters: false },
+  applyingFiltersProgressReducer: { progress: 0 },
 };
 
 const LOAD_DATA_CHUNKS_ADD_YEAR = "LOAD_DATA_CHUNKS_ADD_YEAR";

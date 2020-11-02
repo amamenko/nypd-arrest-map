@@ -8,6 +8,8 @@ import "reactjs-popup/dist/index.css";
 import { useSelector } from "react-redux";
 
 const ApplyingFiltersPopUp = (props) => {
+  const { applyingFiltersProgressRef } = props;
+
   const applyingFiltersRef = useRef(null);
 
   const override = css`
@@ -42,12 +44,12 @@ const ApplyingFiltersPopUp = (props) => {
       <div className="applying_filters_modal">
         <GridLoader
           css={override}
-          size={50}
-          color={"#0044cb"}
+          size={40}
+          color={"rgb(0, 109, 129)"}
           style={{ transition: "all 0.5s ease" }}
           loading={true}
         />
-        <p>Applying Filters</p>
+        <p>Applying Filters ({applyingFiltersProgressRef.current}% Done)</p>
       </div>
     </Popup>
   );
