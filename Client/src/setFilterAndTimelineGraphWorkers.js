@@ -1,4 +1,5 @@
 import dayjs from "dayjs";
+import { GiNetworkBars } from "react-icons/gi";
 
 onmessage = (e) => {
   const dataSent = e.data;
@@ -91,6 +92,21 @@ onmessage = (e) => {
                 const dateArr = date ? date.split("/") : null;
 
                 if (name === "raceTimelineGraphData") {
+                  const nameSlicer = (name) => {
+                    name
+                      .split(" ")
+                      .map((x) => x[0].toUpperCase() + x.slice(1).toLowerCase())
+                      .join(" ")
+                      .split("/")
+                      .map(
+                        (x) =>
+                          x[0].toUpperCase() +
+                          x.slice(1, x.indexOf(" ")).toLowerCase() +
+                          x.slice(x.indexOf(" "))
+                      )
+                      .join("/");
+                  };
+
                   return [
                     "Date(" +
                       dateArr[2] +
@@ -99,46 +115,25 @@ onmessage = (e) => {
                       ", " +
                       Number(dateArr[1]).toString() +
                       ", 0, 0, 0, 0)",
-                    unique
-                      .map((race) =>
-                        race
-                          .split(" ")
-                          .map(
-                            (x) => x[0].toUpperCase() + x.slice(1).toLowerCase()
-                          )
-                          .join(" ")
-                          .split("/")
-                          .map(
-                            (x) =>
-                              x[0].toUpperCase() +
-                              x.slice(1, x.indexOf(" ")).toLowerCase() +
-                              x.slice(x.indexOf(" "))
-                          )
-                          .join("/")
-                      )
-                      .map(
-                        (item) =>
-                          dataArr[0].filter(
-                            (x) =>
-                              x.date === date &&
-                              x[generalName]
-                                .split(" ")
-                                .map(
-                                  (x) =>
-                                    x[0].toUpperCase() +
-                                    x.slice(1).toLowerCase()
-                                )
-                                .join(" ")
-                                .split("/")
-                                .map(
-                                  (x) =>
-                                    x[0].toUpperCase() +
-                                    x.slice(1, x.indexOf(" ")).toLowerCase() +
-                                    x.slice(x.indexOf(" "))
-                                )
-                                .join("/") === item
-                          ).length
-                      ),
+                    unique.reduce((acc, curr) => {
+                      const formatName = (race) => nameSlicer(race);
+
+                      const currentFormattedName = formatName(curr);
+
+                      const matchDataArr = (item) => {
+                        const newLength = dataArr[0].filter(
+                          (x) =>
+                            x.date === date &&
+                            nameSlicer(x[generalName]) === item
+                        ).length;
+
+                        acc.push(newLength);
+                      };
+
+                      matchDataArr(currentFormattedName);
+
+                      return acc;
+                    }, []),
                   ].flat();
                 } else if (name === "categoryTimelineGraphData") {
                   if (dataArr[0]) {
@@ -180,14 +175,21 @@ onmessage = (e) => {
                       ", " +
                       Number(dateArr[1]).toString() +
                       ", 0, 0, 0, 0)",
-                    unique
-                      .map((x) => (x === "F" ? "Female" : "Male"))
-                      .map(
-                        (item) =>
-                          dataArr[0].filter(
-                            (x) => x.date === date && x[generalName] === item
-                          ).length
-                      ),
+
+                    unique.reduce((acc, curr) => {
+                      const formatName = (x) => (x === "F" ? "Female" : "Male");
+
+                      const currentFormattedName = formatName(curr);
+
+                      const matchDataArr = (item) =>
+                        dataArr[0].filter(
+                          (x) => x.date === date && x[generalName] === item
+                        ).length;
+
+                      acc.push(matchDataArr(currentFormattedName));
+
+                      return acc;
+                    }, []),
                   ].flat();
                 } else {
                   return [

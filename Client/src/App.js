@@ -283,7 +283,10 @@ const App = () => {
         setFilterAndTimelineGraphWorkersInstance.onmessage = (receivedData) => {
           console.log("FILTER & TIMELINE WORKER FIRED");
 
-          applyingFiltersProgressRef.current += 3;
+          applyingFiltersProgressRef.current++;
+          applyingFiltersProgressRef.current++;
+          applyingFiltersProgressRef.current++;
+          applyingFiltersProgressRef.current++;
 
           const arrayName = receivedData.data.arrayName;
           const returnedArr = receivedData.data.returnedArr;
@@ -323,7 +326,9 @@ const App = () => {
         filterWorkerInstance.onmessage = (receivedData) => {
           console.log("FILTERED WORKER FIRED");
 
-          applyingFiltersProgressRef.current += 3;
+          applyingFiltersProgressRef.current++;
+          applyingFiltersProgressRef.current++;
+          applyingFiltersProgressRef.current++;
 
           const parsedData = JSON.parse(receivedData.data);
 
@@ -370,7 +375,9 @@ const App = () => {
         mapFilterWorkerInstance.onmessage = (receivedData) => {
           console.log("MAP WORKER FIRED");
 
-          applyingFiltersProgressRef.current += 3;
+          applyingFiltersProgressRef.current++;
+          applyingFiltersProgressRef.current++;
+          applyingFiltersProgressRef.current++;
 
           const parsedData = JSON.parse(receivedData.data);
 
@@ -442,7 +449,9 @@ const App = () => {
         timelineWorkerInstance.onmessage = (receivedData) => {
           console.log("TIMELINE WORKER FIRED");
 
-          applyingFiltersProgressRef.current += 3;
+          applyingFiltersProgressRef.current++;
+          applyingFiltersProgressRef.current++;
+          applyingFiltersProgressRef.current++;
 
           const parsedData = JSON.parse(receivedData.data);
 
@@ -1135,49 +1144,61 @@ const App = () => {
                     return Number(date.substring(date.length - 4, date.length));
                   });
 
+                  const filterArrIncluded = (item, index) => {
+                    if (item !== filterExactName) {
+                      if (filterArr.length > 0) {
+                        if (filterArr.includes(yearsArr[index])) {
+                          return true;
+                        } else {
+                          return false;
+                        }
+                      } else {
+                        return true;
+                      }
+                    } else {
+                      return false;
+                    }
+                  };
+
                   postMessage(
                     JSON.stringify({
                       arrayName: arrName,
                       returnedArr: splitChunks
                         .map((x, i) => [
                           ...new Set(
-                            x
-                              .map((y) => y[filterExactName])
-                              .filter((z) => {
-                                if (z !== filterExactName) {
-                                  if (filterArr.length > 0) {
-                                    if (filterArr.includes(yearsArr[i])) {
-                                      return true;
-                                    } else {
-                                      return false;
-                                    }
-                                  } else {
-                                    return true;
-                                  }
-                                } else {
-                                  return false;
-                                }
-                              })
+                            x.reduce((acc, curr) => {
+                              const exactName = curr[filterExactName];
+
+                              if (filterArrIncluded(exactName, i)) {
+                                acc.push(exactName);
+                              }
+
+                              return acc;
+                            }, [])
                           ),
                         ])
                         .flat(),
                     })
                   );
                 } else if (arrName === "filteredUniqueCategory") {
+                  const filterArrIncluded = (item) =>
+                    item !== filterExactName &&
+                    (filterArr.length > 0 ? filterArr.includes(item) : true);
+
                   postMessage(
                     JSON.stringify({
                       arrayName: arrName,
                       returnedArr: [
                         ...new Set(
-                          chunk
-                            .map((x) => x[filterExactName])
-                            .filter(
-                              (x) =>
-                                x !== filterExactName &&
-                                (filterArr.length > 0
-                                  ? filterArr.includes(x)
-                                  : true)
-                            )
+                          chunk.reduce((acc, curr) => {
+                            const exactName = curr[filterExactName];
+
+                            if (filterArrIncluded(exactName)) {
+                              acc.push(exactName);
+                            }
+
+                            return acc;
+                          }, [])
                         ),
                       ],
                     })
@@ -1187,18 +1208,22 @@ const App = () => {
                   arrName !== "filteredBoroughArr" &&
                   arrName !== "filteredOffenseDescriptionArr"
                 ) {
+                  const filterArrIncluded = (item) =>
+                    item !== filterExactName &&
+                    (filterArr.length > 0 ? filterArr.includes(item) : true);
+
                   postMessage(
                     JSON.stringify({
                       arrayName: arrName,
-                      returnedArr: chunk
-                        .map((x) => x[filterExactName])
-                        .filter(
-                          (x) =>
-                            x !== filterExactName &&
-                            (filterArr.length > 0
-                              ? filterArr.includes(x)
-                              : true)
-                        ),
+                      returnedArr: chunk.reduce((acc, curr) => {
+                        const exactName = curr[filterExactName];
+
+                        if (filterArrIncluded(exactName)) {
+                          acc.push(exactName);
+                        }
+
+                        return acc;
+                      }, []),
                     })
                   );
                 } else if (
@@ -1208,8 +1233,8 @@ const App = () => {
                   postMessage(
                     JSON.stringify({
                       arrayName: arrName,
-                      returnedArr: chunk
-                        .map((x) => {
+                      returnedArr: chunk.reduce((acc, curr) => {
+                        const currentName = (x) => {
                           if (
                             x[filterExactName] === "K" &&
                             Number(x.Latitude) > 40.73912
@@ -1240,8 +1265,9 @@ const App = () => {
                           } else {
                             return x[filterExactName];
                           }
-                        })
-                        .filter((x) => {
+                        };
+
+                        const filterArrIncluded = (x) => {
                           if (x !== filterExactName) {
                             if (filterArr) {
                               if (filterArr.length > 0) {
@@ -1255,56 +1281,79 @@ const App = () => {
                           } else {
                             return false;
                           }
-                        }),
+                        };
+
+                        const currentPushItem = currentName(curr);
+
+                        if (filterArrIncluded(currentPushItem)) {
+                          acc.push(currentPushItem);
+                        }
+
+                        return acc;
+                      }, []),
                     })
                   );
                 } else if (
                   arrName === "offenseDescriptionArr" ||
                   arrName === "filteredOffenseDescriptionArr"
                 ) {
+                  const filterArrIncluded = (x) => {
+                    if (filterArr) {
+                      if (filterArr.length > 0) {
+                        return filterArr.includes(x);
+                      } else {
+                        return true;
+                      }
+                    } else {
+                      return true;
+                    }
+                  };
+
                   postMessage(
                     JSON.stringify({
                       arrayName: arrName,
-                      returnedArr: chunk
-                        .map(
-                          (x) =>
-                            x[filterExactName] !== "OFNS_DESC" &&
-                            x[filterExactName]
-                        )
-                        .filter((x) => {
-                          if (filterArr) {
-                            if (filterArr.length > 0) {
-                              return filterArr.includes(x);
-                            } else {
-                              return true;
-                            }
-                          } else {
-                            return true;
-                          }
-                        }),
+                      returnedArr: chunk.reduce((acc, curr) => {
+                        const exactName =
+                          curr[filterExactName] !== "OFNS_DESC" &&
+                          curr[filterExactName];
+
+                        if (filterArrIncluded(exactName)) {
+                          acc.push(exactName);
+                        }
+
+                        return acc;
+                      }, []),
                     })
                   );
                 } else {
+                  const filterArrIncluded = (x) => {
+                    if (x !== filterExactName) {
+                      if (filterArr) {
+                        if (filterArr.length > 0) {
+                          return filterArr.includes(x);
+                        } else {
+                          return true;
+                        }
+                      } else {
+                        return true;
+                      }
+                    } else {
+                      return false;
+                    }
+                  };
+
                   postMessage(
                     JSON.stringify({
                       arrayName: arrName,
-                      returnedArr: chunk
-                        .map((x) => x[filterExactName])
-                        .filter((x) => {
-                          if (x !== filterExactName) {
-                            if (filterArr) {
-                              if (filterArr.length > 0) {
-                                return filterArr.includes(x);
-                              } else {
-                                return true;
-                              }
-                            } else {
-                              return true;
-                            }
-                          } else {
-                            return false;
-                          }
-                        }),
+                      returnedArr: chunk.reduce((acc, curr) => {
+                        const exactName = curr[filterExactName];
+
+                        if (filterArrIncluded(exactName)) {
+                          acc.push(exactName);
+                        }
+
+                        return acc;
+                      }, []),
                     })
                   );
                 }
@@ -1344,8 +1393,8 @@ const App = () => {
                     JSON.stringify({
                       arrayName: filterGeneralName,
                       returnedArr: chunk.map((item) =>
-                        item
-                          .map((x) => {
+                        item.reduce((acc, curr) => {
+                          const formatName = (x) => {
                             return {
                               date: x["ARREST_DATE"],
                               [filterGeneralName]:
@@ -1355,12 +1404,20 @@ const App = () => {
                                   ? "Misdemeanor"
                                   : "Violation",
                             };
-                          })
-                          .filter(
-                            (x) =>
-                              x.date !== "ARREST_DATE" &&
-                              x[filterGeneralName] !== filterExactName
-                          )
+                          };
+
+                          const filterArrIncluded = (x) =>
+                            x.date !== "ARREST_DATE" &&
+                            x[filterGeneralName] !== filterExactName;
+
+                          const newPushItem = formatName(curr);
+
+                          if (filterArrIncluded(newPushItem)) {
+                            acc.push(newPushItem);
+                          }
+
+                          return acc;
+                        }, [])
                       ),
                     })
                   );
@@ -1369,19 +1426,27 @@ const App = () => {
                     JSON.stringify({
                       arrayName: filterGeneralName,
                       returnedArr: chunk.map((item) =>
-                        item
-                          .map((x) => {
+                        item.reduce((acc, curr) => {
+                          const formatName = (x) => {
                             return {
                               date: x["ARREST_DATE"],
                               [filterGeneralName]:
                                 x[filterExactName] === "F" ? "Female" : "Male",
                             };
-                          })
-                          .filter(
-                            (x) =>
-                              x.date !== "ARREST_DATE" &&
-                              x[filterGeneralName] !== filterExactName
-                          )
+                          };
+
+                          const filterArrIncluded = (x) =>
+                            x.date !== "ARREST_DATE" &&
+                            x[filterGeneralName] !== filterExactName;
+
+                          const newPushItem = formatName(curr);
+
+                          if (filterArrIncluded(newPushItem)) {
+                            acc.push(newPushItem);
+                          }
+
+                          return acc;
+                        }, [])
                       ),
                     })
                   );
@@ -1391,18 +1456,26 @@ const App = () => {
                       arrayName: filterGeneralName,
                       returnedArr: chunk.map((item) => {
                         if (item instanceof Array) {
-                          return item
-                            .map((x) => {
+                          return item.reduce((acc, curr) => {
+                            const formatName = (x) => {
                               return {
                                 date: x["ARREST_DATE"],
                                 [filterGeneralName]: x[filterExactName],
                               };
-                            })
-                            .filter(
-                              (x) =>
-                                x.date !== "ARREST_DATE" &&
-                                x[filterGeneralName] !== filterExactName
-                            );
+                            };
+
+                            const filterArrIncluded = (x) =>
+                              x.date !== "ARREST_DATE" &&
+                              x[filterGeneralName] !== filterExactName;
+
+                            const newPushItem = formatName(curr);
+
+                            if (filterArrIncluded(newPushItem)) {
+                              acc.push(newPushItem);
+                            }
+
+                            return acc;
+                          }, []);
                         } else {
                           return null;
                         }
