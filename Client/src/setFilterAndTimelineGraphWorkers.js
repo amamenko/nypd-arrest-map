@@ -108,7 +108,7 @@ onmessage = (e) => {
               const dateArr = date ? date.split("/") : null;
 
               if (generalName === "race") {
-                const nameSlicer = (name) => {
+                const nameSlicer = (name) =>
                   name
                     .split(" ")
                     .map((x) => x[0].toUpperCase() + x.slice(1).toLowerCase())
@@ -121,7 +121,6 @@ onmessage = (e) => {
                         x.slice(x.indexOf(" "))
                     )
                     .join("/");
-                };
 
                 return [
                   returnedDateString(dateArr),
@@ -130,16 +129,13 @@ onmessage = (e) => {
 
                     const currentFormattedName = formatName(curr);
 
-                    const matchDataArr = (item) => {
-                      const newLength = dataArr[0].filter(
+                    const matchDataArr = (item) =>
+                      dataArr[0].filter(
                         (x) =>
                           x.date === date && nameSlicer(x[generalName]) === item
                       ).length;
 
-                      acc.push(newLength);
-                    };
-
-                    matchDataArr(currentFormattedName);
+                    acc.push(matchDataArr(currentFormattedName));
 
                     return acc;
                   }, []),

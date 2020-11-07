@@ -131,6 +131,9 @@ const App = () => {
 
   const [laddaLoading, changeLaddaLoading] = useState(false);
   const [loadingYears, changeLoadingYears] = useState([]);
+  const [newYearFinishedLoading, changeNewYearFinishedLoading] = useState(
+    false
+  );
 
   // Web Worker Instances
   const [workerInstance, changeWorkerInstance] = useState("");
@@ -602,6 +605,9 @@ const App = () => {
       .map((x) => yearlyTotals[x])
       .reduce((a, b) => a + b, 0);
 
+    console.log({ totalCount, expectedTotal });
+    console.log(filteredDataChanged);
+
     if (totalCount > 0 && totalCount === expectedTotal) {
       if (filteredDataChanged) {
         if (!mapPostsCompleted) {
@@ -888,7 +894,7 @@ const App = () => {
   );
 
   const onNewDataArrive = useCallback(
-    (chunk, dataIndex, firstMessage) => {
+    (chunk, dataIndex, firstMessage, lastMessage) => {
       const chunkYear = chunk.year;
 
       // Year does not exist, create new year and add data
@@ -907,6 +913,10 @@ const App = () => {
         );
 
         dispatch(ACTION_ASSIGN_LOAD_DATA(chunk.data));
+
+        if (lastMessage) {
+          changeNewYearFinishedLoading(true);
+        }
       }
     },
     [dispatch]
@@ -923,6 +933,7 @@ const App = () => {
           const parsedData = JSON.parse(data.data);
           const chunkArr = parsedData.chunkArr;
           const firstMessage = parsedData.firstMessage;
+          const lastMessage = parsedData.lastMessage;
 
           dispatch(ACTION_INCREMENT_TOTAL_COUNT(chunkArr.length));
 
@@ -932,7 +943,8 @@ const App = () => {
               data: chunkArr,
             },
             dataIndex,
-            firstMessage
+            firstMessage,
+            lastMessage
           );
         };
       }
