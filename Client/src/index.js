@@ -8,7 +8,6 @@ import storeWorker from "worker-loader!./store.worker.js"; // eslint-disable-lin
 
 require("dotenv").config();
 
-// const store = createStore(RootReducer);
 const initialState = {
   loadDataChunksReducer: { data: [{}] },
   loadDataReducer: { data: [] },
@@ -19,6 +18,7 @@ const initialState = {
   filteredDataChunksReducer: {
     data: [],
   },
+  newYearFinishedLoadingReducer: { finished: false },
   ageFilterReducer: {
     age: [],
   },

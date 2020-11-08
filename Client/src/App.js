@@ -52,6 +52,8 @@ import ACTION_CHANGE_BOROUGH_FILTER from "./actions/filters/borough/ACTION_CHANG
 import ACTION_APPLYING_FILTERS from "./actions/applyingFilters/ACTION_APPLYING_FILTERS";
 import ACTION_APPLYING_FILTERS_RESET from "./actions/applyingFilters/ACTION_APPLYING_FILTERS_RESET";
 import ApplyingFiltersPopUp from "./ApplyingFiltersPopUp/ApplyingFiltersPopUp";
+import ACTION_NEW_YEAR_FINISHED_LOADING_RESET from "./actions/newYearFinishedLoading/ACTION_NEW_YEAR_FINISHED_LOADING_RESET";
+import ACTION_NEW_YEAR_FINISHED_LOADING from "./actions/newYearFinishedLoading/ACTION_NEW_YEAR_FINISHED_LOADING";
 
 dayjs.extend(customParseFormat);
 
@@ -65,6 +67,9 @@ const App = () => {
   );
   const filteredDataChunks = useSelector(
     (state) => state.filteredDataChunksReducer.data
+  );
+  const newYearFinishedLoading = useSelector(
+    (state) => state.newYearFinishedLoadingReducer.finished
   );
 
   const loadDataChunks = useSelector(
@@ -131,9 +136,6 @@ const App = () => {
 
   const [laddaLoading, changeLaddaLoading] = useState(false);
   const [loadingYears, changeLoadingYears] = useState([]);
-  const [newYearFinishedLoading, changeNewYearFinishedLoading] = useState(
-    false
-  );
 
   // Web Worker Instances
   const [workerInstance, changeWorkerInstance] = useState("");
@@ -236,8 +238,6 @@ const App = () => {
       window.removeEventListener("resize", updateSize);
     };
   }, [currentScreenWidth]);
-
-  const prevLoadChunks = usePrevious(loadDataChunks);
 
   const [ageGroup, changeAgeGroup] = useState([]);
   const [raceArr, changeRaceArr] = useState([]);
@@ -563,34 +563,19 @@ const App = () => {
       .map((x) => yearlyTotals[x])
       .reduce((a, b) => a + b, 0);
 
-    if (loadDataChunks && prevLoadChunks) {
-      if (
-        !isSame(
-          Object.values(loadDataChunks[0]),
-          Object.values(prevLoadChunks[0])
-        )
-      ) {
-        if (totalCount === expectedTotal) {
-          dispatch(
-            ACTION_ASSIGN_FILTERED_DATA(
-              Object.values(loadDataChunks[0]).flat().flat()
-            )
-          );
-
-          dispatch(ACTION_FILTERED_DATA_CHANGED());
+    if (newYearFinishedLoading) {
+      dispatch(ACTION_NEW_YEAR_FINISHED_LOADING_RESET());
+      if (totalCount === expectedTotal && loadData.length === expectedTotal) {
+        if (loadedYears.length === 1) {
+          dispatch(ACTION_ASSIGN_FILTERED_DATA(loadData));
+        } else {
+          dispatch(ACTION_ASSIGN_FILTERED_DATA("loadData"));
         }
+
+        dispatch(ACTION_FILTERED_DATA_CHANGED());
       }
     }
-  }, [
-    loadData,
-    dispatch,
-    loadDataChunks,
-    loadedYears,
-    prevLoadChunks,
-    totalCount,
-    filteredData.length,
-    filteredDataChanged,
-  ]);
+  }, [newYearFinishedLoading, loadData, dispatch, loadedYears, totalCount]);
 
   useEffect(() => {
     if (!filteredDataChanged) {
@@ -604,9 +589,6 @@ const App = () => {
     const expectedTotal = loadedYears
       .map((x) => yearlyTotals[x])
       .reduce((a, b) => a + b, 0);
-
-    console.log({ totalCount, expectedTotal });
-    console.log(filteredDataChanged);
 
     if (totalCount > 0 && totalCount === expectedTotal) {
       if (filteredDataChanged) {
@@ -905,6 +887,10 @@ const App = () => {
 
         dispatch(ACTION_ASSIGN_LOAD_DATA(chunk.data));
       } else {
+        if (lastMessage) {
+          dispatch(ACTION_NEW_YEAR_FINISHED_LOADING());
+        }
+
         // Year exists, add additional data to it
         dispatch(ACTION_LOAD_DATA_CHUNKS_ADD_TO_YEAR(chunk.data, chunkYear));
 
@@ -913,10 +899,6 @@ const App = () => {
         );
 
         dispatch(ACTION_ASSIGN_LOAD_DATA(chunk.data));
-
-        if (lastMessage) {
-          changeNewYearFinishedLoading(true);
-        }
       }
     },
     [dispatch]
@@ -1606,12 +1588,12 @@ const App = () => {
 
   return (
     <>
-      {totalCount < 70000 ||
-      (ageTimelineColumns ? ageTimelineColumns.length === 0 : true) ||
-      (boroughTimelineColumns ? boroughTimelineColumns.length === 0 : true) ||
-      (categoryTimelineColumns ? categoryTimelineColumns.length === 0 : true) ||
-      (raceTimelineColumns ? raceTimelineColumns.length === 0 : true) ||
-      (sexTimelineColumns ? sexTimelineColumns.length === 0 : true) ? (
+      {layersRef.current.length === 0 ||
+      filteredAgeGroupData.length === 0 ||
+      filteredBoroughUniqueValues.length === 0 ||
+      filteredArrestCategory.length === 0 ||
+      filteredSexUniqueValues.length === 0 ||
+      filteredRaceUniqueValues.length === 0 ? (
         <InitialLoader
           countUp={countUp}
           loaderColor={loaderColor}
@@ -1630,16 +1612,12 @@ const App = () => {
         className="nypd_arrest_map_container"
         style={{
           opacity:
-            totalCount < 70000 ||
-            (ageTimelineColumns ? ageTimelineColumns.length === 0 : true) ||
-            (boroughTimelineColumns
-              ? boroughTimelineColumns.length === 0
-              : true) ||
-            (categoryTimelineColumns
-              ? categoryTimelineColumns.length === 0
-              : true) ||
-            (raceTimelineColumns ? raceTimelineColumns.length === 0 : true) ||
-            (sexTimelineColumns ? sexTimelineColumns.length === 0 : true)
+            layersRef.current.length === 0 ||
+            filteredAgeGroupData.length === 0 ||
+            filteredBoroughUniqueValues.length === 0 ||
+            filteredArrestCategory.length === 0 ||
+            filteredSexUniqueValues.length === 0 ||
+            filteredRaceUniqueValues.length === 0
               ? 0
               : 1,
         }}
@@ -1662,6 +1640,12 @@ const App = () => {
           changeMenuClicked={changeMenuClicked}
           collapseOpen={collapseOpen}
           changeCollapseOpen={changeCollapseOpen}
+          layersRef={layersRef}
+          filteredAgeGroupData={filteredAgeGroupData}
+          filteredBoroughUniqueValues={filteredBoroughUniqueValues}
+          filteredArrestCategory={filteredArrestCategory}
+          filteredSexUniqueValues={filteredSexUniqueValues}
+          filteredRaceUniqueValues={filteredRaceUniqueValues}
         />
         <DeckGL
           initialViewState={{

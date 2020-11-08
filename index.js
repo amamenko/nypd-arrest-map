@@ -71,6 +71,12 @@ wss.on("connection", (ws) => {
             ) {
               console.log(chunkArr.length);
 
+              if (totalLength === yearlyTotals[decodedMessage]) {
+                if (!lastMessage) {
+                  lastMessage = true;
+                }
+              }
+
               const stringifiedJSON = JSON.stringify({
                 chunkArr,
                 firstMessage,
@@ -82,12 +88,6 @@ wss.on("connection", (ws) => {
 
               if (firstMessage) {
                 firstMessage = false;
-              }
-
-              if (totalLength === yearlyTotals[decodedMessage]) {
-                if (!lastMessage) {
-                  lastMessage = true;
-                }
               }
             }
 

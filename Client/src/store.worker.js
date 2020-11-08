@@ -13,6 +13,7 @@ const initialState = {
   filteredDataChunksReducer: {
     data: [],
   },
+  newYearFinishedLoadingReducer: { finished: false },
   ageFilterReducer: {
     age: [],
   },
@@ -35,6 +36,12 @@ const initialState = {
   totalCountReducer: { total: 0 },
   applyingFiltersReducer: { filters: false },
   applyingFiltersProgressReducer: { progress: 0 },
+};
+
+const currentState = {
+  loadDataReducer: {
+    data: [],
+  },
 };
 
 const LOAD_DATA_CHUNKS_ADD_YEAR = "LOAD_DATA_CHUNKS_ADD_YEAR";
@@ -78,6 +85,8 @@ const loadDataReducer = (state = initialState.loadDataReducer, action) => {
       let newConcatState = Object.assign([], state.data);
       newConcatState = newConcatState.concat(action.data);
 
+      currentState.loadDataReducer.data = newConcatState;
+
       return {
         ...state,
         data: newConcatState,
@@ -99,7 +108,10 @@ const filteredDataReducer = (
     case ASSIGN_FILTERED_DATA:
       return {
         ...state,
-        data: action.data,
+        data:
+          action.data === "loadData"
+            ? currentState.loadDataReducer.data
+            : action.data,
       };
     case FILTERED_DATA_CHANGED:
       return {
@@ -464,6 +476,29 @@ const applyingFiltersReducer = (
   }
 };
 
+const NEW_YEAR_FINISHED_LOADING = "NEW_YEAR_FINISHED_LOADING";
+const NEW_YEAR_FINISHED_LOADING_RESET = "NEW_YEAR_FINISHED_LOADING_RESET";
+
+const newYearFinishedLoadingReducer = (
+  state = initialState.newYearFinishedLoadingReducer,
+  action
+) => {
+  switch (action.type) {
+    case NEW_YEAR_FINISHED_LOADING:
+      return {
+        ...state,
+        finished: true,
+      };
+    case NEW_YEAR_FINISHED_LOADING_RESET:
+      return {
+        ...state,
+        finished: false,
+      };
+    default:
+      return { ...state };
+  }
+};
+
 const RootReducer = combineReducers({
   // General data states
   loadDataChunksReducer: loadDataChunksReducer,
@@ -471,6 +506,7 @@ const RootReducer = combineReducers({
   filteredDataReducer: filteredDataReducer,
   filteredDataChunksReducer: filteredDataChunksReducer,
   totalCountReducer: totalCountReducer,
+  newYearFinishedLoadingReducer: newYearFinishedLoadingReducer,
 
   // Timeline columns
   ageTimelineColumnsReducer: ageTimelineColumnsReducer,

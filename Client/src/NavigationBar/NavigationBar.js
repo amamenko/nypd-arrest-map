@@ -37,6 +37,12 @@ const NavigationBar = (props) => {
     changeMenuClicked,
     collapseOpen,
     changeCollapseOpen,
+    layersRef,
+    filteredAgeGroupData,
+    filteredBoroughUniqueValues,
+    filteredArrestCategory,
+    filteredSexUniqueValues,
+    filteredRaceUniqueValues,
   } = props;
 
   const dispatch = useDispatch();
@@ -60,23 +66,6 @@ const NavigationBar = (props) => {
     (state) => state.offenseFilterReducer.offense
   );
   const raceFilter = useSelector((state) => state.raceFilterReducer.race);
-
-  // Timeline Column Data
-  const ageTimelineColumns = useSelector(
-    (state) => state.ageTimelineColumnsReducer.columns
-  );
-  const boroughTimelineColumns = useSelector(
-    (state) => state.boroughTimelineColumnsReducer.columns
-  );
-  const categoryTimelineColumns = useSelector(
-    (state) => state.categoryTimelineColumnsReducer.columns
-  );
-  const raceTimelineColumns = useSelector(
-    (state) => state.raceTimelineColumnsReducer.columns
-  );
-  const sexTimelineColumns = useSelector(
-    (state) => state.sexTimelineColumnsReducer.columns
-  );
 
   const logoContainerRef = useRef(null);
 
@@ -324,16 +313,12 @@ const NavigationBar = (props) => {
           </div>
         }
         visible={
-          totalCount > 70000 &&
-          (ageTimelineColumns ? ageTimelineColumns.length > 0 : false) &&
-          (boroughTimelineColumns
-            ? boroughTimelineColumns.length > 0
-            : false) &&
-          (categoryTimelineColumns
-            ? categoryTimelineColumns.length > 0
-            : false) &&
-          (raceTimelineColumns ? raceTimelineColumns.length > 0 : false) &&
-          (sexTimelineColumns ? sexTimelineColumns.length > 0 : false)
+          layersRef.current.length > 0 &&
+          filteredAgeGroupData.length > 0 &&
+          filteredBoroughUniqueValues.length > 0 &&
+          filteredArrestCategory.length > 0 &&
+          filteredSexUniqueValues.length > 0 &&
+          filteredRaceUniqueValues.length > 0
         }
         allowHTML={true}
         reference={
@@ -379,16 +364,12 @@ const NavigationBar = (props) => {
           </div>
         }
         visible={
-          totalCount > 70000 &&
-          (ageTimelineColumns ? ageTimelineColumns.length > 0 : false) &&
-          (boroughTimelineColumns
-            ? boroughTimelineColumns.length > 0
-            : false) &&
-          (categoryTimelineColumns
-            ? categoryTimelineColumns.length > 0
-            : false) &&
-          (raceTimelineColumns ? raceTimelineColumns.length > 0 : false) &&
-          (sexTimelineColumns ? sexTimelineColumns.length > 0 : false)
+          layersRef.current.length > 0 &&
+          filteredAgeGroupData.length > 0 &&
+          filteredBoroughUniqueValues.length > 0 &&
+          filteredArrestCategory.length > 0 &&
+          filteredSexUniqueValues.length > 0 &&
+          filteredRaceUniqueValues.length > 0
         }
         allowHTML={true}
         reference={mapboxAttribRef[0]}
@@ -406,16 +387,12 @@ const NavigationBar = (props) => {
         content="Click here to set data filters"
         visible={
           tooltipVisible &&
-          totalCount > 70000 &&
-          (ageTimelineColumns ? ageTimelineColumns.length > 0 : false) &&
-          (boroughTimelineColumns
-            ? boroughTimelineColumns.length > 0
-            : false) &&
-          (categoryTimelineColumns
-            ? categoryTimelineColumns.length > 0
-            : false) &&
-          (raceTimelineColumns ? raceTimelineColumns.length > 0 : false) &&
-          (sexTimelineColumns ? sexTimelineColumns.length > 0 : false)
+          layersRef.current.length > 0 &&
+          filteredAgeGroupData.length > 0 &&
+          filteredBoroughUniqueValues.length > 0 &&
+          filteredArrestCategory.length > 0 &&
+          filteredSexUniqueValues.length > 0 &&
+          filteredRaceUniqueValues.length > 0
         }
         reference={burgerMenu[0]}
         className="burger_tooltip"
