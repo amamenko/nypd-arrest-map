@@ -40,6 +40,7 @@ const initialState = {
   raceTimelineGraphDataReducer: { data: [] },
   totalCountReducer: { total: 0 },
   applyingFiltersReducer: { filters: false },
+  trendsAvailableReducer: { available: false },
 };
 
 const store = wrapStore(new storeWorker(), initialState);

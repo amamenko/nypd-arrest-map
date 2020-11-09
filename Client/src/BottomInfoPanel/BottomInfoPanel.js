@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef } from "react";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import AliceCarousel from "react-alice-carousel";
 import "react-alice-carousel/lib/alice-carousel.css";
@@ -39,6 +39,8 @@ const BottomInfoPanel = (props) => {
     loadedYears,
     isSame,
     usePrevious,
+    graphOption,
+    changeGraphOption,
 
     filteredUniqueDates,
     filteredTimelineAgeGroupData,
@@ -52,10 +54,12 @@ const BottomInfoPanel = (props) => {
     (state) => state.loadDataChunksReducer.data
   );
 
+  const trendsAvailable = useSelector(
+    (state) => state.trendsAvailableReducer.available
+  );
+
   let CarouselRef = useRef(null);
   let CarouselTimelineRef = useRef(null);
-
-  const [graphOption, changeGraphOption] = useState("overview");
 
   useEffect(() => {
     if (graphOption === "overview") {
@@ -68,6 +72,20 @@ const BottomInfoPanel = (props) => {
       }
     }
   }, [graphOption]);
+
+  useEffect(() => {
+    const graphOptionsContainer = document.getElementsByClassName(
+      "graph_options_container"
+    )[0];
+
+    const trendsRadioButton = graphOptionsContainer.lastChild.lastChild;
+
+    if (!trendsAvailable) {
+      trendsRadioButton.style.opacity = 0.7;
+    } else {
+      trendsRadioButton.style.opacity = 1;
+    }
+  }, [trendsAvailable]);
 
   return (
     <div
@@ -203,16 +221,18 @@ const BottomInfoPanel = (props) => {
             value={graphOption}
           >
             <RadioButton
-              rootColor="rgb(190, 190, 190)"
+              rootColor="rgb(140, 140, 140)"
               pointColor="rgb(0, 0, 128)"
               value="overview"
             >
               Overview
             </RadioButton>
             <RadioButton
-              rootColor="rgb(190, 190, 190)"
+              rootColor="rgb(140, 140, 140)"
               pointColor="rgb(0, 0, 128)"
               value="trends"
+              disabled={!trendsAvailable}
+              disabledColor="rgb(211, 211, 211)"
             >
               Trends
             </RadioButton>

@@ -54,6 +54,8 @@ import ACTION_APPLYING_FILTERS_RESET from "./actions/applyingFilters/ACTION_APPL
 import ApplyingFiltersPopUp from "./ApplyingFiltersPopUp/ApplyingFiltersPopUp";
 import ACTION_NEW_YEAR_FINISHED_LOADING_RESET from "./actions/newYearFinishedLoading/ACTION_NEW_YEAR_FINISHED_LOADING_RESET";
 import ACTION_NEW_YEAR_FINISHED_LOADING from "./actions/newYearFinishedLoading/ACTION_NEW_YEAR_FINISHED_LOADING";
+import ACTION_TRENDS_AVAILABLE from "./actions/trendsAvailable/ACTION_TRENDS_AVAILABLE";
+import ACTION_TRENDS_NOT_AVAILABLE from "./actions/trendsAvailable/ACTION_TRENDS_NOT_AVAILABLE";
 
 dayjs.extend(customParseFormat);
 
@@ -123,6 +125,7 @@ const App = () => {
     readyForTimelineColumnPosts,
     changeReadyForTimelineColumnPosts,
   ] = useState(false);
+  const [graphOption, changeGraphOption] = useState("overview");
 
   const [currentFilters, changeCurrentFilters] = useState({
     year: [],
@@ -287,8 +290,6 @@ const App = () => {
         setFilterAndTimelineGraphWorkersInstance.onmessage = (receivedData) => {
           console.log("FILTER & TIMELINE WORKER FIRED");
 
-          applyingFiltersProgressRef.current += 25;
-
           const ageGroupTimelineGraphData =
             receivedData.data.ageGroupTimelineGraphData;
           const raceTimelineGraphData = receivedData.data.raceTimelineGraphData;
@@ -345,7 +346,7 @@ const App = () => {
         filterWorkerInstance.onmessage = (receivedData) => {
           console.log("FILTERED WORKER FIRED");
 
-          applyingFiltersProgressRef.current += 25;
+          applyingFiltersProgressRef.current += 34;
 
           const parsedData = JSON.parse(receivedData.data);
 
@@ -373,10 +374,11 @@ const App = () => {
           changeBoroughUniqueValues(boroughUniqueValues);
           changeOffenseDescriptionUniqueValues(offenseDescriptionArr);
           changeReadyForTimelineColumnPosts(true);
+          dispatch(ACTION_APPLYING_FILTERS_RESET());
         };
       }
     },
-    [filterWorkerInstance]
+    [filterWorkerInstance, dispatch]
   );
 
   const postToMapFilterWorker = useCallback(
@@ -393,7 +395,7 @@ const App = () => {
         mapFilterWorkerInstance.onmessage = (receivedData) => {
           console.log("MAP WORKER FIRED");
 
-          applyingFiltersProgressRef.current += 25;
+          applyingFiltersProgressRef.current += 33;
 
           const parsedData = JSON.parse(receivedData.data);
 
@@ -450,7 +452,7 @@ const App = () => {
         timelineWorkerInstance.onmessage = (receivedData) => {
           console.log("TIMELINE WORKER FIRED");
 
-          applyingFiltersProgressRef.current += 25;
+          applyingFiltersProgressRef.current += 33;
 
           const parsedData = JSON.parse(receivedData.data);
 
@@ -717,8 +719,6 @@ const App = () => {
               )
             )
           );
-
-          dispatch(ACTION_APPLYING_FILTERS_RESET());
         }
       }
     }
@@ -767,6 +767,8 @@ const App = () => {
             )
           );
         }
+
+        dispatch(ACTION_TRENDS_AVAILABLE());
       }
     }
   }, [
@@ -950,8 +952,12 @@ const App = () => {
         applyingFiltersProgressRef.current = 0;
       }
 
+      if (graphOption === "trends") {
+        changeGraphOption("overview");
+      }
       changeCollapseOpen("");
       changeMenuClicked(false);
+      dispatch(ACTION_TRENDS_NOT_AVAILABLE());
 
       // Send from main thread to web worker
       setFilterAndTimelineGraphWorkersInstance.postMessage({
@@ -1009,6 +1015,10 @@ const App = () => {
   const handleDownloadYear = (year) => {
     const newYearArr = [...loadedYears, year];
 
+    if (graphOption === "trends") {
+      changeGraphOption("overview");
+    }
+
     dispatch(ACTION_CHANGE_YEAR_FILTER(newYearArr));
     dispatch(ACTION_CHANGE_CATEGORY_FILTER([]));
     dispatch(ACTION_CHANGE_OFFENSE_FILTER([]));
@@ -1016,6 +1026,7 @@ const App = () => {
     dispatch(ACTION_CHANGE_AGE_FILTER([]));
     dispatch(ACTION_CHANGE_SEX_FILTER([]));
     dispatch(ACTION_CHANGE_BOROUGH_FILTER([]));
+    dispatch(ACTION_TRENDS_NOT_AVAILABLE());
 
     setFilters(newYearArr, [], [], [], [], [], [], loadData, true);
     changeModalActive({ active: true, year: year });
@@ -1386,72 +1397,87 @@ const App = () => {
                 const filteredOffenseDescriptionArr =
                   dataSent.filteredOffenseDescriptionArr;
 
-                const uniqueValuesReducerFunction = (arrName, arr) =>
+                const uniqueValuesReducerFunction = (
+                  arrName,
+                  categoryName,
                   arr
-                    ? [...new Set(arr)].sort((a, b) => {
-                        if (
-                          arrName === "filteredAgeGroupData" ||
-                          arrName === "ageGroupData"
-                        ) {
-                          const first = hasNumber(a)
-                            ? Number(
-                                a.split(a[0] === "<" ? "<" : "-")[
-                                  a[0] === "<" ? 1 : 0
-                                ]
-                              )
-                            : null;
-                          const second = hasNumber(b)
-                            ? Number(
-                                b.split(b[0] === "<" ? "<" : "-")[
-                                  b[0] === "<" ? 1 : 0
-                                ]
-                              )
-                            : null;
+                ) =>
+                  arr
+                    ? [...new Set(arr)]
+                        .filter((x) => x !== categoryName)
+                        .sort((a, b) => {
+                          if (
+                            arrName === "filteredAgeGroupData" ||
+                            arrName === "ageGroupData"
+                          ) {
+                            const first = hasNumber(a)
+                              ? Number(
+                                  a.split(a[0] === "<" ? "<" : "-")[
+                                    a[0] === "<" ? 1 : 0
+                                  ]
+                                )
+                              : null;
+                            const second = hasNumber(b)
+                              ? Number(
+                                  b.split(b[0] === "<" ? "<" : "-")[
+                                    b[0] === "<" ? 1 : 0
+                                  ]
+                                )
+                              : null;
 
-                          return first - second;
-                        } else {
-                          // Sort in increasing order
-                          return a - b;
-                        }
-                      })
+                            return first - second;
+                          } else {
+                            // Sort in increasing order
+                            return a - b;
+                          }
+                        })
                     : [];
 
                 postMessage(
                   JSON.stringify({
                     ageGroupData: uniqueValuesReducerFunction(
                       "ageGroupData",
+                      "AGE_GROUP",
                       ageGroup
                     ),
                     raceUniqueValues: uniqueValuesReducerFunction(
                       "raceUniqueValues",
+                      "PERP_RACE",
                       raceArr
                     ),
                     boroughUniqueValues: uniqueValuesReducerFunction(
                       "boroughUniqueValues",
+                      "ARREST_BORO",
                       boroughArr
                     ),
                     offenseDescriptionArr: uniqueValuesReducerFunction(
                       "offenseDescriptionArr",
+                      "OFNS_DESC",
                       offenseDescriptionArr
                     ),
                     filteredAgeGroupData: uniqueValuesReducerFunction(
                       "filteredAgeGroupData",
+                      "AGE_GROUP",
                       filteredAgeGroup
                     ),
                     filteredSexUniqueValues: uniqueValuesReducerFunction(
                       "filteredSexUniqueValues",
+                      "PERP_SEX",
                       filteredSexArr
                     ),
                     filteredRaceUniqueValues: uniqueValuesReducerFunction(
                       "filteredRaceUniqueValues",
+                      "PERP_RACE",
                       filteredRaceArr
                     ),
                     filteredBoroughUniqueValues: uniqueValuesReducerFunction(
                       "filteredBoroughUniqueValues",
+                      "ARREST_BORO",
                       filteredBoroughArr
                     ),
                     filteredOffenseDescriptionUniqueValues: uniqueValuesReducerFunction(
                       "filteredOffenseDescriptionUniqueValues",
+                      "OFNS_DESC",
                       filteredOffenseDescriptionArr
                     ),
                   })
@@ -1702,6 +1728,8 @@ const App = () => {
               filteredTimelineCategoryData={filteredTimelineCategoryData}
               filteredTimelineSexData={filteredTimelineSexData}
               filteredTimelineRaceData={filteredTimelineRaceData}
+              graphOption={graphOption}
+              changeGraphOption={changeGraphOption}
             />
           </>
         ) : null}

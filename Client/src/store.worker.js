@@ -36,6 +36,7 @@ const initialState = {
   totalCountReducer: { total: 0 },
   applyingFiltersReducer: { filters: false },
   applyingFiltersProgressReducer: { progress: 0 },
+  trendsAvailableReducer: { available: false },
 };
 
 const currentState = {
@@ -499,6 +500,29 @@ const newYearFinishedLoadingReducer = (
   }
 };
 
+const TRENDS_AVAILABLE = "TRENDS_AVAILABLE";
+const TRENDS_NOT_AVAILABLE = "TRENDS_NOT_AVAILABLE";
+
+const trendsAvailableReducer = (
+  state = initialState.trendsAvailableReducer,
+  action
+) => {
+  switch (action.type) {
+    case TRENDS_AVAILABLE:
+      return {
+        ...state,
+        available: true,
+      };
+    case TRENDS_NOT_AVAILABLE:
+      return {
+        ...state,
+        available: false,
+      };
+    default:
+      return { ...state };
+  }
+};
+
 const RootReducer = combineReducers({
   // General data states
   loadDataChunksReducer: loadDataChunksReducer,
@@ -526,6 +550,7 @@ const RootReducer = combineReducers({
   applyingFiltersReducer: applyingFiltersReducer,
 
   // Timeline graph data
+  trendsAvailableReducer: trendsAvailableReducer,
   ageGroupTimelineGraphDataReducer: ageGroupTimelineGraphDataReducer,
   boroughTimelineGraphDataReducer: boroughTimelineGraphDataReducer,
   categoryTimelineGraphDataReducer: categoryTimelineGraphDataReducer,

@@ -129,11 +129,18 @@ onmessage = (e) => {
 
                     const currentFormattedName = formatName(curr);
 
-                    const matchDataArr = (item) =>
-                      dataArr[0].filter(
-                        (x) =>
-                          x.date === date && nameSlicer(x[generalName]) === item
-                      ).length;
+                    const matchDataArr = (item) => {
+                      return dataArr.reduce((a, b) => {
+                        return (
+                          a +
+                          b.filter(
+                            (x) =>
+                              x.date === date &&
+                              nameSlicer(x[generalName]) === item
+                          ).length
+                        );
+                      }, 0);
+                    };
 
                     acc.push(matchDataArr(currentFormattedName));
 
@@ -155,11 +162,16 @@ onmessage = (e) => {
                                 : "Violation"
                             )
                           ),
-                        ].map(
-                          (item) =>
-                            dataArr[0].filter(
-                              (x) => x.date === date && x[generalName] === item
-                            ).length
+                        ].map((item) =>
+                          dataArr.reduce((a, b) => {
+                            return (
+                              a +
+                              b.filter(
+                                (x) =>
+                                  x.date === date && x[generalName] === item
+                              ).length
+                            );
+                          }, 0)
                         )
                       : [],
                   ].flat();
@@ -172,10 +184,16 @@ onmessage = (e) => {
 
                     const currentFormattedName = formatName(curr);
 
-                    const matchDataArr = (item) =>
-                      dataArr[0].filter(
-                        (x) => x.date === date && x[generalName] === item
-                      ).length;
+                    const matchDataArr = (item) => {
+                      return dataArr.reduce((a, b) => {
+                        return (
+                          a +
+                          b.filter(
+                            (x) => x.date === date && x[generalName] === item
+                          ).length
+                        );
+                      }, 0);
+                    };
 
                     acc.push(matchDataArr(currentFormattedName));
 
@@ -185,11 +203,15 @@ onmessage = (e) => {
               } else {
                 return [
                   returnedDateString(dateArr),
-                  uniqueValues.map(
-                    (item) =>
-                      dataArr[0].filter(
-                        (x) => x.date === date && x[generalName] === item
-                      ).length
+                  uniqueValues.map((item) =>
+                    dataArr.reduce((a, b) => {
+                      return (
+                        a +
+                        b.filter(
+                          (x) => x.date === date && x[generalName] === item
+                        ).length
+                      );
+                    }, 0)
                   ),
                 ].flat();
               }

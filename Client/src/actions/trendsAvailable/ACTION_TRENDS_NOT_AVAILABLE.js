@@ -1,0 +1,9 @@
+const TRENDS_NOT_AVAILABLE = "TRENDS_NOT_AVAILABLE";
+
+const ACTION_TRENDS_NOT_AVAILABLE = () => {
+  return {
+    type: TRENDS_NOT_AVAILABLE,
+  };
+};
+
+export default ACTION_TRENDS_NOT_AVAILABLE;
