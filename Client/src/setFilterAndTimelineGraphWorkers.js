@@ -1,9 +1,10 @@
 import dayjs from "dayjs";
+import groupBy from "lodash.groupby";
 
 onmessage = (e) => {
   const dataSent = e.data;
 
-  const argumentsLength = Object.keys(dataSent).length;
+  const argumentsLength = Object.entries(dataSent).length;
 
   // Changing Data Filters
   if (argumentsLength === 8) {
@@ -69,6 +70,8 @@ onmessage = (e) => {
       assignFilteredDataFlat: assignFilteredDataFlat,
     });
   } else {
+    const t0 = performance.now();
+
     // Timeline graph calculations
     const filteredUniqueDates = dataSent.filteredUniqueDates;
     const ageObj = dataSent.ageObj;
@@ -94,160 +97,124 @@ onmessage = (e) => {
         );
       };
 
-      if (filteredUniqueDates.length > 0) {
-        if (uniqueValues.length > 0) {
-          return filteredUniqueDates
-            .sort((a, b) => {
-              if (dayjs(a, "MM/DD/YYYY").isBefore(dayjs(b, "MM/DD/YYYY"))) {
-                return -1;
-              } else {
-                return 1;
-              }
-            })
-            .map((date) => {
-              const dateArr = date ? date.split("/") : null;
+      const dateObj = groupBy(dataArr, "date");
 
-              if (generalName === "race") {
-                const nameSlicer = (name) =>
-                  name
-                    .split(" ")
-                    .map((x) => x[0].toUpperCase() + x.slice(1).toLowerCase())
-                    .join(" ")
-                    .split("/")
-                    .map(
-                      (x) =>
-                        x[0].toUpperCase() +
-                        x.slice(1, x.indexOf(" ")).toLowerCase() +
-                        x.slice(x.indexOf(" "))
-                    )
-                    .join("/");
+      const newArr = [];
 
-                return [
-                  returnedDateString(dateArr),
-                  uniqueValues.reduce((acc, curr) => {
-                    const formatName = (race) => nameSlicer(race);
+      for (const date in dateObj) {
+        const dateArr = date ? date.split("/") : null;
 
-                    const currentFormattedName = formatName(curr);
+        if (generalName === "race") {
+          const nameSlicer = (name) =>
+            name
+              .split(" ")
+              .map((x) => x[0].toUpperCase() + x.slice(1).toLowerCase())
+              .join(" ")
+              .split("/")
+              .map(
+                (x) =>
+                  x[0].toUpperCase() +
+                  x.slice(1, x.indexOf(" ")).toLowerCase() +
+                  x.slice(x.indexOf(" "))
+              )
+              .join("/");
 
-                    const matchDataArr = (item) => {
-                      return dataArr.reduce((a, b) => {
-                        return (
-                          a +
-                          b.filter(
-                            (x) =>
-                              x.date === date &&
-                              nameSlicer(x[generalName]) === item
-                          ).length
-                        );
-                      }, 0);
-                    };
+          newArr.push(
+            [
+              returnedDateString(dateArr),
+              uniqueValues.map((value) => {
+                const formatName = (race) => nameSlicer(race);
+                const currentFormattedName = formatName(value);
 
-                    acc.push(matchDataArr(currentFormattedName));
+                return dateObj[date].filter(
+                  (x) => nameSlicer(x[generalName]) === currentFormattedName
+                ).length;
+              }),
+            ].flat()
+          );
+        } else if (generalName === "category") {
+          if (dataArr[0]) {
+            newArr.push(
+              [
+                returnedDateString(dateArr),
+                uniqueValues.map((value) => {
+                  const formatName = (x) =>
+                    x === "F"
+                      ? "Felony"
+                      : x === "M"
+                      ? "Misdemeanor"
+                      : "Violation";
 
-                    return acc;
-                  }, []),
-                ].flat();
-              } else if (generalName === "category") {
-                if (dataArr[0]) {
-                  return [
-                    returnedDateString(dateArr),
-                    uniqueValues
-                      ? [
-                          ...new Set(
-                            uniqueValues.map((x) =>
-                              x === "F"
-                                ? "Felony"
-                                : x === "M"
-                                ? "Misdemeanor"
-                                : "Violation"
-                            )
-                          ),
-                        ].map((item) =>
-                          dataArr.reduce((a, b) => {
-                            return (
-                              a +
-                              b.filter(
-                                (x) =>
-                                  x.date === date && x[generalName] === item
-                              ).length
-                            );
-                          }, 0)
-                        )
-                      : [],
-                  ].flat();
-                }
-              } else if (generalName === "sex") {
-                return [
-                  returnedDateString(dateArr),
-                  uniqueValues.reduce((acc, curr) => {
-                    const formatName = (x) => (x === "F" ? "Female" : "Male");
+                  const currentFormattedName = formatName(value);
 
-                    const currentFormattedName = formatName(curr);
+                  return dateObj[date].filter(
+                    (x) => x[generalName] === currentFormattedName
+                  ).length;
+                }),
+              ].flat()
+            );
+          }
+        } else if (generalName === "sex") {
+          newArr.push(
+            [
+              returnedDateString(dateArr),
+              uniqueValues.map((value) => {
+                const formatName = (x) => (x === "F" ? "Female" : "Male");
 
-                    const matchDataArr = (item) => {
-                      return dataArr.reduce((a, b) => {
-                        return (
-                          a +
-                          b.filter(
-                            (x) => x.date === date && x[generalName] === item
-                          ).length
-                        );
-                      }, 0);
-                    };
+                const currentFormattedName = formatName(value);
 
-                    acc.push(matchDataArr(currentFormattedName));
-
-                    return acc;
-                  }, []),
-                ].flat();
-              } else {
-                return [
-                  returnedDateString(dateArr),
-                  uniqueValues.map((item) =>
-                    dataArr.reduce((a, b) => {
-                      return (
-                        a +
-                        b.filter(
-                          (x) => x.date === date && x[generalName] === item
-                        ).length
-                      );
-                    }, 0)
-                  ),
-                ].flat();
-              }
-            });
+                return dateObj[date].filter(
+                  (x) => x[generalName] === currentFormattedName
+                ).length;
+              }),
+            ].flat()
+          );
         } else {
-          return [];
+          newArr.push(
+            [
+              returnedDateString(dateArr),
+              uniqueValues.map(
+                (value) =>
+                  dateObj[date].filter((x) => x[generalName] === value).length
+              ),
+            ].flat()
+          );
         }
       }
+
+      return newArr;
     };
 
     postMessage({
       ageGroupTimelineGraphData: timelineGraphDataReducerFunction(
         "age_group",
         ageObj.unique,
-        ageObj.data
+        ageObj.data.flat()
       ),
       raceTimelineGraphData: timelineGraphDataReducerFunction(
         "race",
         raceObj.unique,
-        raceObj.data
+        raceObj.data.flat()
       ),
       categoryTimelineGraphData: timelineGraphDataReducerFunction(
         "category",
         categoryObj.unique,
-        categoryObj.data
+        categoryObj.data.flat()
       ),
       genderTimelineGraphData: timelineGraphDataReducerFunction(
         "sex",
         sexObj.unique,
-        sexObj.data
+        sexObj.data.flat()
       ),
       boroughTimelineGraphData: timelineGraphDataReducerFunction(
         "borough",
         boroughObj.unique,
-        boroughObj.data
+        boroughObj.data.flat()
       ),
     });
+
+    const t1 = performance.now();
+
+    console.log(`Performance is ${t1 - t0} milliseconds.`);
   }
 };

@@ -300,6 +300,8 @@ const App = () => {
           const boroughTimelineGraphData =
             receivedData.data.boroughTimelineGraphData;
 
+          console.log(boroughTimelineGraphData);
+
           dispatch(
             ACTION_TIMELINE_AGE_GROUP_GRAPH_DATA(ageGroupTimelineGraphData)
           );
