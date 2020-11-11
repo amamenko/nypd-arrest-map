@@ -256,7 +256,6 @@ const App = () => {
     changeFilteredOffenseDescriptionArr,
   ] = useState([]);
   const [filteredUniqueCategory, changeFilteredUniqueCategory] = useState([]);
-  const [filteredUniqueDates, changeFilteredUniqueDates] = useState([]);
   const [
     filteredTimelineAgeGroupData,
     changeFilteredTimelineAgeGroupData,
@@ -275,11 +274,10 @@ const App = () => {
   );
 
   const postToTimelineGraphWorker = useCallback(
-    (filteredUniqueDates, ageObj, raceObj, categoryObj, sexObj, boroughObj) => {
+    (ageObj, raceObj, categoryObj, sexObj, boroughObj) => {
       if (setFilterAndTimelineGraphWorkersInstance) {
         // Send from main thread to web worker
         setFilterAndTimelineGraphWorkersInstance.postMessage({
-          filteredUniqueDates,
           ageObj,
           raceObj,
           categoryObj,
@@ -299,8 +297,6 @@ const App = () => {
             receivedData.data.genderTimelineGraphData;
           const boroughTimelineGraphData =
             receivedData.data.boroughTimelineGraphData;
-
-          console.log(boroughTimelineGraphData);
 
           dispatch(
             ACTION_TIMELINE_AGE_GROUP_GRAPH_DATA(ageGroupTimelineGraphData)
@@ -413,7 +409,6 @@ const App = () => {
           const filteredOffenseDescriptionArr =
             parsedData.filteredOffenseDescriptionArr;
           const filteredUniqueCategory = parsedData.filteredUniqueCategory;
-          const filteredUniqueDates = parsedData.filteredUniqueDates;
 
           postToFilteredWorker(
             ageGroup,
@@ -438,7 +433,6 @@ const App = () => {
           changeFilteredBoroughArr(filteredBoroughArr);
           changeFilteredOffenseDescriptionArr(filteredOffenseDescriptionArr);
           changeFilteredUniqueCategory(filteredUniqueCategory);
-          changeFilteredUniqueDates(filteredUniqueDates);
         };
       }
     },
@@ -501,7 +495,6 @@ const App = () => {
       changeReadyForTimelineColumnPosts(false);
 
       postToTimelineGraphWorker(
-        filteredUniqueDates,
         { unique: filteredAgeGroupData, data: filteredTimelineAgeGroupData },
         { unique: filteredRaceUniqueValues, data: filteredTimelineRaceData },
         { unique: filteredUniqueCategory, data: filteredTimelineCategoryData },
@@ -524,7 +517,6 @@ const App = () => {
     filteredTimelineRaceData,
     filteredTimelineSexData,
     filteredUniqueCategory,
-    filteredUniqueDates,
     postToTimelineGraphWorker,
     readyForTimelineColumnPosts,
   ]);
@@ -636,7 +628,6 @@ const App = () => {
     postToTimelineWorker,
     filteredUniqueCategory,
     filteredTimelineCategoryData,
-    filteredUniqueDates,
     loadedYears,
     totalCount,
   ]);
@@ -1255,10 +1246,6 @@ const App = () => {
                       "LAW_CAT_CD",
                       "category"
                     ),
-                    filteredUniqueDates: filteredDataChunksReducerFunction(
-                      "ARREST_DATE",
-                      "year"
-                    ),
                   })
                 );
               };
@@ -1724,7 +1711,6 @@ const App = () => {
               loadedYears={loadedYears}
               usePrevious={usePrevious}
               currentFilters={currentFilters}
-              filteredUniqueDates={filteredUniqueDates}
               filteredTimelineAgeGroupData={filteredTimelineAgeGroupData}
               filteredTimelineBoroughData={filteredTimelineBoroughData}
               filteredTimelineCategoryData={filteredTimelineCategoryData}
@@ -1732,6 +1718,7 @@ const App = () => {
               filteredTimelineRaceData={filteredTimelineRaceData}
               graphOption={graphOption}
               changeGraphOption={changeGraphOption}
+              layersRef={layersRef}
             />
           </>
         ) : null}

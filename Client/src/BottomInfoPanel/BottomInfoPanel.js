@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import AliceCarousel from "react-alice-carousel";
 import "react-alice-carousel/lib/alice-carousel.css";
@@ -17,6 +17,7 @@ import GenderTimeline from "./CarouselItems/Gender/GenderTimeline";
 import RaceTimeline from "./CarouselItems/Race/RaceTimeline";
 import { RadioGroup, RadioButton } from "react-radio-buttons";
 import { useSelector } from "react-redux";
+import Tippy from "@tippyjs/react";
 
 const BottomInfoPanel = (props) => {
   const {
@@ -41,8 +42,8 @@ const BottomInfoPanel = (props) => {
     usePrevious,
     graphOption,
     changeGraphOption,
+    layersRef,
 
-    filteredUniqueDates,
     filteredTimelineAgeGroupData,
     filteredTimelineBoroughData,
     filteredTimelineCategoryData,
@@ -58,8 +59,12 @@ const BottomInfoPanel = (props) => {
     (state) => state.trendsAvailableReducer.available
   );
 
+  const [arrowTooltipVisible, changeArrowTooltipVisible] = useState(true);
+
   let CarouselRef = useRef(null);
   let CarouselTimelineRef = useRef(null);
+
+  const rightArrow = document.getElementsByClassName("carousel_right_arrow");
 
   useEffect(() => {
     if (graphOption === "overview") {
@@ -240,6 +245,22 @@ const BottomInfoPanel = (props) => {
         </div>
       </div>
       <div className="carousel_container">
+        <Tippy
+          content="Click the left and right arrows to view more graphs"
+          visible={
+            arrowTooltipVisible &&
+            layersRef.current.length > 0 &&
+            filteredAgeGroupData.length > 0 &&
+            filteredBoroughUniqueValues.length > 0 &&
+            filteredArrestCategory.length > 0 &&
+            filteredSexUniqueValues.length > 0 &&
+            filteredRaceUniqueValues.length > 0
+          }
+          reference={rightArrow[0]}
+          className="burger_tooltip"
+          placement="left"
+          onClickOutside={() => changeArrowTooltipVisible(false)}
+        />
         <FaChevronLeft
           color="rgb(0, 0, 0)"
           className="carousel_left_arrow"
@@ -284,7 +305,6 @@ const BottomInfoPanel = (props) => {
             />,
             <Gender
               key="overview"
-              filteredUniqueDates={filteredUniqueDates}
               filteredSexUniqueValues={filteredSexUniqueValues}
               filteredSexArr={filteredSexArr}
               graphOption={graphOption}
@@ -313,7 +333,7 @@ const BottomInfoPanel = (props) => {
           fadeOutAnimation={true}
           dotsDisabled={true}
           buttonsDisabled={true}
-          mouseTrackingEnabled={true}
+          mouseTrackingEnabled={false}
           playButtonEnabled={false}
           disableAutoPlayOnAction={false}
           responsive={{
@@ -327,7 +347,6 @@ const BottomInfoPanel = (props) => {
             <CategoryTimeline
               key="trends"
               filteredTimelineCategoryData={filteredTimelineCategoryData}
-              filteredUniqueDates={filteredUniqueDates}
               filteredArrestCategory={filteredArrestCategory}
               graphOption={graphOption}
               filteredUniqueCategory={filteredUniqueCategory}
@@ -335,27 +354,23 @@ const BottomInfoPanel = (props) => {
             <AgeGroupTimeline
               key="trends"
               filteredAgeGroupData={filteredAgeGroupData}
-              filteredUniqueDates={filteredUniqueDates}
               filteredTimelineAgeGroupData={filteredTimelineAgeGroupData}
               graphOption={graphOption}
             />,
             <BoroughTimeline
               key="trends"
               filteredBoroughUniqueValues={filteredBoroughUniqueValues}
-              filteredUniqueDates={filteredUniqueDates}
               filteredTimelineBoroughData={filteredTimelineBoroughData}
               graphOption={graphOption}
             />,
             <RaceTimeline
               key="trends"
               filteredRaceUniqueValues={filteredRaceUniqueValues}
-              filteredUniqueDates={filteredUniqueDates}
               filteredTimelineRaceData={filteredTimelineRaceData}
               graphOption={graphOption}
             />,
             <GenderTimeline
               key="trends"
-              filteredUniqueDates={filteredUniqueDates}
               filteredSexUniqueValues={filteredSexUniqueValues}
               filteredTimelineSexData={filteredTimelineSexData}
               graphOption={graphOption}

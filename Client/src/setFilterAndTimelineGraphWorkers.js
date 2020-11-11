@@ -73,7 +73,6 @@ onmessage = (e) => {
     const t0 = performance.now();
 
     // Timeline graph calculations
-    const filteredUniqueDates = dataSent.filteredUniqueDates;
     const ageObj = dataSent.ageObj;
     const raceObj = dataSent.raceObj;
     const categoryObj = dataSent.categoryObj;
@@ -133,27 +132,25 @@ onmessage = (e) => {
             ].flat()
           );
         } else if (generalName === "category") {
-          if (dataArr[0]) {
-            newArr.push(
-              [
-                returnedDateString(dateArr),
-                uniqueValues.map((value) => {
-                  const formatName = (x) =>
-                    x === "F"
-                      ? "Felony"
-                      : x === "M"
-                      ? "Misdemeanor"
-                      : "Violation";
+          newArr.push(
+            [
+              returnedDateString(dateArr),
+              ["F", "M", "V"].map((value) => {
+                const formatName = (x) =>
+                  x === "F"
+                    ? "Felony"
+                    : x === "M"
+                    ? "Misdemeanor"
+                    : "Violation";
 
-                  const currentFormattedName = formatName(value);
+                const currentFormattedName = formatName(value);
 
-                  return dateObj[date].filter(
-                    (x) => x[generalName] === currentFormattedName
-                  ).length;
-                }),
-              ].flat()
-            );
-          }
+                return dateObj[date].filter(
+                  (x) => x[generalName] === currentFormattedName
+                ).length;
+              }),
+            ].flat()
+          );
         } else if (generalName === "sex") {
           newArr.push(
             [
@@ -182,7 +179,15 @@ onmessage = (e) => {
         }
       }
 
-      return newArr;
+      return newArr.sort((a, b) => {
+        const firstArr = a[0].split(/[(),]+/);
+        const firstDate = new Date(...firstArr.slice(1, firstArr.length));
+
+        const secondArr = b[0].split(/[(),]+/);
+        const secondDate = new Date(...secondArr.slice(1, secondArr.length));
+
+        return firstDate - secondDate;
+      });
     };
 
     postMessage({

@@ -18,8 +18,14 @@ code {
     monospace;
 }
 
+/* Prevents tooltip flickering on react-google-charts pie charts */
 svg > g > g:last-child {
   pointer-events: none;
+}
+
+/* Re-instates click events for final legend items on trend charts */
+rect ~ g {
+  pointer-events: auto !important;
 }
 
 /* 

@@ -26,7 +26,6 @@ label {
 
 .overview_tooltip.legend_tooltip {
   margin-left: 0.5rem;
-  display: none;
 }
 
 .overview_tooltip > .tippy-arrow::before {
@@ -168,8 +167,8 @@ input[type="checkbox"] {
   cursor: pointer;
   margin-left: 1.5rem;
   margin-right: 1.5rem;
-  margin-bottom: 10vh;
-  margin-top: 20vh;
+  margin-bottom: 50vh;
+  margin-top: 5vh;
   font-size: 0.7rem;
   min-height: 3rem;
   outline: none;

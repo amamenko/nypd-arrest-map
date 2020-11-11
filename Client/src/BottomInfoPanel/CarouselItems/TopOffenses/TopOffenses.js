@@ -20,6 +20,15 @@ const TopOffenses = (props) => {
     filteredOffenseDescriptionUniqueValues
   );
 
+  const chartEvents = [
+    {
+      eventName: "select",
+      callback({ chartWrapper }) {
+        return chartWrapper.getChart().setSelection([]);
+      },
+    },
+  ];
+
   useEffect(() => {
     if (
       filteredOffenseDescriptionArr &&
@@ -71,6 +80,7 @@ const TopOffenses = (props) => {
             <Chart
               chartType="BarChart"
               loader={<DoubleBounce size={100} color="rgb(93, 188, 210)" />}
+              chartEvents={chartEvents}
               data={
                 [
                   [["Offense Description", "Number of Arrests"]].concat(

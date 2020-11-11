@@ -32,15 +32,7 @@ const InfoPopUp = () => {
             >
               NYPD Arrest Data (Year to Date)
             </a>{" "}
-            and{" "}
-            <a
-              href="https://data.cityofnewyork.us/Public-Safety/NYPD-Arrests-Data-Historic-/8h9b-rp9u"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              NYPD Arrests Data (Historic)
-            </a>{" "}
-            NYC Open Data datasets. These datasets are updated quarterly and
+            NYC Open Data dataset. This dataset is updated quarterly and
             reviewed by the Office of Management Analysis and Planning before
             being posted on the New York Police Department website. The data
             reflected here will be updated shortly after such changes.

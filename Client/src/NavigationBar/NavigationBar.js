@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { slide as Menu } from "react-burger-menu";
 import { BsFilterRight } from "react-icons/bs";
-import { FaCircle, FaCloudDownloadAlt, FaPlus } from "react-icons/fa";
+import { FaCircle, FaPlus } from "react-icons/fa";
 import Collapsible from "react-collapsible";
 import Tippy from "@tippyjs/react";
 import LaddaButton, { XL, EXPAND_LEFT } from "react-ladda";
@@ -11,7 +11,6 @@ import "./burgermenu.css";
 import InfoPopUp from "./InfoPopUp/InfoPopUp";
 import { useSelector, useDispatch } from "react-redux";
 import ACTION_CHANGE_CATEGORY_FILTER from "../actions/filters/category/ACTION_CHANGE_CATEGORY_FILTER";
-import ACTION_CHANGE_YEAR_FILTER from "../actions/filters/year/ACTION_CHANGE_YEAR_FILTER";
 import ACTION_CHANGE_OFFENSE_FILTER from "../actions/filters/offense/ACTION_CHANGE_OFFENSE_FILTER";
 import ACTION_CHANGE_AGE_FILTER from "../actions/filters/age/ACTION_CHANGE_AGE_FILTER";
 import ACTION_CHANGE_RACE_FILTER from "../actions/filters/race/ACTION_CHANGE_RACE_FILTER";
@@ -32,7 +31,6 @@ const NavigationBar = (props) => {
     changeLaddaLoading,
     laddaLoading,
     loadedYears,
-    handleDownloadYear,
     menuClicked,
     changeMenuClicked,
     collapseOpen,
@@ -75,15 +73,6 @@ const NavigationBar = (props) => {
   );
 
   const [tooltipVisible, changeTooltipVisible] = useState(true);
-
-  const filterByYear = () => {
-    return (
-      <div className="nav_item">
-        <p className="filter_identifier">Filter By Year</p>
-        <FaPlus fill={"rgb(0, 109, 129)"} />
-      </div>
-    );
-  };
 
   const filterByCategory = () => {
     return (
@@ -145,29 +134,6 @@ const NavigationBar = (props) => {
     } else {
       changeMenuClicked(true);
       changeTooltipVisible(false);
-    }
-  };
-
-  const renderYears = () => {
-    const newArr = [];
-
-    for (let i = 2006; i < Number(new Date().getFullYear() + 1); i++) {
-      newArr.push(i);
-    }
-
-    return newArr;
-  };
-
-  const handleYearFilters = (year) => {
-    if (yearFilter.includes(year)) {
-      dispatch(
-        ACTION_CHANGE_YEAR_FILTER(yearFilter.filter((item) => item !== year))
-      );
-    } else {
-      const copyArr = yearFilter.slice();
-      copyArr.push(year);
-
-      dispatch(ACTION_CHANGE_YEAR_FILTER(copyArr));
     }
   };
 
@@ -408,59 +374,6 @@ const NavigationBar = (props) => {
         onClose={() => changeMenuClicked(false)}
         isOpen={menuClicked}
       >
-        <Collapsible
-          trigger={filterByYear()}
-          onTriggerOpening={() => changeCollapseOpen("year")}
-          onTriggerClosing={() => changeCollapseOpen("")}
-          open={collapseOpen === "year"}
-          className="nav_item"
-        >
-          <div className="nav_item_content_container">
-            {renderYears().map((year, i) => {
-              return (
-                <p
-                  key={i}
-                  style={{
-                    color: loadedYears.includes(year)
-                      ? "#000"
-                      : "rgb(166, 166, 166)",
-                  }}
-                  className={
-                    loadedYears.includes(year) ? null : "unfetched_year_button"
-                  }
-                  onClick={() => {
-                    if (!loadedYears.includes(year)) {
-                      handleDownloadYear(year);
-                      changeMenuClicked(false);
-                    }
-                  }}
-                >
-                  <label>
-                    {loadedYears.includes(year) ? (
-                      <input
-                        name="my-checkbox"
-                        type="checkbox"
-                        checked={
-                          yearFilter.length === 0 || yearFilter.includes(year)
-                        }
-                        onChange={() => {
-                          if (loadedYears.includes(year)) {
-                            handleYearFilters(year);
-                          }
-                        }}
-                      />
-                    ) : (
-                      <FaCloudDownloadAlt className="year_download_icon" />
-                    )}
-                    {loadedYears.includes(year)
-                      ? year
-                      : `${year} (Click to load data)`}
-                  </label>
-                </p>
-              );
-            })}
-          </div>
-        </Collapsible>
         <Collapsible
           trigger={filterByCategory()}
           onTriggerOpening={() => changeCollapseOpen("category")}

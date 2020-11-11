@@ -5,6 +5,15 @@ import DoubleBounce from "better-react-spinkit/dist/DoubleBounce";
 const Category = (props) => {
   const { filteredArrestCategory, graphOption } = props;
 
+  const chartEvents = [
+    {
+      eventName: "select",
+      callback({ chartWrapper }) {
+        return chartWrapper.getChart().setSelection([]);
+      },
+    },
+  ];
+
   return (
     <div
       className="bottom_info_panel_info_box"
@@ -14,6 +23,7 @@ const Category = (props) => {
       <p className="bottom_info_section_title">Breakdown by Category</p>
       <div className="bottom_info_pie_container">
         <Chart
+          chartEvents={chartEvents}
           chartType="PieChart"
           loader={<DoubleBounce size={100} color="rgb(93, 188, 210)" />}
           data={

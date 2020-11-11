@@ -19,10 +19,12 @@ const GenderTimeline = (props) => {
       <p className="bottom_info_section_title">Gender Trends</p>
       <div className="bottom_info_pie_container">
         <Chart
+          legendToggle
           chartType="LineChart"
           loader={<DoubleBounce size={100} color="rgb(93, 188, 210)" />}
           data={sexTimelineColumns}
           options={{
+            legendToggle: true,
             backgroundColor: "transparent",
             width: 500,
             chartArea: { width: "50%", height: "50%" },
@@ -31,6 +33,11 @@ const GenderTimeline = (props) => {
             },
             vAxis: {
               title: "# of Arrests",
+            },
+            explorer: {
+              axis: "horizontal",
+              keepInBounds: true,
+              maxZoomIn: 0.2,
             },
           }}
         />
