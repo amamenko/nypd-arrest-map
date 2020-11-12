@@ -1038,12 +1038,11 @@ const App = () => {
 
             (() => {
               onmessage = (e) => {
+                const t0 = performance.now();
                 const dataSent = e.data;
 
                 const loadData = dataSent.loadData;
-                const flatLoadData = loadData.flat();
                 const filteredData = dataSent.filteredData;
-                const flatFilteredData = filteredData.flat();
                 const filteredDataChunks = dataSent.filteredDataChunks;
                 const currentFilters = dataSent.currentFilters;
 
@@ -1202,43 +1201,43 @@ const App = () => {
 
                 postMessage(
                   JSON.stringify({
-                    ageGroup: dataReducerFunction(flatLoadData, "AGE_GROUP"),
-                    raceArr: dataReducerFunction(flatLoadData, "PERP_RACE"),
+                    ageGroup: dataReducerFunction(loadData, "AGE_GROUP"),
+                    raceArr: dataReducerFunction(loadData, "PERP_RACE"),
                     boroughArr: boroughLoadDataReducerFunction(
-                      flatLoadData,
+                      loadData,
                       "ARREST_BORO"
                     ),
                     offenseDescriptionArr: dataReducerFunction(
-                      flatLoadData,
+                      loadData,
                       "OFNS_DESC"
                     ),
                     filteredArrestCategory: dataReducerFunction(
-                      flatFilteredData,
+                      filteredData,
                       "LAW_CAT_CD",
                       "category"
                     ),
                     filteredAgeGroup: dataReducerFunction(
-                      flatFilteredData,
+                      filteredData,
                       "AGE_GROUP",
                       "age"
                     ),
                     filteredSexArr: dataReducerFunction(
-                      flatFilteredData,
+                      filteredData,
                       "PERP_SEX",
                       "sex"
                     ),
                     filteredRaceArr: dataReducerFunction(
-                      flatFilteredData,
+                      filteredData,
                       "PERP_RACE",
                       "race"
                     ),
                     filteredBoroughArr: boroughLoadDataReducerFunction(
-                      flatFilteredData,
+                      filteredData,
                       "ARREST_BORO",
                       "borough"
                     ),
                     filteredOffenseDescriptionArr: dataReducerFunction(
-                      flatFilteredData,
+                      filteredData,
                       "OFNS_DESC",
                       "offense"
                     ),
@@ -1247,6 +1246,12 @@ const App = () => {
                       "category"
                     ),
                   })
+                );
+
+                const t1 = performance.now();
+
+                console.log(
+                  `Map worker performance is ${t1 - t0} milliseconds.`
                 );
               };
             }).toString(),
@@ -1273,6 +1278,7 @@ const App = () => {
 
             (() => {
               onmessage = (e) => {
+                const t0 = performance.now();
                 const dataSent = e.data;
 
                 const chunk = dataSent.chunk;
@@ -1337,6 +1343,11 @@ const App = () => {
                     ),
                   })
                 );
+                const t1 = performance.now();
+
+                console.log(
+                  `Timeline worker performance is ${t1 - t0} milliseconds.`
+                );
               };
             }).toString(),
 
@@ -1369,6 +1380,7 @@ const App = () => {
             "(",
             (() => {
               onmessage = (e) => {
+                const t0 = performance.now();
                 const hasNumber = (input) => {
                   return /\d/.test(input);
                 };
@@ -1470,6 +1482,12 @@ const App = () => {
                       filteredOffenseDescriptionArr
                     ),
                   })
+                );
+
+                const t1 = performance.now();
+
+                console.log(
+                  `Filter worker performance is ${t1 - t0} milliseconds.`
                 );
               };
             }).toString(),

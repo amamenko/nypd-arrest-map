@@ -220,6 +220,8 @@ onmessage = (e) => {
 
     const t1 = performance.now();
 
-    console.log(`Performance is ${t1 - t0} milliseconds.`);
+    console.log(
+      `Timeline graph columns worker performance is ${t1 - t0} milliseconds.`
+    );
   }
 };

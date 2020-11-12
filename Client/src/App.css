@@ -60,6 +60,11 @@
   transition: opacity 1s ease;
 }
 
+.footer_info_menu {
+  height: 100vh;
+  background: black;
+}
+
 @media only screen and (max-width: 767px) {
   #deckgl-wrapper {
     height: 100vh !important;

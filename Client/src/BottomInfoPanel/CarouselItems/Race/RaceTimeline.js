@@ -3,9 +3,7 @@ import { Chart } from "react-google-charts";
 import DoubleBounce from "better-react-spinkit/dist/DoubleBounce";
 import { useSelector } from "react-redux";
 
-const RaceTimeline = (props) => {
-  const { graphOption } = props;
-
+const RaceTimeline = () => {
   const raceTimelineColumns = useSelector(
     (state) => state.raceTimelineColumnsReducer.columns
   );
@@ -14,7 +12,6 @@ const RaceTimeline = (props) => {
     <div
       className="bottom_info_panel_info_box"
       onDragStart={(e) => e.preventDefault()}
-      style={{ display: graphOption === "trends" ? "block" : "none" }}
     >
       <p className="bottom_info_section_title">Race Trends</p>
       <div className="bottom_info_pie_container">

@@ -8,7 +8,8 @@
   align-items: flex-start;
   justify-content: flex-start;
   padding-left: 1rem;
-  overflow: hidden;
+  transition: all 1s ease;
+  -webkit-transition: all 1s ease;
 }
 
 .bottom_info_section_title {
@@ -178,9 +179,35 @@
   overflow: hidden !important;
 }
 
+.footer_menu_trigger {
+  height: 8vh;
+  background: lightblue;
+  position: absolute;
+  top: -8vh;
+  width: 100%;
+  left: 0;
+  right: 0;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: black;
+  font-weight: 600;
+}
+
 @media only screen and (max-width: 767px) {
   .bottom_info_panel_container {
+    height: 85vh;
+  }
+}
+
+@media only screen and (min-width: 768px) {
+  .footer_menu_trigger {
     display: none;
+  }
+
+  .bottom_info_panel_container {
+    overflow: hidden;
   }
 }
 
