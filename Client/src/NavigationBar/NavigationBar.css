@@ -22,10 +22,12 @@ label {
   max-height: 10vh;
   position: relative;
   z-index: -1;
+  margin-left: 0.5rem;
 }
 
 .overview_tooltip.legend_tooltip {
   margin-left: 0.5rem;
+  margin-bottom: 5vh;
 }
 
 .overview_tooltip > .tippy-arrow::before {
@@ -54,6 +56,7 @@ label {
 .burger_tooltip {
   background: white;
   color: black;
+  font-size: 0.6rem;
 }
 
 .tippy-arrow::before {
@@ -185,6 +188,16 @@ input[type="checkbox"] {
 
 .spacer:focus {
   outline: none;
+}
+
+@media only screen and (min-width: 768px) {
+  .burger_tooltip {
+    font-size: 0.9rem;
+  }
+
+  .overview_tooltip.legend_tooltip {
+    margin-bottom: 0vh;
+  }
 }
 
 @media only screen and (min-width: 1200px) {

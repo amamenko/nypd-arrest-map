@@ -1,5 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
+import { GoGraph } from "react-icons/go";
+import { FiMinimize2 } from "react-icons/fi";
 import AliceCarousel from "react-alice-carousel";
 import "react-alice-carousel/lib/alice-carousel.css";
 import "./BottomInfoPanel.css";
@@ -43,6 +45,10 @@ const BottomInfoPanel = (props) => {
     graphOption,
     changeGraphOption,
     layersRef,
+    initialScreenWidth,
+    currentScreenWidth,
+    footerMenuActive,
+    changeFooterMenuActive,
 
     filteredTimelineAgeGroupData,
     filteredTimelineBoroughData,
@@ -61,11 +67,9 @@ const BottomInfoPanel = (props) => {
 
   const [arrowTooltipVisible, changeArrowTooltipVisible] = useState(true);
   const [timelineTooltipVisible, changeTimelineTooltipVisible] = useState(true);
-  const [footerMenuActive, changeFooterMenuActive] = useState(false);
 
   let CarouselRef = useRef(null);
   let CarouselTimelineRef = useRef(null);
-  let trendContainerRef = useRef(null);
 
   const rightArrow = document.getElementsByClassName("carousel_right_arrow");
   const aliceCarouselContainer = document.getElementsByClassName(
@@ -76,6 +80,9 @@ const BottomInfoPanel = (props) => {
   );
   const trendsCarouselContainer = document.getElementsByClassName(
     "trends_carousel"
+  );
+  const categoryTimelineContainer = document.getElementsByClassName(
+    "category_timeline_container"
   );
 
   useEffect(() => {
@@ -136,6 +143,27 @@ const BottomInfoPanel = (props) => {
     }
   }, [graphOption, overviewCarouselContainer, trendsCarouselContainer]);
 
+  useEffect(() => {
+    if (!currentScreenWidth) {
+      if (initialScreenWidth > 768) {
+        if (!footerMenuActive) {
+          changeFooterMenuActive(true);
+        }
+      }
+    } else {
+      if (currentScreenWidth > 768) {
+        if (!footerMenuActive) {
+          changeFooterMenuActive(true);
+        }
+      }
+    }
+  }, [
+    footerMenuActive,
+    initialScreenWidth,
+    currentScreenWidth,
+    changeFooterMenuActive,
+  ]);
+
   const handleFooterMenuActive = () => {
     if (footerMenuActive) {
       changeFooterMenuActive(false);
@@ -145,324 +173,373 @@ const BottomInfoPanel = (props) => {
   };
 
   return (
-    <>
-      <div
-        className="bottom_info_panel_container"
-        style={{
-          zIndex: tooltipVisible ? -1 : 0,
-          transform: footerMenuActive
+    <div
+      className="bottom_info_panel_container"
+      style={{
+        zIndex: !currentScreenWidth
+          ? initialScreenWidth < 768
+            ? 10
+            : tooltipVisible
+            ? -1
+            : 0
+          : currentScreenWidth < 768
+          ? 10
+          : tooltipVisible
+          ? -1
+          : 0,
+        transform: !currentScreenWidth
+          ? initialScreenWidth < 768
+            ? footerMenuActive
+              ? "translate3d(0, 0, 0)"
+              : "translate3d(0, 100%, 0)"
+            : "none"
+          : currentScreenWidth < 768
+          ? footerMenuActive
             ? "translate3d(0, 0, 0)"
-            : "translate3d(0, 100%, 0)",
+            : "translate3d(0, 100%, 0)"
+          : "none",
+      }}
+    >
+      <div
+        className="shadow_overlay"
+        onClick={() => changeFooterMenuActive(false)}
+        style={{
+          opacity: footerMenuActive ? 1 : 0,
+          display: footerMenuActive ? "block" : "none",
         }}
       >
-        <div className="footer_menu_trigger" onClick={handleFooterMenuActive}>
-          VIEW GRAPHS AND TRENDS
-        </div>
-        <div className="bottom_info_main_info_box">
-          <div className="filters_applied">
-            <h2>Filters Applied</h2>
-            {(currentFilters.year.length === 0 ||
-              isSame(loadedYears, Object.keys(loadDataChunks[0]))) &&
-            currentFilters.category.length === 0 &&
-            currentFilters.offense.length === 0 &&
-            currentFilters.age.length === 0 &&
-            currentFilters.race.length === 0 &&
-            currentFilters.sex.length === 0 &&
-            currentFilters.borough.length === 0 ? (
-              <p className="no_filters_applied_statement">
-                No filters currently applied
-              </p>
-            ) : (
-              <>
-                <p>
-                  <strong>
-                    {currentFilters.year.length === 0 ||
-                    currentFilters.year.length === loadedYears.length
-                      ? null
-                      : currentFilters.year.length === 1
-                      ? "Year: "
-                      : "Years: "}
-                  </strong>
+        {" "}
+      </div>
+      <div className="footer_menu_trigger" onClick={handleFooterMenuActive}>
+        {!footerMenuActive ? (
+          <>
+            <GoGraph /> VIEW GRAPHS AND TRENDS
+          </>
+        ) : (
+          <>
+            <FiMinimize2 /> BACK TO ARREST MAP
+          </>
+        )}
+      </div>
+      <div className="bottom_info_main_info_box">
+        <div className="filters_applied">
+          <h2>Filters Applied</h2>
+          {(currentFilters.year.length === 0 ||
+            isSame(loadedYears, Object.keys(loadDataChunks[0]))) &&
+          currentFilters.category.length === 0 &&
+          currentFilters.offense.length === 0 &&
+          currentFilters.age.length === 0 &&
+          currentFilters.race.length === 0 &&
+          currentFilters.sex.length === 0 &&
+          currentFilters.borough.length === 0 ? (
+            <p className="no_filters_applied_statement">
+              No filters currently applied
+            </p>
+          ) : (
+            <>
+              <p>
+                <strong>
                   {currentFilters.year.length === 0 ||
                   currentFilters.year.length === loadedYears.length
                     ? null
-                    : currentFilters.year.join(", ")}
-                </p>
-                <p>
-                  <strong>
-                    {currentFilters.category.length === 0
-                      ? null
-                      : "Categor" +
-                        (currentFilters.category.length > 1 ? "ies: " : "y: ")}
-                  </strong>
+                    : currentFilters.year.length === 1
+                    ? "Year: "
+                    : "Years: "}
+                </strong>
+                {currentFilters.year.length === 0 ||
+                currentFilters.year.length === loadedYears.length
+                  ? null
+                  : currentFilters.year.join(", ")}
+              </p>
+              <p>
+                <strong>
                   {currentFilters.category.length === 0
                     ? null
-                    : currentFilters.category
-                        .map((x) =>
-                          x === "F"
-                            ? "Felony"
-                            : x === "M"
-                            ? "Misdemeanor"
-                            : "Violation"
-                        )
-                        .join(", ")}
-                </p>
-                <p>
-                  <strong>
-                    {currentFilters.offense.length === 0
-                      ? null
-                      : "Offense" +
-                        (currentFilters.offense.length === 1 ? ": " : "s: ")}
-                  </strong>
+                    : "Categor" +
+                      (currentFilters.category.length > 1 ? "ies: " : "y: ")}
+                </strong>
+                {currentFilters.category.length === 0
+                  ? null
+                  : currentFilters.category
+                      .map((x) =>
+                        x === "F"
+                          ? "Felony"
+                          : x === "M"
+                          ? "Misdemeanor"
+                          : "Violation"
+                      )
+                      .join(", ")}
+              </p>
+              <p>
+                <strong>
                   {currentFilters.offense.length === 0
                     ? null
-                    : currentFilters.offense.join(", ")}
-                </p>
-                <p>
-                  <strong>
-                    {currentFilters.age.length === 0
-                      ? null
-                      : "Age" +
-                        (currentFilters.age.length === 1 ? ": " : "s: ")}
-                  </strong>
+                    : "Offense" +
+                      (currentFilters.offense.length === 1 ? ": " : "s: ")}
+                </strong>
+                {currentFilters.offense.length === 0
+                  ? null
+                  : currentFilters.offense.join(", ")}
+              </p>
+              <p>
+                <strong>
                   {currentFilters.age.length === 0
                     ? null
-                    : currentFilters.age
-                        .map((x) => (x === "65" ? "65+" : x))
-                        .join(", ")}
-                </p>
-                <p>
-                  <strong>
-                    {currentFilters.race.length === 0
-                      ? null
-                      : "Race" +
-                        (currentFilters.race.length === 1 ? ": " : "s: ")}
-                  </strong>
+                    : "Age" + (currentFilters.age.length === 1 ? ": " : "s: ")}
+                </strong>
+                {currentFilters.age.length === 0
+                  ? null
+                  : currentFilters.age
+                      .map((x) => (x === "65" ? "65+" : x))
+                      .join(", ")}
+              </p>
+              <p>
+                <strong>
                   {currentFilters.race.length === 0
                     ? null
-                    : currentFilters.race.join(", ")}
-                </p>
-                <p>
-                  <strong>
-                    {currentFilters.sex.length === 0 ? null : "Sex: "}
-                  </strong>
-                  {currentFilters.sex.length === 0
-                    ? null
-                    : currentFilters.sex
-                        .map((x) => (x === "M" ? "Male" : "Female"))
-                        .join(", ")}
-                </p>
-                <p>
-                  <strong>
-                    {currentFilters.borough.length === 0
-                      ? null
-                      : "Borough" +
-                        (currentFilters.borough.length === 1 ? ": " : "s: ")}
-                  </strong>
+                    : "Race" +
+                      (currentFilters.race.length === 1 ? ": " : "s: ")}
+                </strong>
+                {currentFilters.race.length === 0
+                  ? null
+                  : currentFilters.race.join(", ")}
+              </p>
+              <p>
+                <strong>
+                  {currentFilters.sex.length === 0 ? null : "Sex: "}
+                </strong>
+                {currentFilters.sex.length === 0
+                  ? null
+                  : currentFilters.sex
+                      .map((x) => (x === "M" ? "Male" : "Female"))
+                      .join(", ")}
+              </p>
+              <p>
+                <strong>
                   {currentFilters.borough.length === 0
                     ? null
-                    : currentFilters.borough
-                        .map((item) =>
-                          item === "B"
-                            ? "Bronx"
-                            : item === "Q"
-                            ? "Queens"
-                            : item === "M"
-                            ? "Manhattan"
-                            : item === "K"
-                            ? "Brooklyn"
-                            : item === "S"
-                            ? "Staten Island"
-                            : "Unknown"
-                        )
-                        .join(", ")}
-                </p>
-              </>
-            )}
-          </div>
-          <div className="graph_options_container">
-            <p>Graph Options</p>
-            <RadioGroup
-              onChange={(value) => changeGraphOption(value)}
-              horizontal
-              value={graphOption}
-            >
-              <RadioButton
-                rootColor="rgb(140, 140, 140)"
-                pointColor="rgb(0, 0, 128)"
-                value="overview"
-              >
-                Overview
-              </RadioButton>
-              <RadioButton
-                rootColor="rgb(140, 140, 140)"
-                pointColor="rgb(0, 0, 128)"
-                value="trends"
-                disabled={!trendsAvailable}
-                disabledColor="rgb(211, 211, 211)"
-              >
-                Trends
-              </RadioButton>
-            </RadioGroup>
-          </div>
+                    : "Borough" +
+                      (currentFilters.borough.length === 1 ? ": " : "s: ")}
+                </strong>
+                {currentFilters.borough.length === 0
+                  ? null
+                  : currentFilters.borough
+                      .map((item) =>
+                        item === "B"
+                          ? "Bronx"
+                          : item === "Q"
+                          ? "Queens"
+                          : item === "M"
+                          ? "Manhattan"
+                          : item === "K"
+                          ? "Brooklyn"
+                          : item === "S"
+                          ? "Staten Island"
+                          : "Unknown"
+                      )
+                      .join(", ")}
+              </p>
+            </>
+          )}
         </div>
-        <div className="carousel_container">
-          <Tippy
-            content="Click the left and right arrows to view more graphs"
-            visible={
-              arrowTooltipVisible &&
-              layersRef.current.length > 0 &&
-              filteredAgeGroupData.length > 0 &&
-              filteredBoroughUniqueValues.length > 0 &&
-              filteredArrestCategory.length > 0 &&
-              filteredSexUniqueValues.length > 0 &&
-              filteredRaceUniqueValues.length > 0
-            }
-            reference={rightArrow[0]}
-            className="burger_tooltip"
-            placement="left"
-            onClickOutside={() => changeArrowTooltipVisible(false)}
-          />
-          <FaChevronLeft
-            color="rgb(0, 0, 0)"
-            className="carousel_left_arrow"
-            onClick={() => {
-              CarouselRef.slidePrev();
-              CarouselTimelineRef.slidePrev();
-            }}
-          />
-          <AliceCarousel
-            ref={(el) => (CarouselRef = el)}
-            autoPlay={false}
-            fadeOutAnimation={true}
-            dotsDisabled={true}
-            buttonsDisabled={true}
-            mouseTrackingEnabled={true}
-            playButtonEnabled={false}
-            disableAutoPlayOnAction={false}
-            responsive={{
-              0: { items: 1 },
-              768: { items: 2 },
-              1200: { items: 3 },
-              1600: { items: 4 },
-            }}
-            preservePosition={true}
-            items={[
-              <Category
-                key="overview"
-                filteredArrestCategory={filteredArrestCategory}
-                graphOption={graphOption}
-              />,
-              <AgeGroup
-                key="overview"
-                filteredAgeGroup={filteredAgeGroup}
-                filteredAgeGroupData={filteredAgeGroupData}
-                graphOption={graphOption}
-              />,
-              <Race
-                key="overview"
-                filteredRaceUniqueValues={filteredRaceUniqueValues}
-                filteredRaceArr={filteredRaceArr}
-                graphOption={graphOption}
-              />,
-              <Gender
-                key="overview"
-                filteredSexUniqueValues={filteredSexUniqueValues}
-                filteredSexArr={filteredSexArr}
-                graphOption={graphOption}
-              />,
-              <Borough
-                key="overview"
-                filteredBoroughUniqueValues={filteredBoroughUniqueValues}
-                filteredBoroughArr={filteredBoroughArr}
-                graphOption={graphOption}
-              />,
-              <TopOffenses
-                key="overview"
-                filteredOffenseDescriptionArr={filteredOffenseDescriptionArr}
-                filteredOffenseDescriptionUniqueValues={
-                  filteredOffenseDescriptionUniqueValues
-                }
-                graphOption={graphOption}
-                isSame={isSame}
-                usePrevious={usePrevious}
-              />,
-            ]}
-          />
-          <Tippy
-            content="Scroll to zoom in and out of trend graphs"
-            visible={graphOption === "trends" && timelineTooltipVisible}
-            reference={trendContainerRef.current}
-            className="burger_tooltip"
-            placement="top"
-            onClickOutside={() => changeTimelineTooltipVisible(false)}
-          />
-          <Tippy
-            content="Toggle data lines by selecting legend items"
-            visible={graphOption === "trends" && timelineTooltipVisible}
-            reference={trendContainerRef.current}
-            className="burger_tooltip"
-            placement="right"
-            offset={[0, 35]}
-            onClickOutside={() => changeTimelineTooltipVisible(false)}
-          />
-          <AliceCarousel
-            ref={(el) => (CarouselTimelineRef = el)}
-            autoPlay={false}
-            fadeOutAnimation={true}
-            dotsDisabled={true}
-            buttonsDisabled={true}
-            mouseTrackingEnabled={false}
-            playButtonEnabled={false}
-            disableAutoPlayOnAction={false}
-            responsive={{
-              0: { items: 1 },
-              768: { items: 2 },
-              1200: { items: 3 },
-              1600: { items: 4 },
-            }}
-            preservePosition={true}
-            items={[
-              <CategoryTimeline
-                key="trends"
-                filteredTimelineCategoryData={filteredTimelineCategoryData}
-                filteredArrestCategory={filteredArrestCategory}
-                filteredUniqueCategory={filteredUniqueCategory}
-              />,
-              <AgeGroupTimeline
-                key="trends"
-                filteredAgeGroupData={filteredAgeGroupData}
-                filteredTimelineAgeGroupData={filteredTimelineAgeGroupData}
-                ref={trendContainerRef}
-              />,
-              <BoroughTimeline
-                key="trends"
-                filteredBoroughUniqueValues={filteredBoroughUniqueValues}
-                filteredTimelineBoroughData={filteredTimelineBoroughData}
-              />,
-              <RaceTimeline
-                key="trends"
-                filteredRaceUniqueValues={filteredRaceUniqueValues}
-                filteredTimelineRaceData={filteredTimelineRaceData}
-              />,
-              <GenderTimeline
-                key="trends"
-                filteredSexUniqueValues={filteredSexUniqueValues}
-                filteredTimelineSexData={filteredTimelineSexData}
-              />,
-            ]}
-          />
-          <FaChevronRight
-            color="rgb(0, 0, 0)"
-            className="carousel_right_arrow"
-            onClick={() => {
-              CarouselRef.slideNext();
-              CarouselTimelineRef.slideNext();
-            }}
-          />
+        <div className="graph_options_container">
+          <p>Graph Options</p>
+          <RadioGroup
+            onChange={(value) => changeGraphOption(value)}
+            horizontal
+            value={graphOption}
+          >
+            <RadioButton
+              rootColor="rgb(140, 140, 140)"
+              pointColor="rgb(0, 0, 128)"
+              value="overview"
+            >
+              Overview
+            </RadioButton>
+            <RadioButton
+              rootColor="rgb(140, 140, 140)"
+              pointColor="rgb(0, 0, 128)"
+              value="trends"
+              disabled={!trendsAvailable}
+              disabledColor="rgb(211, 211, 211)"
+            >
+              Trends
+            </RadioButton>
+          </RadioGroup>
         </div>
       </div>
-    </>
+      <div className="carousel_container">
+        <Tippy
+          content="Click the left and right arrows to view more graphs"
+          visible={
+            arrowTooltipVisible &&
+            layersRef.current.length > 0 &&
+            filteredAgeGroupData.length > 0 &&
+            filteredBoroughUniqueValues.length > 0 &&
+            filteredArrestCategory.length > 0 &&
+            filteredSexUniqueValues.length > 0 &&
+            filteredRaceUniqueValues.length > 0
+          }
+          reference={rightArrow[0]}
+          className="burger_tooltip"
+          placement="left"
+          onClickOutside={() => changeArrowTooltipVisible(false)}
+        />
+        <FaChevronLeft
+          color="rgb(0, 0, 0)"
+          className="carousel_left_arrow"
+          onClick={() => {
+            CarouselRef.slidePrev();
+            CarouselTimelineRef.slidePrev();
+          }}
+        />
+        <AliceCarousel
+          ref={(el) => (CarouselRef = el)}
+          autoPlay={false}
+          fadeOutAnimation={true}
+          dotsDisabled={true}
+          buttonsDisabled={true}
+          mouseTrackingEnabled={true}
+          playButtonEnabled={false}
+          disableAutoPlayOnAction={false}
+          responsive={{
+            0: { items: 1 },
+            768: { items: 2 },
+            1200: { items: 3 },
+          }}
+          preservePosition={true}
+          items={[
+            <Category
+              key="overview"
+              filteredArrestCategory={filteredArrestCategory}
+              graphOption={graphOption}
+            />,
+            <AgeGroup
+              key="overview"
+              filteredAgeGroup={filteredAgeGroup}
+              filteredAgeGroupData={filteredAgeGroupData}
+              graphOption={graphOption}
+            />,
+            <Race
+              key="overview"
+              filteredRaceUniqueValues={filteredRaceUniqueValues}
+              filteredRaceArr={filteredRaceArr}
+              graphOption={graphOption}
+            />,
+            <Gender
+              key="overview"
+              filteredSexUniqueValues={filteredSexUniqueValues}
+              filteredSexArr={filteredSexArr}
+              graphOption={graphOption}
+            />,
+            <Borough
+              key="overview"
+              filteredBoroughUniqueValues={filteredBoroughUniqueValues}
+              filteredBoroughArr={filteredBoroughArr}
+              graphOption={graphOption}
+            />,
+            <TopOffenses
+              key="overview"
+              filteredOffenseDescriptionArr={filteredOffenseDescriptionArr}
+              filteredOffenseDescriptionUniqueValues={
+                filteredOffenseDescriptionUniqueValues
+              }
+              graphOption={graphOption}
+              isSame={isSame}
+              usePrevious={usePrevious}
+              initialScreenWidth={initialScreenWidth}
+              currentScreenWidth={currentScreenWidth}
+            />,
+          ]}
+        />
+        <Tippy
+          content="Scroll to zoom in and out of trend graphs"
+          visible={graphOption === "trends" && timelineTooltipVisible}
+          reference={
+            categoryTimelineContainer.length > 2
+              ? categoryTimelineContainer[1]
+              : categoryTimelineContainer[0]
+          }
+          className="burger_tooltip trend_tooltip"
+          placement="top"
+          onClickOutside={() => changeTimelineTooltipVisible(false)}
+        />
+        <Tippy
+          content="Toggle data lines by selecting legend items"
+          visible={graphOption === "trends" && timelineTooltipVisible}
+          reference={
+            categoryTimelineContainer.length > 2
+              ? categoryTimelineContainer[1]
+              : categoryTimelineContainer[0]
+          }
+          className="burger_tooltip trend_tooltip"
+          placement="right"
+          offset={[0, 50]}
+          onClickOutside={() => changeTimelineTooltipVisible(false)}
+        />
+        <AliceCarousel
+          ref={(el) => (CarouselTimelineRef = el)}
+          autoPlay={false}
+          dotsDisabled={true}
+          buttonsDisabled={true}
+          mouseTrackingEnabled={false}
+          playButtonEnabled={false}
+          disableAutoPlayOnAction={false}
+          responsive={{
+            0: { items: 1 },
+            768: { items: 2 },
+            1200: { items: 3 },
+          }}
+          preservePosition={true}
+          items={[
+            <CategoryTimeline
+              key="trends"
+              filteredTimelineCategoryData={filteredTimelineCategoryData}
+              filteredArrestCategory={filteredArrestCategory}
+              filteredUniqueCategory={filteredUniqueCategory}
+              initialScreenWidth={initialScreenWidth}
+              currentScreenWidth={currentScreenWidth}
+            />,
+            <AgeGroupTimeline
+              key="trends"
+              filteredAgeGroupData={filteredAgeGroupData}
+              filteredTimelineAgeGroupData={filteredTimelineAgeGroupData}
+              initialScreenWidth={initialScreenWidth}
+              currentScreenWidth={currentScreenWidth}
+            />,
+            <BoroughTimeline
+              key="trends"
+              filteredBoroughUniqueValues={filteredBoroughUniqueValues}
+              filteredTimelineBoroughData={filteredTimelineBoroughData}
+              initialScreenWidth={initialScreenWidth}
+              currentScreenWidth={currentScreenWidth}
+            />,
+            <RaceTimeline
+              key="trends"
+              filteredRaceUniqueValues={filteredRaceUniqueValues}
+              filteredTimelineRaceData={filteredTimelineRaceData}
+              initialScreenWidth={initialScreenWidth}
+              currentScreenWidth={currentScreenWidth}
+            />,
+            <GenderTimeline
+              key="trends"
+              filteredSexUniqueValues={filteredSexUniqueValues}
+              filteredTimelineSexData={filteredTimelineSexData}
+              initialScreenWidth={initialScreenWidth}
+              currentScreenWidth={currentScreenWidth}
+            />,
+          ]}
+        />
+        <FaChevronRight
+          color="rgb(0, 0, 0)"
+          className="carousel_right_arrow"
+          onClick={() => {
+            CarouselRef.slideNext();
+            CarouselTimelineRef.slideNext();
+          }}
+        />
+      </div>
+    </div>
   );
 };
 

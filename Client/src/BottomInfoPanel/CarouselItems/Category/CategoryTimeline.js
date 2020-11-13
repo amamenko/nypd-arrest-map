@@ -3,7 +3,9 @@ import { Chart } from "react-google-charts";
 import DoubleBounce from "better-react-spinkit/dist/DoubleBounce";
 import { useSelector } from "react-redux";
 
-const CategoryTimeline = () => {
+const CategoryTimeline = (props) => {
+  const { initialScreenWidth, currentScreenWidth } = props;
+
   const categoryTimelineColumns = useSelector(
     (state) => state.categoryTimelineColumnsReducer.columns
   );
@@ -14,7 +16,7 @@ const CategoryTimeline = () => {
       onDragStart={(e) => e.preventDefault()}
     >
       <p className="bottom_info_section_title">Category Trends</p>
-      <div className="bottom_info_pie_container">
+      <div className="bottom_info_pie_container category_timeline_container">
         <Chart
           legendToggle
           chartType="LineChart"
@@ -23,7 +25,13 @@ const CategoryTimeline = () => {
           options={{
             legendToggle: true,
             backgroundColor: "transparent",
-            width: 500,
+            width: !currentScreenWidth
+              ? initialScreenWidth < 768
+                ? 300
+                : 500
+              : currentScreenWidth < 768
+              ? 300
+              : 500,
             chartArea: { width: "50%", height: "50%" },
             hAxis: {
               title: "Dates",

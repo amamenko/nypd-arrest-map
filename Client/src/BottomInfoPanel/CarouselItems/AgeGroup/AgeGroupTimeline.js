@@ -3,7 +3,9 @@ import { Chart } from "react-google-charts";
 import DoubleBounce from "better-react-spinkit/dist/DoubleBounce";
 import { useSelector } from "react-redux";
 
-const AgeGroupTimeline = React.forwardRef((props, ref) => {
+const AgeGroupTimeline = (props) => {
+  const { initialScreenWidth, currentScreenWidth } = props;
+
   const ageTimelineColumns = useSelector(
     (state) => state.ageTimelineColumnsReducer.columns
   );
@@ -14,7 +16,7 @@ const AgeGroupTimeline = React.forwardRef((props, ref) => {
       onDragStart={(e) => e.preventDefault()}
     >
       <p className="bottom_info_section_title">Age Group Trends</p>
-      <div className="bottom_info_pie_container" ref={ref}>
+      <div className="bottom_info_pie_container">
         <Chart
           legendToggle
           chartType="LineChart"
@@ -22,7 +24,13 @@ const AgeGroupTimeline = React.forwardRef((props, ref) => {
           data={ageTimelineColumns}
           options={{
             backgroundColor: "transparent",
-            width: 500,
+            width: !currentScreenWidth
+              ? initialScreenWidth < 768
+                ? 300
+                : 500
+              : currentScreenWidth < 768
+              ? 300
+              : 500,
             chartArea: { width: "50%", height: "50%" },
             hAxis: {
               title: "Dates",
@@ -40,6 +48,6 @@ const AgeGroupTimeline = React.forwardRef((props, ref) => {
       </div>
     </div>
   );
-});
+};
 
 export default AgeGroupTimeline;

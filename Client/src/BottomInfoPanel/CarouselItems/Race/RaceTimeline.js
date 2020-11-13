@@ -3,7 +3,9 @@ import { Chart } from "react-google-charts";
 import DoubleBounce from "better-react-spinkit/dist/DoubleBounce";
 import { useSelector } from "react-redux";
 
-const RaceTimeline = () => {
+const RaceTimeline = (props) => {
+  const { initialScreenWidth, currentScreenWidth } = props;
+
   const raceTimelineColumns = useSelector(
     (state) => state.raceTimelineColumnsReducer.columns
   );
@@ -23,7 +25,13 @@ const RaceTimeline = () => {
           options={{
             legendToggle: true,
             backgroundColor: "transparent",
-            width: 500,
+            width: !currentScreenWidth
+              ? initialScreenWidth < 768
+                ? 300
+                : 500
+              : currentScreenWidth < 768
+              ? 300
+              : 500,
             chartArea: { width: "50%", height: "50%" },
             hAxis: {
               title: "Dates",

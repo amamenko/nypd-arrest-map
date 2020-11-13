@@ -6,12 +6,46 @@ import Popup from "reactjs-popup";
 import "./info_pop_up.css";
 import "reactjs-popup/dist/index.css";
 
-const InfoPopUp = () => {
+const InfoPopUp = (props) => {
+  const { footerMenuActive, currentScreenWidth, initialScreenWidth } = props;
+
   return (
     <Popup
       trigger={
-        <div className="info_circle_container">
-          <BsInfoCircle color="rgb(255, 255, 255)" className="info_button" />
+        <div
+          className="info_circle_container"
+          style={{
+            pointerEvents: !currentScreenWidth
+              ? initialScreenWidth < 768
+                ? footerMenuActive
+                  ? "none"
+                  : "all"
+                : "all"
+              : currentScreenWidth < 768
+              ? footerMenuActive
+                ? "none"
+                : "all"
+              : "all",
+          }}
+        >
+          <BsInfoCircle
+            color="rgb(255, 255, 255)"
+            style={{
+              opacity: !currentScreenWidth
+                ? initialScreenWidth < 768
+                  ? footerMenuActive
+                    ? 0.2
+                    : 1
+                  : 1
+                : currentScreenWidth < 768
+                ? footerMenuActive
+                  ? 0.2
+                  : 1
+                : 1,
+              transition: "opacity 1s ease",
+            }}
+            className="info_button"
+          />
         </div>
       }
       modal

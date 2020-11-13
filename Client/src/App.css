@@ -5,6 +5,8 @@
   padding: 10px;
   z-index: 999999999;
   transform: translate3d(0px, 0px, 0px);
+  font-size: 0.2rem !important;
+  color: white !important;
 }
 
 #deckgl-wrapper {
@@ -65,9 +67,20 @@
   background: black;
 }
 
+div[data-tippy-root] {
+  position: absolute !important;
+  z-index: 0 !important;
+}
+
 @media only screen and (max-width: 767px) {
   #deckgl-wrapper {
     height: 100vh !important;
+  }
+}
+
+@media only screen and (min-width: 768px) {
+  .deck-tooltip {
+    font-size: 0.8rem !important;
   }
 }
 

@@ -126,6 +126,7 @@ const App = () => {
     changeReadyForTimelineColumnPosts,
   ] = useState(false);
   const [graphOption, changeGraphOption] = useState("overview");
+  const [footerMenuActive, changeFooterMenuActive] = useState(false);
 
   const [currentFilters, changeCurrentFilters] = useState({
     year: [],
@@ -1665,7 +1666,6 @@ const App = () => {
           initialScreenWidth={initialScreenWidth}
           currentScreenWidth={currentScreenWidth}
           loadedYears={loadedYears}
-          pointClicked={tooltipVisible}
           changeLaddaLoading={changeLaddaLoading}
           laddaLoading={laddaLoading}
           handleDownloadYear={handleDownloadYear}
@@ -1679,6 +1679,7 @@ const App = () => {
           filteredArrestCategory={filteredArrestCategory}
           filteredSexUniqueValues={filteredSexUniqueValues}
           filteredRaceUniqueValues={filteredRaceUniqueValues}
+          footerMenuActive={footerMenuActive}
         />
         <DeckGL
           initialViewState={{
@@ -1737,6 +1738,10 @@ const App = () => {
               graphOption={graphOption}
               changeGraphOption={changeGraphOption}
               layersRef={layersRef}
+              initialScreenWidth={initialScreenWidth}
+              currentScreenWidth={currentScreenWidth}
+              footerMenuActive={footerMenuActive}
+              changeFooterMenuActive={changeFooterMenuActive}
             />
           </>
         ) : null}

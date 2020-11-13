@@ -25,9 +25,6 @@ const NavigationBar = (props) => {
     ageGroupData,
     offenseDescriptionUniqueValues,
     setFilters,
-    initialScreenWidth,
-    currentScreenWidth,
-    pointClicked,
     changeLaddaLoading,
     laddaLoading,
     loadedYears,
@@ -41,6 +38,9 @@ const NavigationBar = (props) => {
     filteredArrestCategory,
     filteredSexUniqueValues,
     filteredRaceUniqueValues,
+    initialScreenWidth,
+    currentScreenWidth,
+    footerMenuActive,
   } = props;
 
   const dispatch = useDispatch();
@@ -222,30 +222,40 @@ const NavigationBar = (props) => {
   };
 
   useEffect(() => {
-    const overviewTippy = document.getElementById("tippy-4");
-
     if (!currentScreenWidth) {
       if (initialScreenWidth < 768) {
-        if (overviewTippy) {
-          if (pointClicked) {
-            overviewTippy.style.cssText = "z-index: -1 !important;";
-          } else {
-            overviewTippy.style.cssText = "z-index: 0 !important;";
-          }
+        if (footerMenuActive) {
+          burgerMenu[0].style.opacity = 0.2;
+          burgerMenu[0].style.pointerEvents = "none";
+          burgerMenu[0].style.transition = "opacity 0.5s ease";
+        } else {
+          burgerMenu[0].style.opacity = 1;
+          burgerMenu[0].style.pointerEvents = "all";
+          burgerMenu[0].style.transition = "opacity 0.5s ease";
         }
+      } else {
+        burgerMenu[0].style.opacity = 1;
+        burgerMenu[0].style.pointerEvents = "all";
+        burgerMenu[0].style.transition = "opacity 0.5s ease";
       }
     } else {
       if (currentScreenWidth < 768) {
-        if (overviewTippy) {
-          if (pointClicked) {
-            overviewTippy.style.cssText = "z-index: -1 !important;";
-          } else {
-            overviewTippy.style.cssText = "z-index: 0 !important;";
-          }
+        if (footerMenuActive) {
+          burgerMenu[0].style.opacity = 0.2;
+          burgerMenu[0].style.pointerEvents = "none";
+          burgerMenu[0].style.transition = "opacity 0.5s ease";
+        } else {
+          burgerMenu[0].style.opacity = 1;
+          burgerMenu[0].style.pointerEvents = "all";
+          burgerMenu[0].style.transition = "opacity 0.5s ease";
         }
+      } else {
+        burgerMenu[0].style.opacity = 1;
+        burgerMenu[0].style.pointerEvents = "all";
+        burgerMenu[0].style.transition = "opacity 0.5s ease";
       }
     }
-  }, [pointClicked, currentScreenWidth, initialScreenWidth]);
+  }, [footerMenuActive, burgerMenu, currentScreenWidth, initialScreenWidth]);
 
   return (
     <div className="navigation_bar_container">
@@ -287,17 +297,8 @@ const NavigationBar = (props) => {
           filteredRaceUniqueValues.length > 0
         }
         allowHTML={true}
-        reference={
-          !currentScreenWidth
-            ? initialScreenWidth >= 767
-              ? logoContainerRef.current
-              : mapboxAttribRef[0]
-            : currentScreenWidth >= 767
-            ? logoContainerRef.current
-            : mapboxAttribRef[0]
-        }
+        reference={logoContainerRef.current}
         className="overview_tooltip"
-        placement="bottom-start"
       />
       <Tippy
         content={
@@ -350,7 +351,27 @@ const NavigationBar = (props) => {
         </a>
       </div>
       <Tippy
-        content="Click here to set data filters"
+        content={
+          !currentScreenWidth ? (
+            initialScreenWidth < 768 ? (
+              <p style={{ textAlign: "center" }}>
+                Click here <br />
+                to set <br />
+                data filters
+              </p>
+            ) : (
+              "Click here to set data filters"
+            )
+          ) : currentScreenWidth < 768 ? (
+            <p style={{ textAlign: "center" }}>
+              Click here <br />
+              to set <br />
+              data filters
+            </p>
+          ) : (
+            "Click here to set data filters"
+          )
+        }
         visible={
           tooltipVisible &&
           layersRef.current.length > 0 &&
@@ -365,7 +386,11 @@ const NavigationBar = (props) => {
         placement="bottom-end"
         onClickOutside={() => changeTooltipVisible(false)}
       />
-      <InfoPopUp />
+      <InfoPopUp
+        footerMenuActive={footerMenuActive}
+        currentScreenWidth={currentScreenWidth}
+        initialScreenWidth={initialScreenWidth}
+      />
       <Menu
         right
         className="navbar_nav_menu"
