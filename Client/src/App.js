@@ -56,6 +56,7 @@ import ACTION_NEW_YEAR_FINISHED_LOADING_RESET from "./actions/newYearFinishedLoa
 import ACTION_NEW_YEAR_FINISHED_LOADING from "./actions/newYearFinishedLoading/ACTION_NEW_YEAR_FINISHED_LOADING";
 import ACTION_TRENDS_AVAILABLE from "./actions/trendsAvailable/ACTION_TRENDS_AVAILABLE";
 import ACTION_TRENDS_NOT_AVAILABLE from "./actions/trendsAvailable/ACTION_TRENDS_NOT_AVAILABLE";
+import Div100vh from "react-div-100vh";
 
 dayjs.extend(customParseFormat);
 
@@ -1515,7 +1516,7 @@ const App = () => {
 
             (() => {
               // Creates new websocket instance
-              let ws = new WebSocket("ws://localhost:4000");
+              let ws = new WebSocket("ws://192.168.68.102:4000");
 
               if (process.env.NODE_ENV === "production") {
                 const host = window.location.href.replace(/^http/, "ws");
@@ -1620,8 +1621,14 @@ const App = () => {
     sexTimelineColumns,
   ]);
 
+  const handlePinchZoom = (e) => {
+    if (e.touches.length > 1) {
+      e.preventDefault();
+    }
+  };
+
   return (
-    <>
+    <div onTouchMove={handlePinchZoom}>
       {layersRef.current.length === 0 ||
       filteredAgeGroupData.length === 0 ||
       filteredBoroughUniqueValues.length === 0 ||
@@ -1642,7 +1649,7 @@ const App = () => {
           loadedYears={loadedYears}
         />
       ) : null}
-      <div
+      <Div100vh
         className="nypd_arrest_map_container"
         style={{
           opacity:
@@ -1745,8 +1752,8 @@ const App = () => {
             />
           </>
         ) : null}
-      </div>
-    </>
+      </Div100vh>
+    </div>
   );
 };
 

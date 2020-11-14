@@ -29,6 +29,7 @@
     "react-circular-progressbar": "^2.0.3",
     "react-collapsible": "^2.8.0",
     "react-countup": "^4.3.3",
+    "react-div-100vh": "^0.5.6",
     "react-dom": "^16.13.1",
     "react-google-charts": "^3.0.15",
     "react-icons": "^3.11.0",

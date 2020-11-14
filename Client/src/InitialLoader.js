@@ -9,6 +9,7 @@ import BounceLoader from "react-spinners/BounceLoader";
 import { css } from "@emotion/core";
 import "react-circular-progressbar/dist/styles.css";
 import { useSelector } from "react-redux";
+import Div100vh from "react-div-100vh";
 
 const InitialLoader = (props) => {
   const { countUp, loaderColor, mapError, applyingFiltersProgressRef } = props;
@@ -25,7 +26,7 @@ const InitialLoader = (props) => {
   const totalCount = useSelector((state) => state.totalCountReducer.total);
 
   return (
-    <div className="loading_container">
+    <Div100vh className="loading_container">
       {totalCount === 0 ? (
         <GridLoader
           css={override}
@@ -69,7 +70,7 @@ const InitialLoader = (props) => {
           ? `Launching Map (${applyingFiltersProgressRef.current}% Done)`
           : "Loading Most Recent Arrest Data"}
       </p>
-    </div>
+    </Div100vh>
   );
 };
 

@@ -172,6 +172,18 @@ const BottomInfoPanel = (props) => {
     }
   };
 
+  const handleDismissTooltips = () => {
+    if (arrowTooltipVisible) {
+      changeArrowTooltipVisible(false);
+    } else {
+      if (graphOption === "trends") {
+        if (timelineTooltipVisible) {
+          changeTimelineTooltipVisible(false);
+        }
+      }
+    }
+  };
+
   return (
     <div
       className="bottom_info_panel_container"
@@ -368,10 +380,11 @@ const BottomInfoPanel = (props) => {
           </RadioGroup>
         </div>
       </div>
-      <div className="carousel_container">
+      <div className="carousel_container" onTouchStart={handleDismissTooltips}>
         <Tippy
           content="Click the left and right arrows to view more graphs"
           visible={
+            footerMenuActive &&
             arrowTooltipVisible &&
             layersRef.current.length > 0 &&
             filteredAgeGroupData.length > 0 &&
@@ -473,8 +486,24 @@ const BottomInfoPanel = (props) => {
               : categoryTimelineContainer[0]
           }
           className="burger_tooltip trend_tooltip"
-          placement="right"
-          offset={[0, 50]}
+          placement={
+            !currentScreenWidth
+              ? initialScreenWidth < 768
+                ? "left"
+                : "right"
+              : currentScreenWidth < 768
+              ? "left"
+              : "right"
+          }
+          offset={
+            !currentScreenWidth
+              ? initialScreenWidth < 768
+                ? [-30, -180]
+                : [0, 50]
+              : currentScreenWidth < 768
+              ? [-30, -180]
+              : [0, 50]
+          }
           onClickOutside={() => changeTimelineTooltipVisible(false)}
         />
         <AliceCarousel
