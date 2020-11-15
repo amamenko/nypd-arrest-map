@@ -84,6 +84,58 @@ const BottomInfoPanel = (props) => {
   const categoryTimelineContainer = document.getElementsByClassName(
     "category_timeline_container"
   );
+  const googleTooltipContainer = document.getElementsByClassName(
+    "google-visualization-tooltip"
+  );
+
+  // Hide tooltip when trend dataset is untoggled
+  useEffect(() => {
+    if (graphOption === "trends") {
+      const checkForTooltip = setInterval(() => {
+        const tooltip = googleTooltipContainer[0];
+        const circles = document.getElementsByTagName("circle");
+
+        if (tooltip) {
+          const activePanelContainer = document.getElementsByClassName(
+            "alice-carousel__stage-item __active"
+          );
+          const activePaths = activePanelContainer[1].getElementsByTagName(
+            "path"
+          );
+          const activeText = activePanelContainer[1].getElementsByTagName(
+            "text"
+          );
+
+          const valuesLength = (activePaths.length - 2) / 2;
+
+          for (let i = 0; i < valuesLength; i++) {
+            if (activePaths.item(i).getAttribute("stroke") === "none") {
+              if (
+                activeText.item(i).textContent.slice(0, 4) ===
+                tooltip.lastChild.firstChild.textContent
+                  .split(":")[0]
+                  .slice(0, 4)
+              ) {
+                tooltip.style.display = "none";
+
+                for (let j = 0; j < circles.length; j++) {
+                  circles[j].style.display = "none";
+                }
+              }
+            }
+          }
+        } else {
+          for (let j = 0; j < circles.length; j++) {
+            circles[j].style.display = "block";
+          }
+        }
+      }, 10);
+
+      return () => {
+        clearInterval(checkForTooltip);
+      };
+    }
+  }, [googleTooltipContainer, graphOption]);
 
   useEffect(() => {
     if (graphOption === "overview") {
@@ -514,6 +566,7 @@ const BottomInfoPanel = (props) => {
           mouseTrackingEnabled={false}
           playButtonEnabled={false}
           disableAutoPlayOnAction={false}
+          touchMoveDefaultEvents={false}
           responsive={{
             0: { items: 1 },
             768: { items: 2 },

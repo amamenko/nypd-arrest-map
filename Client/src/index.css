@@ -28,8 +28,3 @@ svg > g > g:last-child {
 rect ~ g {
   pointer-events: auto !important;
 }
-
-/* 
-::-webkit-scrollbar {
-  width: 0px;
-} */

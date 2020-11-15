@@ -71,8 +71,31 @@ const NavigationBar = (props) => {
   const mapboxAttribRef = document.getElementsByClassName(
     "mapboxgl-ctrl-bottom-left"
   );
+  const legendTooltip = document.getElementsByClassName(
+    "overview_tooltip legend_tooltip"
+  );
+  const footerMenuTrigger = document.getElementsByClassName(
+    "footer_menu_trigger"
+  );
 
   const [tooltipVisible, changeTooltipVisible] = useState(true);
+
+  useEffect(() => {
+    if (legendTooltip[0]) {
+      let initialTransformValue = "";
+
+      if (footerMenuActive) {
+        legendTooltip[0].style.opacity = 0;
+
+        initialTransformValue = legendTooltip[0].parentElement.style.getPropertyValue(
+          "transform"
+        );
+      } else {
+        legendTooltip[0].style.opacity = 1;
+        legendTooltip[0].parentElement.style.transform = initialTransformValue;
+      }
+    }
+  }, [footerMenuActive, legendTooltip]);
 
   const filterByCategory = () => {
     return (
@@ -339,7 +362,15 @@ const NavigationBar = (props) => {
           filteredRaceUniqueValues.length > 0
         }
         allowHTML={true}
-        reference={mapboxAttribRef[0]}
+        reference={
+          !currentScreenWidth
+            ? initialScreenWidth < 768
+              ? footerMenuTrigger[0]
+              : mapboxAttribRef[0]
+            : currentScreenWidth < 768
+            ? footerMenuTrigger[0]
+            : mapboxAttribRef[0]
+        }
         className="overview_tooltip legend_tooltip"
         placement="top-start"
       />

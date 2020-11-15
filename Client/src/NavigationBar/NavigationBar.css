@@ -27,7 +27,9 @@ label {
 
 .overview_tooltip.legend_tooltip {
   margin-left: 0.5rem;
-  margin-bottom: 5vh;
+  margin-bottom: 1vh;
+  transition: opacity 0.5s ease;
+  background: rgba(255, 255, 255, 0.9);
 }
 
 .overview_tooltip > .tippy-arrow::before {
