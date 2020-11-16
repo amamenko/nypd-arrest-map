@@ -7,7 +7,7 @@ import "./info_pop_up.css";
 import "reactjs-popup/dist/index.css";
 
 const InfoPopUp = (props) => {
-  const { footerMenuActive, currentScreenWidth, initialScreenWidth } = props;
+  const { footerMenuActive, isMobile } = props;
 
   return (
     <Popup
@@ -15,13 +15,7 @@ const InfoPopUp = (props) => {
         <div
           className="info_circle_container"
           style={{
-            pointerEvents: !currentScreenWidth
-              ? initialScreenWidth < 768
-                ? footerMenuActive
-                  ? "none"
-                  : "all"
-                : "all"
-              : currentScreenWidth < 768
+            pointerEvents: isMobile
               ? footerMenuActive
                 ? "none"
                 : "all"
@@ -31,17 +25,7 @@ const InfoPopUp = (props) => {
           <BsInfoCircle
             color="rgb(255, 255, 255)"
             style={{
-              opacity: !currentScreenWidth
-                ? initialScreenWidth < 768
-                  ? footerMenuActive
-                    ? 0.2
-                    : 1
-                  : 1
-                : currentScreenWidth < 768
-                ? footerMenuActive
-                  ? 0.2
-                  : 1
-                : 1,
+              opacity: isMobile ? (footerMenuActive ? 0.2 : 1) : 1,
               transition: "opacity 1s ease",
             }}
             className="info_button"

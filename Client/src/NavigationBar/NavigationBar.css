@@ -29,7 +29,7 @@ label {
   margin-left: 0.5rem;
   margin-bottom: 1vh;
   transition: opacity 0.5s ease;
-  background: rgba(255, 255, 255, 0.9);
+  background: rgb(255, 255, 255);
 }
 
 .overview_tooltip > .tippy-arrow::before {

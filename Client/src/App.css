@@ -3,10 +3,15 @@
   background: white;
   margin: 10px;
   padding: 10px;
-  z-index: 999999999;
-  transform: translate3d(0px, 0px, 0px);
+  z-index: 999999999 !important;
   font-size: 0.2rem !important;
   color: white !important;
+}
+
+#deckgl-overlay {
+  position: absolute;
+  transform: scale(1) translate3d(0px, 0px, 0px) !important;
+  -webkit-transform: scale(1) translate3d(0px, 0px, 0px) !important;
 }
 
 #deckgl-wrapper {

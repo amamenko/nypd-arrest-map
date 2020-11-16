@@ -1,10 +1,4 @@
-import React, {
-  useCallback,
-  useEffect,
-  useLayoutEffect,
-  useRef,
-  useState,
-} from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import DeckGL from "@deck.gl/react";
 import { StaticMap } from "react-map-gl";
 import { ScatterplotLayer } from "@deck.gl/layers";
@@ -57,6 +51,7 @@ import ACTION_NEW_YEAR_FINISHED_LOADING from "./actions/newYearFinishedLoading/A
 import ACTION_TRENDS_AVAILABLE from "./actions/trendsAvailable/ACTION_TRENDS_AVAILABLE";
 import ACTION_TRENDS_NOT_AVAILABLE from "./actions/trendsAvailable/ACTION_TRENDS_NOT_AVAILABLE";
 import Div100vh from "react-div-100vh";
+import { useMediaQuery } from "react-responsive";
 
 dayjs.extend(customParseFormat);
 
@@ -139,6 +134,9 @@ const App = () => {
     borough: [],
   });
 
+  const isMobile = useMediaQuery({ maxWidth: 767 });
+  const isDesktopLaptopOrTablet = useMediaQuery({ minWidth: 768 });
+
   const [laddaLoading, changeLaddaLoading] = useState(false);
   const [loadingYears, changeLoadingYears] = useState([]);
 
@@ -157,11 +155,6 @@ const App = () => {
   // Side Menu Bar States
   const [menuClicked, changeMenuClicked] = useState(false);
   const [collapseOpen, changeCollapseOpen] = useState("");
-
-  // Browser width on initial opening of app
-  const [initialScreenWidth] = useState(window.innerWidth);
-  // Current browser width if different from initial browser width
-  const [currentScreenWidth, changeCurrentScreenWidth] = useState("");
 
   let layersRef = useRef([]);
   let applyingFiltersProgressRef = useRef(0);
@@ -229,20 +222,6 @@ const App = () => {
     arr1.every((item, i) => {
       return item === arr2[i];
     });
-
-  useLayoutEffect(() => {
-    const updateSize = () => {
-      if (window.innerWidth !== currentScreenWidth) {
-        changeCurrentScreenWidth(window.innerWidth);
-      }
-    };
-
-    window.addEventListener("resize", updateSize);
-
-    return () => {
-      window.removeEventListener("resize", updateSize);
-    };
-  }, [currentScreenWidth]);
 
   const [ageGroup, changeAgeGroup] = useState([]);
   const [raceArr, changeRaceArr] = useState([]);
@@ -821,6 +800,7 @@ const App = () => {
       if (object) {
         if (!tooltipVisible) {
           changeTooltipVisible(true);
+          document.addEventListener("touchstart", () => (el.style.opacity = 0));
         }
 
         const {
@@ -1516,7 +1496,7 @@ const App = () => {
 
             (() => {
               // Creates new websocket instance
-              let ws = new WebSocket("ws://192.168.68.102:4000");
+              let ws = new WebSocket("ws://localhost:4000");
 
               if (process.env.NODE_ENV === "production") {
                 const host = window.location.href.replace(/^http/, "ws");
@@ -1670,8 +1650,6 @@ const App = () => {
           offenseDescriptionUniqueValues={offenseDescriptionUniqueValues}
           ageGroupData={ageGroupData}
           setFilters={setFilters}
-          initialScreenWidth={initialScreenWidth}
-          currentScreenWidth={currentScreenWidth}
           loadedYears={loadedYears}
           changeLaddaLoading={changeLaddaLoading}
           laddaLoading={laddaLoading}
@@ -1687,6 +1665,7 @@ const App = () => {
           filteredSexUniqueValues={filteredSexUniqueValues}
           filteredRaceUniqueValues={filteredRaceUniqueValues}
           footerMenuActive={footerMenuActive}
+          isMobile={isMobile}
         />
         <DeckGL
           initialViewState={{
@@ -1701,7 +1680,7 @@ const App = () => {
           pickingRadius={10}
           controller={true}
           onLoad={() => changeMapLoaded(true)}
-          onError={(e) => changeMapError(true)}
+          onError={() => changeMapError(true)}
           onHover={({ object, x, y }) => showTooltip(object, x, y)}
           onClick={({ object, x, y }) => showTooltip(object, x, y)}
         >
@@ -1745,10 +1724,10 @@ const App = () => {
               graphOption={graphOption}
               changeGraphOption={changeGraphOption}
               layersRef={layersRef}
-              initialScreenWidth={initialScreenWidth}
-              currentScreenWidth={currentScreenWidth}
               footerMenuActive={footerMenuActive}
               changeFooterMenuActive={changeFooterMenuActive}
+              isMobile={isMobile}
+              isDesktopLaptopOrTablet={isDesktopLaptopOrTablet}
             />
           </>
         ) : null}

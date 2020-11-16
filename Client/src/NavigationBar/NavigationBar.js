@@ -38,8 +38,7 @@ const NavigationBar = (props) => {
     filteredArrestCategory,
     filteredSexUniqueValues,
     filteredRaceUniqueValues,
-    initialScreenWidth,
-    currentScreenWidth,
+    isMobile,
     footerMenuActive,
   } = props;
 
@@ -79,7 +78,9 @@ const NavigationBar = (props) => {
   );
 
   const [tooltipVisible, changeTooltipVisible] = useState(true);
+  const [initialTooltipTransform, changeInitialTooltipTransform] = useState("");
 
+  // Keeps legend tooltip in place for mobile
   useEffect(() => {
     if (legendTooltip[0]) {
       let initialTransformValue = "";
@@ -87,15 +88,31 @@ const NavigationBar = (props) => {
       if (footerMenuActive) {
         legendTooltip[0].style.opacity = 0;
 
-        initialTransformValue = legendTooltip[0].parentElement.style.getPropertyValue(
-          "transform"
-        );
+        const searchLegendParent = document.getElementsByClassName(
+          "overview_tooltip legend_tooltip"
+        )[0].parentElement;
+
+        if (!initialTooltipTransform) {
+          const transformInterval = setInterval(() => {
+            if (searchLegendParent.style.transform) {
+              const newStyle = document.createElement("style");
+              newStyle.innerHTML = `
+            #${searchLegendParent.id} {
+              transform: ${searchLegendParent.style.transform} !important
+            }`;
+              document.head.appendChild(newStyle);
+              changeInitialTooltipTransform(searchLegendParent.style.transform);
+
+              clearInterval(transformInterval);
+            }
+          }, 30);
+        }
       } else {
         legendTooltip[0].style.opacity = 1;
         legendTooltip[0].parentElement.style.transform = initialTransformValue;
       }
     }
-  }, [footerMenuActive, legendTooltip]);
+  }, [footerMenuActive, legendTooltip, initialTooltipTransform]);
 
   const filterByCategory = () => {
     return (
@@ -245,40 +262,22 @@ const NavigationBar = (props) => {
   };
 
   useEffect(() => {
-    if (!currentScreenWidth) {
-      if (initialScreenWidth < 768) {
-        if (footerMenuActive) {
-          burgerMenu[0].style.opacity = 0.2;
-          burgerMenu[0].style.pointerEvents = "none";
-          burgerMenu[0].style.transition = "opacity 0.5s ease";
-        } else {
-          burgerMenu[0].style.opacity = 1;
-          burgerMenu[0].style.pointerEvents = "all";
-          burgerMenu[0].style.transition = "opacity 0.5s ease";
-        }
+    if (isMobile) {
+      if (footerMenuActive) {
+        burgerMenu[0].style.opacity = 0.2;
+        burgerMenu[0].style.pointerEvents = "none";
+        burgerMenu[0].style.transition = "opacity 0.5s ease";
       } else {
         burgerMenu[0].style.opacity = 1;
         burgerMenu[0].style.pointerEvents = "all";
         burgerMenu[0].style.transition = "opacity 0.5s ease";
       }
     } else {
-      if (currentScreenWidth < 768) {
-        if (footerMenuActive) {
-          burgerMenu[0].style.opacity = 0.2;
-          burgerMenu[0].style.pointerEvents = "none";
-          burgerMenu[0].style.transition = "opacity 0.5s ease";
-        } else {
-          burgerMenu[0].style.opacity = 1;
-          burgerMenu[0].style.pointerEvents = "all";
-          burgerMenu[0].style.transition = "opacity 0.5s ease";
-        }
-      } else {
-        burgerMenu[0].style.opacity = 1;
-        burgerMenu[0].style.pointerEvents = "all";
-        burgerMenu[0].style.transition = "opacity 0.5s ease";
-      }
+      burgerMenu[0].style.opacity = 1;
+      burgerMenu[0].style.pointerEvents = "all";
+      burgerMenu[0].style.transition = "opacity 0.5s ease";
     }
-  }, [footerMenuActive, burgerMenu, currentScreenWidth, initialScreenWidth]);
+  }, [footerMenuActive, burgerMenu]);
 
   return (
     <div className="navigation_bar_container">
@@ -362,15 +361,7 @@ const NavigationBar = (props) => {
           filteredRaceUniqueValues.length > 0
         }
         allowHTML={true}
-        reference={
-          !currentScreenWidth
-            ? initialScreenWidth < 768
-              ? footerMenuTrigger[0]
-              : mapboxAttribRef[0]
-            : currentScreenWidth < 768
-            ? footerMenuTrigger[0]
-            : mapboxAttribRef[0]
-        }
+        reference={isMobile ? footerMenuTrigger[0] : mapboxAttribRef[0]}
         className="overview_tooltip legend_tooltip"
         placement="top-start"
       />
@@ -383,17 +374,7 @@ const NavigationBar = (props) => {
       </div>
       <Tippy
         content={
-          !currentScreenWidth ? (
-            initialScreenWidth < 768 ? (
-              <p style={{ textAlign: "center" }}>
-                Click here <br />
-                to set <br />
-                data filters
-              </p>
-            ) : (
-              "Click here to set data filters"
-            )
-          ) : currentScreenWidth < 768 ? (
+          isMobile ? (
             <p style={{ textAlign: "center" }}>
               Click here <br />
               to set <br />
@@ -417,11 +398,7 @@ const NavigationBar = (props) => {
         placement="bottom-end"
         onClickOutside={() => changeTooltipVisible(false)}
       />
-      <InfoPopUp
-        footerMenuActive={footerMenuActive}
-        currentScreenWidth={currentScreenWidth}
-        initialScreenWidth={initialScreenWidth}
-      />
+      <InfoPopUp footerMenuActive={footerMenuActive} isMobile={isMobile} />
       <Menu
         right
         className="navbar_nav_menu"

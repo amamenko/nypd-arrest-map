@@ -9,8 +9,7 @@ const TopOffenses = (props) => {
     graphOption,
     isSame,
     usePrevious,
-    initialScreenWidth,
-    currentScreenWidth,
+    isMobile,
   } = props;
 
   const [sortedArr, changeSortedArr] = useState([]);
@@ -103,27 +102,9 @@ const TopOffenses = (props) => {
               options={{
                 backgroundColor: "transparent",
                 legend: { position: "none" },
-                width: !currentScreenWidth
-                  ? initialScreenWidth < 768
-                    ? 300
-                    : 600
-                  : currentScreenWidth < 768
-                  ? 300
-                  : 600,
-                bar: !currentScreenWidth
-                  ? initialScreenWidth < 768
-                    ? null
-                    : { groupWidth: "95%" }
-                  : currentScreenWidth < 768
-                  ? null
-                  : { groupWidth: "95%" },
-                chartArea: !currentScreenWidth
-                  ? initialScreenWidth < 768
-                    ? null
-                    : { width: "50%", height: "50%" }
-                  : currentScreenWidth < 768
-                  ? null
-                  : { width: "50%", height: "50%" },
+                width: isMobile ? 300 : 600,
+                bar: isMobile ? null : { groupWidth: "95%" },
+                chartArea: isMobile ? null : { width: "50%", height: "50%" },
               }}
             />
           </div>

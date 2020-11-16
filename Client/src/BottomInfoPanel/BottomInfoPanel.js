@@ -45,8 +45,8 @@ const BottomInfoPanel = (props) => {
     graphOption,
     changeGraphOption,
     layersRef,
-    initialScreenWidth,
-    currentScreenWidth,
+    isMobile,
+    isDesktopLaptopOrTablet,
     footerMenuActive,
     changeFooterMenuActive,
 
@@ -196,25 +196,12 @@ const BottomInfoPanel = (props) => {
   }, [graphOption, overviewCarouselContainer, trendsCarouselContainer]);
 
   useEffect(() => {
-    if (!currentScreenWidth) {
-      if (initialScreenWidth > 768) {
-        if (!footerMenuActive) {
-          changeFooterMenuActive(true);
-        }
-      }
-    } else {
-      if (currentScreenWidth > 768) {
-        if (!footerMenuActive) {
-          changeFooterMenuActive(true);
-        }
+    if (isDesktopLaptopOrTablet) {
+      if (!footerMenuActive) {
+        changeFooterMenuActive(true);
       }
     }
-  }, [
-    footerMenuActive,
-    initialScreenWidth,
-    currentScreenWidth,
-    changeFooterMenuActive,
-  ]);
+  }, [footerMenuActive, isDesktopLaptopOrTablet, changeFooterMenuActive]);
 
   const handleFooterMenuActive = () => {
     if (footerMenuActive) {
@@ -240,24 +227,8 @@ const BottomInfoPanel = (props) => {
     <div
       className="bottom_info_panel_container"
       style={{
-        zIndex: !currentScreenWidth
-          ? initialScreenWidth < 768
-            ? 10
-            : tooltipVisible
-            ? -1
-            : 0
-          : currentScreenWidth < 768
-          ? 10
-          : tooltipVisible
-          ? -1
-          : 0,
-        transform: !currentScreenWidth
-          ? initialScreenWidth < 768
-            ? footerMenuActive
-              ? "translate3d(0, 0, 0)"
-              : "translate3d(0, 100%, 0)"
-            : "none"
-          : currentScreenWidth < 768
+        zIndex: isMobile ? 10 : tooltipVisible ? -1 : 0,
+        transform: isMobile
           ? footerMenuActive
             ? "translate3d(0, 0, 0)"
             : "translate3d(0, 100%, 0)"
@@ -512,8 +483,7 @@ const BottomInfoPanel = (props) => {
               graphOption={graphOption}
               isSame={isSame}
               usePrevious={usePrevious}
-              initialScreenWidth={initialScreenWidth}
-              currentScreenWidth={currentScreenWidth}
+              isMobile={isMobile}
             />,
           ]}
         />
@@ -538,24 +508,8 @@ const BottomInfoPanel = (props) => {
               : categoryTimelineContainer[0]
           }
           className="burger_tooltip trend_tooltip"
-          placement={
-            !currentScreenWidth
-              ? initialScreenWidth < 768
-                ? "left"
-                : "right"
-              : currentScreenWidth < 768
-              ? "left"
-              : "right"
-          }
-          offset={
-            !currentScreenWidth
-              ? initialScreenWidth < 768
-                ? [-30, -180]
-                : [0, 50]
-              : currentScreenWidth < 768
-              ? [-30, -180]
-              : [0, 50]
-          }
+          placement={isMobile ? "left" : "right"}
+          offset={isMobile ? [-30, -180] : [0, 50]}
           onClickOutside={() => changeTimelineTooltipVisible(false)}
         />
         <AliceCarousel
@@ -579,36 +533,31 @@ const BottomInfoPanel = (props) => {
               filteredTimelineCategoryData={filteredTimelineCategoryData}
               filteredArrestCategory={filteredArrestCategory}
               filteredUniqueCategory={filteredUniqueCategory}
-              initialScreenWidth={initialScreenWidth}
-              currentScreenWidth={currentScreenWidth}
+              isMobile={isMobile}
             />,
             <AgeGroupTimeline
               key="trends"
               filteredAgeGroupData={filteredAgeGroupData}
               filteredTimelineAgeGroupData={filteredTimelineAgeGroupData}
-              initialScreenWidth={initialScreenWidth}
-              currentScreenWidth={currentScreenWidth}
+              isMobile={isMobile}
             />,
             <BoroughTimeline
               key="trends"
               filteredBoroughUniqueValues={filteredBoroughUniqueValues}
               filteredTimelineBoroughData={filteredTimelineBoroughData}
-              initialScreenWidth={initialScreenWidth}
-              currentScreenWidth={currentScreenWidth}
+              isMobile={isMobile}
             />,
             <RaceTimeline
               key="trends"
               filteredRaceUniqueValues={filteredRaceUniqueValues}
               filteredTimelineRaceData={filteredTimelineRaceData}
-              initialScreenWidth={initialScreenWidth}
-              currentScreenWidth={currentScreenWidth}
+              isMobile={isMobile}
             />,
             <GenderTimeline
               key="trends"
               filteredSexUniqueValues={filteredSexUniqueValues}
               filteredTimelineSexData={filteredTimelineSexData}
-              initialScreenWidth={initialScreenWidth}
-              currentScreenWidth={currentScreenWidth}
+              isMobile={isMobile}
             />,
           ]}
         />
