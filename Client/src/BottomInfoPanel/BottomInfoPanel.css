@@ -57,8 +57,7 @@
   align-items: center;
   justify-content: center;
   padding: 0rem;
-  padding-left: 3rem;
-  padding-right: 3rem;
+  padding-right: 1.5rem;
 }
 
 .map_legend_element {
@@ -225,6 +224,11 @@
   justify-content: center;
   color: white;
   font-weight: 600;
+  cursor: pointer;
+}
+
+.footer_menu_trigger:active {
+      background: rgb(0, 89, 109);
 }
 
 .footer_menu_trigger svg {
@@ -335,6 +339,11 @@
     padding-right: 1.5rem;
     border-right: 1px solid black;
   }
+
+  .map_legend_container {
+  padding-left: 3rem;
+  padding-right: 3rem;
+}
 }
 
 @media only screen and (min-width: 1200px) {

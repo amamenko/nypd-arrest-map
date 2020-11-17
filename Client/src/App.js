@@ -52,6 +52,7 @@ import ACTION_TRENDS_AVAILABLE from "./actions/trendsAvailable/ACTION_TRENDS_AVA
 import ACTION_TRENDS_NOT_AVAILABLE from "./actions/trendsAvailable/ACTION_TRENDS_NOT_AVAILABLE";
 import Div100vh from "react-div-100vh";
 import { useMediaQuery } from "react-responsive";
+import polyfillContext from "@luma.gl/webgl2-polyfill";
 
 dayjs.extend(customParseFormat);
 
@@ -158,6 +159,7 @@ const App = () => {
 
   let layersRef = useRef([]);
   let applyingFiltersProgressRef = useRef(0);
+  const deckGLRef = useRef(null);
 
   // Needed for screen-readers
   useEffect(() => {
@@ -531,6 +533,11 @@ const App = () => {
             : [255, 193, 0],
         pickable: true,
         useDevicePixels: false,
+
+        parameters: {
+          depthTest: false,
+          depthRange: [0, 1],
+        },
       });
     });
   }, [filteredDataChunks]);
@@ -1496,7 +1503,7 @@ const App = () => {
 
             (() => {
               // Creates new websocket instance
-              let ws = new WebSocket("ws://localhost:4000");
+              let ws = new WebSocket("ws://192.168.68.102:4000");
 
               if (process.env.NODE_ENV === "production") {
                 const host = window.location.href.replace(/^http/, "ws");
@@ -1601,14 +1608,18 @@ const App = () => {
     sexTimelineColumns,
   ]);
 
-  const handlePinchZoom = (e) => {
-    if (e.touches.length > 1) {
-      e.preventDefault();
-    }
-  };
+  const handleDeckGLClick = useCallback((event) => {
+    const pickInfo = deckGLRef.current.pickObject({
+      x: event.clientX,
+      y: event.clientY,
+      radius: 1,
+    });
+
+    console.log(pickInfo);
+  }, []);
 
   return (
-    <div onTouchMove={handlePinchZoom}>
+    <div>
       {layersRef.current.length === 0 ||
       filteredAgeGroupData.length === 0 ||
       filteredBoroughUniqueValues.length === 0 ||
@@ -1676,16 +1687,23 @@ const App = () => {
             pitch: 0,
             bearing: 0,
           }}
+          ref={deckGLRef}
           layers={layersRef.current}
           pickingRadius={10}
           controller={true}
           onLoad={() => changeMapLoaded(true)}
           onError={() => changeMapError(true)}
-          onHover={({ object, x, y }) => showTooltip(object, x, y)}
-          onClick={({ object, x, y }) => showTooltip(object, x, y)}
+          onHover={({ object, x, y }) => console.log(object, x, y)}
+          useDevicePixels={false}
+          onWebGLInitialized={(gl) => {
+            polyfillContext(gl);
+            // Polyfill for WebGL1 contexts
+            // New methods are now available on the context
+          }}
         >
           <StaticMap
             mapStyle="mapbox://styles/mapbox/dark-v9"
+            preventStyleDiffing={true}
             mapboxApiAccessToken={token}
           />
         </DeckGL>

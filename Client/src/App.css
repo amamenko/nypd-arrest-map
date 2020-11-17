@@ -4,14 +4,16 @@
   margin: 10px;
   padding: 10px;
   z-index: 999999999 !important;
-  font-size: 0.2rem !important;
+  font-size: 1vh !important;
   color: white !important;
 }
 
 #deckgl-overlay {
   position: absolute;
-  transform: scale(1) translate3d(0px, 0px, 0px) !important;
-  -webkit-transform: scale(1) translate3d(0px, 0px, 0px) !important;
+  width: 100% !important;
+  height: 100% !important;
+  left: 0 !important;
+  right: 0 !important;
 }
 
 #deckgl-wrapper {
@@ -86,9 +88,21 @@ div[id*="tippy-9"] {
   z-index: 0 !important;
 }
 
-@media only screen and (max-width: 767px) {
+@media only screen and (max-width: 375px) {
   #deckgl-wrapper {
-    height: 100vh !important;
+    height: 92.5vh !important;
+  }
+}
+
+@media only screen and (min-width: 376px) and (max-width: 420px) {
+  #deckgl-wrapper {
+    height: 79vh !important;
+  }
+}
+
+@media only screen and (min-width: 421px) and (max-width: 767px) {
+  #deckgl-wrapper {
+    height: 92vh !important;
   }
 }
 

@@ -2,6 +2,7 @@
   height: 6vh;
   position: relative;
   z-index: 99999999999;
+  display: none;
 }
 
 label {
@@ -27,9 +28,17 @@ label {
 
 .overview_tooltip.legend_tooltip {
   margin-left: 0.5rem;
-  margin-bottom: 1vh;
   transition: opacity 0.5s ease;
   background: rgb(255, 255, 255);
+}
+
+.map_details_tooltip_container {
+  width: 100vw;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  background: white;
 }
 
 .overview_tooltip > .tippy-arrow::before {
@@ -46,7 +55,6 @@ label {
   padding: 0.5rem;
   padding-right: 2.5rem;
   position: relative;
-  z-index: -1;
 }
 
 .overview_tooltip_content p {

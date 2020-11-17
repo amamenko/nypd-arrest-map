@@ -277,37 +277,66 @@ const NavigationBar = (props) => {
       burgerMenu[0].style.pointerEvents = "all";
       burgerMenu[0].style.transition = "opacity 0.5s ease";
     }
-  }, [footerMenuActive, burgerMenu]);
+  }, [footerMenuActive, burgerMenu, isMobile]);
 
   return (
     <div className="navigation_bar_container">
       <Tippy
         content={
-          <div
-            className="overview_tooltip_content"
-            style={{
-              minWidth:
-                logoContainerRef.current &&
-                logoContainerRef.current.clientWidth,
-              maxWidth:
-                logoContainerRef.current &&
-                logoContainerRef.current.clientWidth,
-            }}
-          >
-            <p style={{ color: "rgb(166, 166, 166)" }}>
-              Data Last Updated: July 22, 2020
-            </p>
-            <p>
-              Showing Arrest Data for{" "}
-              <strong>{loadedYears.sort().join(", ")}</strong>
-            </p>
-            <p>
-              Total Number of Arrests Shown: <br />
-              <strong>
-                {filteredDataChunks.flat().length.toLocaleString()}
-              </strong>{" "}
-              of <strong>{totalCount.toLocaleString()}</strong>
-            </p>
+          <div className="map_details_tooltip_container">
+            <div
+              className="overview_tooltip_content"
+              style={{
+                minWidth:
+                  logoContainerRef.current &&
+                  logoContainerRef.current.clientWidth,
+                maxWidth:
+                  logoContainerRef.current &&
+                  logoContainerRef.current.clientWidth,
+              }}
+            >
+              <p style={{ color: "rgb(166, 166, 166)" }}>
+                Data Last Updated: July 22, 2020
+              </p>
+              <p>
+                Showing Arrest Data for{" "}
+                <strong>{loadedYears.sort().join(", ")}</strong>
+              </p>
+              <p>
+                Total Number of Arrests Shown: <br />
+                <strong>
+                  {filteredDataChunks.flat().length.toLocaleString()}
+                </strong>{" "}
+                of <strong>{totalCount.toLocaleString()}</strong>
+              </p>
+            </div>
+            <div
+              className="map_legend_container"
+              style={{
+                minWidth:
+                  logoContainerRef.current &&
+                  logoContainerRef.current.clientWidth,
+                maxWidth:
+                  logoContainerRef.current &&
+                  logoContainerRef.current.clientWidth,
+              }}
+            >
+              <p>Map Legend</p>
+              <div className="map_legend_items_container">
+                <div className="map_legend_element">
+                  <FaCircle color="rgb(255, 0, 0)" />
+                  <p>Felony</p>
+                </div>
+                <div className="map_legend_element">
+                  <FaCircle color="rgb(255, 116, 0)" />
+                  <p>Misdemeanor</p>
+                </div>
+                <div className="map_legend_element">
+                  <FaCircle color="rgb(255, 193, 0)" />
+                  <p>Violation</p>
+                </div>
+              </div>
+            </div>
           </div>
         }
         visible={
@@ -384,14 +413,21 @@ const NavigationBar = (props) => {
             "Click here to set data filters"
           )
         }
+        arrow={isMobile ? (tooltipVisible ? true : false) : true}
         visible={
-          tooltipVisible &&
-          layersRef.current.length > 0 &&
-          filteredAgeGroupData.length > 0 &&
-          filteredBoroughUniqueValues.length > 0 &&
-          filteredArrestCategory.length > 0 &&
-          filteredSexUniqueValues.length > 0 &&
-          filteredRaceUniqueValues.length > 0
+          isMobile
+            ? layersRef.current.length > 0 &&
+              filteredAgeGroupData.length > 0 &&
+              filteredBoroughUniqueValues.length > 0 &&
+              filteredArrestCategory.length > 0 &&
+              filteredSexUniqueValues.length > 0 &&
+              filteredRaceUniqueValues.length > 0
+            : tooltipVisible &&
+              filteredAgeGroupData.length > 0 &&
+              filteredBoroughUniqueValues.length > 0 &&
+              filteredArrestCategory.length > 0 &&
+              filteredSexUniqueValues.length > 0 &&
+              filteredRaceUniqueValues.length > 0
         }
         reference={burgerMenu[0]}
         className="burger_tooltip"
