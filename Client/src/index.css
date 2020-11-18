@@ -5,11 +5,12 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  -webkit-overflow-scrolling: touch;
 }
 
 html,
 body {
-  height: 100vh;
+  height: 100%;
   overflow: hidden;
   touch-action: none;
 }

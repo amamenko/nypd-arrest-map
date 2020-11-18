@@ -25,6 +25,8 @@ label {
   margin-right: 0.5rem;
   overflow: hidden;
   min-width: 94vw;
+  opacity: 0.3;
+  transition: opacity 0.5s ease;
 }
 
 .overview_tooltip.legend_tooltip {
@@ -40,6 +42,8 @@ label {
   align-items: center;
   justify-content: flex-start;
   background: white;
+  opacity: 0.3;
+  transition: opacity 0.5s ease;
 }
 
 .overview_tooltip > .tippy-arrow::before {
@@ -67,10 +71,12 @@ label {
   background: white;
   color: black;
   font-size: 0.6rem;
+  transition: opacity 0.5s ease;
 }
 
 .tippy-arrow::before {
   color: white !important;
+  transition: opacity 0.5s ease;
 }
 
 .tippy_content {
@@ -115,8 +121,8 @@ label {
   width: 100%;
   height: auto;
   max-height: 50vh;
-  overflow: auto;
-  cursor: pointer;
+  overflow: scroll;
+  -webkit-overflow-scrolling: touch;
 }
 
 input[type="checkbox"] {
@@ -207,6 +213,7 @@ input[type="checkbox"] {
 
   .overview_tooltip {
     min-width: 0;
+    opacity: 1;
   }
 
   .overview_tooltip.legend_tooltip {
@@ -219,6 +226,7 @@ input[type="checkbox"] {
 
   .map_details_tooltip_container {
     min-width: 0;
+    opacity: 1;
   }
 }
 

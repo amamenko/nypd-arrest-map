@@ -20,7 +20,7 @@
 
 .filters_applied {
   height: 33%;
-  overflow: auto;
+  overflow: scroll;
   overflow-x: visible;
   background: rgb(215, 215, 215);
   margin-top: 1.5rem;

@@ -70,49 +70,15 @@ const NavigationBar = (props) => {
   const mapboxAttribRef = document.getElementsByClassName(
     "mapboxgl-ctrl-bottom-left"
   );
-  const legendTooltip = document.getElementsByClassName(
-    "overview_tooltip legend_tooltip"
-  );
   const footerMenuTrigger = document.getElementsByClassName(
     "footer_menu_trigger"
   );
+  const overviewTip = document.getElementsByClassName("overview_tooltip");
+  const mapDetailsTip = document.getElementsByClassName(
+    "map_details_tooltip_container"
+  );
 
   const [tooltipVisible, changeTooltipVisible] = useState(true);
-  const [initialTooltipTransform, changeInitialTooltipTransform] = useState("");
-
-  // Keeps legend tooltip in place for mobile
-  useEffect(() => {
-    if (legendTooltip[0]) {
-      let initialTransformValue = "";
-
-      if (footerMenuActive) {
-        legendTooltip[0].style.opacity = 0;
-
-        const searchLegendParent = document.getElementsByClassName(
-          "overview_tooltip legend_tooltip"
-        )[0].parentElement;
-
-        if (!initialTooltipTransform) {
-          const transformInterval = setInterval(() => {
-            if (searchLegendParent.style.transform) {
-              const newStyle = document.createElement("style");
-              newStyle.innerHTML = `
-            #${searchLegendParent.id} {
-              transform: ${searchLegendParent.style.transform} !important
-            }`;
-              document.head.appendChild(newStyle);
-              changeInitialTooltipTransform(searchLegendParent.style.transform);
-
-              clearInterval(transformInterval);
-            }
-          }, 30);
-        }
-      } else {
-        legendTooltip[0].style.opacity = 1;
-        legendTooltip[0].parentElement.style.transform = initialTransformValue;
-      }
-    }
-  }, [footerMenuActive, legendTooltip, initialTooltipTransform]);
 
   const filterByCategory = () => {
     return (
@@ -173,7 +139,9 @@ const NavigationBar = (props) => {
       changeMenuClicked(false);
     } else {
       changeMenuClicked(true);
-      changeTooltipVisible(false);
+      if (tooltipVisible) {
+        changeTooltipVisible(false);
+      }
     }
   };
 
@@ -278,6 +246,45 @@ const NavigationBar = (props) => {
       burgerMenu[0].style.transition = "opacity 0.5s ease";
     }
   }, [footerMenuActive, burgerMenu, isMobile]);
+
+  useEffect(() => {
+    if (isMobile) {
+      if (
+        filteredAgeGroupData.length > 0 &&
+        filteredBoroughUniqueValues.length > 0 &&
+        filteredArrestCategory.length > 0 &&
+        filteredSexUniqueValues.length > 0 &&
+        filteredRaceUniqueValues.length > 0
+      ) {
+        const tooltipHideDelay = setTimeout(() => {
+          if (tooltipVisible) {
+            changeTooltipVisible(false);
+          }
+        }, 4000);
+
+        return () => {
+          clearTimeout(tooltipHideDelay);
+        };
+      }
+    }
+  }, [
+    isMobile,
+    tooltipVisible,
+    filteredAgeGroupData.length,
+    filteredArrestCategory.length,
+    filteredBoroughUniqueValues.length,
+    filteredRaceUniqueValues.length,
+    filteredSexUniqueValues.length,
+  ]);
+
+  useEffect(() => {
+    if (!tooltipVisible) {
+      if (overviewTip[0] && mapDetailsTip[0]) {
+        overviewTip[0].style.setProperty("opacity", 1, "important");
+        mapDetailsTip[0].style.setProperty("opacity", 1, "important");
+      }
+    }
+  }, [tooltipVisible, overviewTip, mapDetailsTip]);
 
   return (
     <div className="navigation_bar_container">
@@ -417,6 +424,7 @@ const NavigationBar = (props) => {
             "Click here to set data filters"
           )
         }
+        duration={[null, 500]}
         arrow={true}
         visible={
           tooltipVisible &&

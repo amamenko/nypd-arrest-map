@@ -419,7 +419,7 @@ const BottomInfoPanel = (props) => {
           reference={rightArrow[0]}
           className="burger_tooltip"
           placement="left"
-          onClickOutside={() => changeArrowTooltipVisible(false)}
+          //   onClickOutside={() => changeArrowTooltipVisible(false)}
         />
         <FaChevronLeft
           color="rgb(0, 0, 0)"

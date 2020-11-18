@@ -5,7 +5,6 @@ import { ScatterplotLayer } from "@deck.gl/layers";
 import "./App.css";
 import "./mapbox.css";
 import NavigationBar from "./NavigationBar/NavigationBar";
-import iNoBounce from "./inobounce";
 import BottomInfoPanel from "./BottomInfoPanel/BottomInfoPanel";
 import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
@@ -791,11 +790,6 @@ const App = () => {
       changeLoaderColor("rgb(255, 0, 0)");
     }
   }, [totalCount, loaderColor, mapError]);
-
-  // Used to prevent rubber banding effect on mobile phones
-  useEffect(() => {
-    iNoBounce.enable();
-  }, []);
 
   const token = process.env.REACT_APP_MAPBOX_TOKEN;
 
