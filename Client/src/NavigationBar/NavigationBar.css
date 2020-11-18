@@ -2,7 +2,6 @@
   height: 6vh;
   position: relative;
   z-index: 99999999999;
-  display: none;
 }
 
 label {
@@ -22,8 +21,10 @@ label {
   color: black;
   max-height: 10vh;
   position: relative;
-  z-index: -1;
   margin-left: 0.5rem;
+  margin-right: 0.5rem;
+  overflow: hidden;
+  min-width: 94vw;
 }
 
 .overview_tooltip.legend_tooltip {
@@ -33,7 +34,7 @@ label {
 }
 
 .map_details_tooltip_container {
-  width: 100vw;
+  min-width: 100vw;
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -50,10 +51,9 @@ label {
   flex-direction: column;
   justify-content: flex-start;
   align-items: flex-start;
-  height: max-content;
   overflow-y: visible;
   padding: 0.5rem;
-  padding-right: 2.5rem;
+  padding-right: 0rem;
   position: relative;
 }
 
@@ -205,8 +205,20 @@ input[type="checkbox"] {
     font-size: 0.9rem;
   }
 
+  .overview_tooltip {
+    min-width: 0;
+  }
+
   .overview_tooltip.legend_tooltip {
     margin-bottom: 0vh;
+  }
+
+  .overview_tooltip_content {
+    padding-right: 2.5rem;
+  }
+
+  .map_details_tooltip_container {
+    min-width: 0;
   }
 }
 

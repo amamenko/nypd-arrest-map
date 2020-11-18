@@ -310,33 +310,35 @@ const NavigationBar = (props) => {
                 of <strong>{totalCount.toLocaleString()}</strong>
               </p>
             </div>
-            <div
-              className="map_legend_container"
-              style={{
-                minWidth:
-                  logoContainerRef.current &&
-                  logoContainerRef.current.clientWidth,
-                maxWidth:
-                  logoContainerRef.current &&
-                  logoContainerRef.current.clientWidth,
-              }}
-            >
-              <p>Map Legend</p>
-              <div className="map_legend_items_container">
-                <div className="map_legend_element">
-                  <FaCircle color="rgb(255, 0, 0)" />
-                  <p>Felony</p>
-                </div>
-                <div className="map_legend_element">
-                  <FaCircle color="rgb(255, 116, 0)" />
-                  <p>Misdemeanor</p>
-                </div>
-                <div className="map_legend_element">
-                  <FaCircle color="rgb(255, 193, 0)" />
-                  <p>Violation</p>
+            {isMobile ? (
+              <div
+                className="map_legend_container"
+                style={{
+                  minWidth:
+                    logoContainerRef.current &&
+                    logoContainerRef.current.clientWidth,
+                  maxWidth:
+                    logoContainerRef.current &&
+                    logoContainerRef.current.clientWidth,
+                }}
+              >
+                <p>Map Legend</p>
+                <div className="map_legend_items_container">
+                  <div className="map_legend_element">
+                    <FaCircle color="rgb(255, 0, 0)" />
+                    <p>Felony</p>
+                  </div>
+                  <div className="map_legend_element">
+                    <FaCircle color="rgb(255, 116, 0)" />
+                    <p>Misdemeanor</p>
+                  </div>
+                  <div className="map_legend_element">
+                    <FaCircle color="rgb(255, 193, 0)" />
+                    <p>Violation</p>
+                  </div>
                 </div>
               </div>
-            </div>
+            ) : null}
           </div>
         }
         visible={
@@ -382,12 +384,14 @@ const NavigationBar = (props) => {
           </div>
         }
         visible={
-          layersRef.current.length > 0 &&
-          filteredAgeGroupData.length > 0 &&
-          filteredBoroughUniqueValues.length > 0 &&
-          filteredArrestCategory.length > 0 &&
-          filteredSexUniqueValues.length > 0 &&
-          filteredRaceUniqueValues.length > 0
+          isMobile
+            ? false
+            : layersRef.current.length > 0 &&
+              filteredAgeGroupData.length > 0 &&
+              filteredBoroughUniqueValues.length > 0 &&
+              filteredArrestCategory.length > 0 &&
+              filteredSexUniqueValues.length > 0 &&
+              filteredRaceUniqueValues.length > 0
         }
         allowHTML={true}
         reference={isMobile ? footerMenuTrigger[0] : mapboxAttribRef[0]}
@@ -413,21 +417,14 @@ const NavigationBar = (props) => {
             "Click here to set data filters"
           )
         }
-        arrow={isMobile ? (tooltipVisible ? true : false) : true}
+        arrow={true}
         visible={
-          isMobile
-            ? layersRef.current.length > 0 &&
-              filteredAgeGroupData.length > 0 &&
-              filteredBoroughUniqueValues.length > 0 &&
-              filteredArrestCategory.length > 0 &&
-              filteredSexUniqueValues.length > 0 &&
-              filteredRaceUniqueValues.length > 0
-            : tooltipVisible &&
-              filteredAgeGroupData.length > 0 &&
-              filteredBoroughUniqueValues.length > 0 &&
-              filteredArrestCategory.length > 0 &&
-              filteredSexUniqueValues.length > 0 &&
-              filteredRaceUniqueValues.length > 0
+          tooltipVisible &&
+          filteredAgeGroupData.length > 0 &&
+          filteredBoroughUniqueValues.length > 0 &&
+          filteredArrestCategory.length > 0 &&
+          filteredSexUniqueValues.length > 0 &&
+          filteredRaceUniqueValues.length > 0
         }
         reference={burgerMenu[0]}
         className="burger_tooltip"

@@ -49,6 +49,7 @@
   flex-direction: row;
   align-items: center;
   justify-content: center;
+  padding-right: 1rem;
 }
 
 .map_legend_container {
@@ -57,7 +58,6 @@
   align-items: center;
   justify-content: center;
   padding: 0rem;
-  padding-right: 1.5rem;
 }
 
 .map_legend_element {
@@ -66,17 +66,19 @@
   align-items: center;
   justify-content: center;
   text-align: center;
+  font-size: 0.5rem;
 }
 
 .map_legend_container p {
-  font-size: 0.6rem;
-  margin-left: 0.5rem;
-  margin-right: 0.5rem;
+  font-size: 0.5rem;
+  margin-left: 0.25rem;
+  margin-right: 0.25rem;
 }
 
 .map_legend_container p:first-child {
   text-align: center;
   font-weight: 600;
+  padding-right: 1rem;
 }
 
 .bottom_info_list {
@@ -228,7 +230,7 @@
 }
 
 .footer_menu_trigger:active {
-      background: rgb(0, 89, 109);
+  background: rgb(0, 89, 109);
 }
 
 .footer_menu_trigger svg {
@@ -246,6 +248,16 @@
   z-index: 0;
   background: rgb(0, 0, 0, 0.6);
   transition: opacity 1s ease;
+}
+
+@media only screen and (min-width: 405px) {
+  .map_legend_items_container {
+    padding-right: 0rem;
+  }
+
+  .map_legend_container p:first-child {
+    padding-right: 0rem;
+  }
 }
 
 @media only screen and (max-width: 767px) {
@@ -278,6 +290,24 @@
 
   .trends_carousel {
     padding-left: 25%;
+  }
+
+  .map_legend_items_container {
+    padding-right: 0rem;
+  }
+
+  .map_legend_container p {
+    font-size: 0.6rem;
+    margin-left: 0.5rem;
+    margin-right: 0.5rem;
+  }
+
+  .map_legend_container p:first-child {
+    padding-right: 0rem;
+  }
+
+  .map_legend_element {
+    font-size: 0.7rem;
   }
 
   .carousel_left_arrow {
@@ -341,9 +371,9 @@
   }
 
   .map_legend_container {
-  padding-left: 3rem;
-  padding-right: 3rem;
-}
+    padding-left: 3rem;
+    padding-right: 3rem;
+  }
 }
 
 @media only screen and (min-width: 1200px) {
