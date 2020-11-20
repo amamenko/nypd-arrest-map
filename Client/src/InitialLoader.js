@@ -67,7 +67,7 @@ const InitialLoader = (props) => {
           : totalCount === 0
           ? "Initializing NYPD Arrest Map"
           : countUp > 95
-          ? `Launching Map (${applyingFiltersProgressRef.current}% Done)`
+          ? `Analyzing Arrest Data (${applyingFiltersProgressRef.current}% Done)`
           : "Loading Most Recent Arrest Data"}
       </p>
     </Div100vh>

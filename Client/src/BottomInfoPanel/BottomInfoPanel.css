@@ -292,6 +292,10 @@
     padding-left: 25%;
   }
 
+  .filters_applied {
+    overflow: auto;
+  }
+
   .map_legend_items_container {
     padding-right: 0rem;
   }
@@ -379,8 +383,39 @@
 @media only screen and (min-width: 1200px) {
   .map_legend_container p {
     font-size: 0.7rem;
-    margin-left: 0rem;
-    margin-right: 0rem;
+    margin-left: 0.5rem;
+    margin-right: 0.5rem;
+  }
+
+  .map_legend_container {
+    margin-top: -0.25rem;
+  }
+}
+
+@media only screen and (min-width: 1400px) {
+  .bottom_info_main_info_box {
+    width: 25vw !important;
+  }
+
+  .bottom_info_panel_container {
+    height: 28vh;
+  }
+
+  .overview_carousel {
+    padding-left: 42%;
+  }
+
+  .trends_carousel {
+    padding-left: 42%;
+  }
+
+  .carousel_right_arrow,
+  .carousel_left_arrow {
+    height: 90%;
+  }
+
+  .carousel_left_arrow {
+    left: 31vw;
   }
 }
 
@@ -389,14 +424,38 @@
     height: 22vh;
   }
 
+  .bottom_info_panel_info_box {
+    min-width: 15vw;
+  }
+
+  .overview_carousel {
+    padding-left: 25%;
+  }
+
+  .trends_carousel {
+    padding-left: 20%;
+  }
+
   .carousel_right_arrow,
   .carousel_left_arrow {
     height: 70%;
   }
 
+  .carousel_left_arrow {
+    left: 20vw;
+  }
+
+  .map_legend_container {
+    margin-top: 0;
+  }
+
   .map_legend_container p:not(:first-child) {
     padding-left: 1vw;
     padding-right: 1vw;
+  }
+
+  .bottom_info_main_info_box {
+    width: 15vw !important;
   }
 }
 
@@ -405,6 +464,10 @@
   .carousel_left_arrow {
     height: 90%;
     z-index: 999999 !important;
+  }
+
+  .trends_carousel {
+    padding-left: 23%;
   }
 }
 

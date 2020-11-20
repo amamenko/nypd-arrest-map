@@ -132,10 +132,14 @@ onmessage = (e) => {
             ].flat()
           );
         } else if (generalName === "category") {
+          const uniqueFiltered = uniqueValues.filter(
+            (x) => x === "F" || x === "M" || x === "V"
+          );
+
           newArr.push(
             [
               returnedDateString(dateArr),
-              ["F", "M", "V"].map((value) => {
+              uniqueFiltered.map((value) => {
                 const formatName = (x) =>
                   x === "F"
                     ? "Felony"

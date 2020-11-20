@@ -46,7 +46,7 @@
 
 /* General sidebar styles */
 .bm-menu {
-  background: rgb(210, 210, 210);
+  background: rgb(200, 200, 200);
   padding: 2.5em 0 0;
   font-size: 1.15em;
 }
@@ -82,6 +82,16 @@
 
   .bm-menu-wrap {
     width: 30vw !important;
+  }
+
+  .info_circle_container {
+    top: 1.5vh;
+  }
+}
+
+@media only screen and (min-width: 1400px) {
+  .info_circle_container {
+    top: 2.5vh;
   }
 }
 

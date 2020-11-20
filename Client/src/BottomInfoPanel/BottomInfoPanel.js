@@ -45,8 +45,8 @@ const BottomInfoPanel = (props) => {
     graphOption,
     changeGraphOption,
     layersRef,
-    isMobile,
-    isDesktopLaptopOrTablet,
+    isMobileOrTablet,
+    isMediumLaptop,
     footerMenuActive,
     changeFooterMenuActive,
 
@@ -60,12 +60,31 @@ const BottomInfoPanel = (props) => {
   const loadDataChunks = useSelector(
     (state) => state.loadDataChunksReducer.data
   );
-
   const trendsAvailable = useSelector(
     (state) => state.trendsAvailableReducer.available
   );
 
-  const [arrowTooltipVisible, changeArrowTooltipVisible] = useState(true);
+  // Timeline Column Data
+  const ageTimelineColumns = useSelector(
+    (state) => state.ageTimelineColumnsReducer.columns
+  );
+  const boroughTimelineColumns = useSelector(
+    (state) => state.boroughTimelineColumnsReducer.columns
+  );
+  const categoryTimelineColumns = useSelector(
+    (state) => state.categoryTimelineColumnsReducer.columns
+  );
+  const raceTimelineColumns = useSelector(
+    (state) => state.raceTimelineColumnsReducer.columns
+  );
+  const sexTimelineColumns = useSelector(
+    (state) => state.sexTimelineColumnsReducer.columns
+  );
+
+  const [firstTimeFooterActive, changeFirstTimeFooterActive] = useState(false);
+  const [arrowTooltipVisible, changeArrowTooltipVisible] = useState(
+    isMobileOrTablet ? false : true
+  );
   const [timelineTooltipVisible, changeTimelineTooltipVisible] = useState(true);
 
   let CarouselRef = useRef(null);
@@ -195,30 +214,30 @@ const BottomInfoPanel = (props) => {
     }
   }, [graphOption, overviewCarouselContainer, trendsCarouselContainer]);
 
-  useEffect(() => {
-    if (isDesktopLaptopOrTablet) {
-      if (!footerMenuActive) {
-        changeFooterMenuActive(true);
-      }
-    }
-  }, [footerMenuActive, isDesktopLaptopOrTablet, changeFooterMenuActive]);
-
   const handleFooterMenuActive = () => {
     if (footerMenuActive) {
       changeFooterMenuActive(false);
     } else {
       changeFooterMenuActive(true);
+
+      if (!firstTimeFooterActive) {
+        setTimeout(() => {
+          changeArrowTooltipVisible(true);
+        }, 1500);
+
+        changeFirstTimeFooterActive(true);
+      }
     }
   };
 
   const handleDismissTooltips = () => {
-    if (arrowTooltipVisible) {
-      changeArrowTooltipVisible(false);
-    } else {
-      if (graphOption === "trends") {
-        if (timelineTooltipVisible) {
-          changeTimelineTooltipVisible(false);
-        }
+    if (graphOption === "trends") {
+      if (timelineTooltipVisible) {
+        changeTimelineTooltipVisible(false);
+      }
+
+      if (arrowTooltipVisible) {
+        changeArrowTooltipVisible(false);
       }
     }
   };
@@ -227,8 +246,8 @@ const BottomInfoPanel = (props) => {
     <div
       className="bottom_info_panel_container"
       style={{
-        zIndex: isMobile ? 10 : tooltipVisible ? -1 : 0,
-        transform: isMobile
+        zIndex: isMobileOrTablet ? 10 : tooltipVisible ? -1 : 0,
+        transform: isMobileOrTablet
           ? footerMenuActive
             ? "translate3d(0, 0, 0)"
             : "translate3d(0, 100%, 0)"
@@ -407,19 +426,39 @@ const BottomInfoPanel = (props) => {
         <Tippy
           content="Click the left and right arrows to view more graphs"
           visible={
-            footerMenuActive &&
-            arrowTooltipVisible &&
-            layersRef.current.length > 0 &&
-            filteredAgeGroupData.length > 0 &&
-            filteredBoroughUniqueValues.length > 0 &&
-            filteredArrestCategory.length > 0 &&
-            filteredSexUniqueValues.length > 0 &&
-            filteredRaceUniqueValues.length > 0
+            isMobileOrTablet
+              ? footerMenuActive &&
+                arrowTooltipVisible &&
+                layersRef.current.length > 0 &&
+                (ageTimelineColumns ? ageTimelineColumns.length > 0 : false) &&
+                (boroughTimelineColumns
+                  ? boroughTimelineColumns.length > 0
+                  : false) &&
+                (categoryTimelineColumns
+                  ? categoryTimelineColumns.length > 0
+                  : false) &&
+                (raceTimelineColumns
+                  ? raceTimelineColumns.length > 0
+                  : false) &&
+                (sexTimelineColumns ? sexTimelineColumns.length > 0 : false)
+              : arrowTooltipVisible &&
+                layersRef.current.length > 0 &&
+                (ageTimelineColumns ? ageTimelineColumns.length > 0 : false) &&
+                (boroughTimelineColumns
+                  ? boroughTimelineColumns.length > 0
+                  : false) &&
+                (categoryTimelineColumns
+                  ? categoryTimelineColumns.length > 0
+                  : false) &&
+                (raceTimelineColumns
+                  ? raceTimelineColumns.length > 0
+                  : false) &&
+                (sexTimelineColumns ? sexTimelineColumns.length > 0 : false)
           }
           reference={rightArrow[0]}
           className="burger_tooltip"
           placement="left"
-          //   onClickOutside={() => changeArrowTooltipVisible(false)}
+          onClickOutside={() => changeArrowTooltipVisible(false)}
         />
         <FaChevronLeft
           color="rgb(0, 0, 0)"
@@ -427,6 +466,10 @@ const BottomInfoPanel = (props) => {
           onClick={() => {
             CarouselRef.slidePrev();
             CarouselTimelineRef.slidePrev();
+
+            if (arrowTooltipVisible) {
+              changeArrowTooltipVisible(false);
+            }
           }}
         />
         <AliceCarousel
@@ -441,7 +484,7 @@ const BottomInfoPanel = (props) => {
           responsive={{
             0: { items: 1 },
             768: { items: 2 },
-            1200: { items: 3 },
+            1600: { items: 3 },
           }}
           preservePosition={true}
           items={[
@@ -483,12 +526,17 @@ const BottomInfoPanel = (props) => {
               graphOption={graphOption}
               isSame={isSame}
               usePrevious={usePrevious}
-              isMobile={isMobile}
+              isMobileOrTablet={isMobileOrTablet}
+              isMediumLaptop={isMediumLaptop}
             />,
           ]}
         />
         <Tippy
-          content="Scroll to zoom in and out of trend graphs"
+          content={
+            isMobileOrTablet
+              ? "Zoom feature only available on desktop"
+              : "Scroll to zoom in and out of trend graphs"
+          }
           visible={graphOption === "trends" && timelineTooltipVisible}
           reference={
             categoryTimelineContainer.length > 2
@@ -508,8 +556,8 @@ const BottomInfoPanel = (props) => {
               : categoryTimelineContainer[0]
           }
           className="burger_tooltip trend_tooltip"
-          placement={isMobile ? "left" : "right"}
-          offset={isMobile ? [-30, -180] : [0, 50]}
+          placement={isMobileOrTablet ? "left" : "right"}
+          offset={isMobileOrTablet ? [-30, -180] : [0, 50]}
           onClickOutside={() => changeTimelineTooltipVisible(false)}
         />
         <AliceCarousel
@@ -524,7 +572,7 @@ const BottomInfoPanel = (props) => {
           responsive={{
             0: { items: 1 },
             768: { items: 2 },
-            1200: { items: 3 },
+            1600: { items: 3 },
           }}
           preservePosition={true}
           items={[
@@ -533,31 +581,36 @@ const BottomInfoPanel = (props) => {
               filteredTimelineCategoryData={filteredTimelineCategoryData}
               filteredArrestCategory={filteredArrestCategory}
               filteredUniqueCategory={filteredUniqueCategory}
-              isMobile={isMobile}
+              isMobileOrTablet={isMobileOrTablet}
+              isMediumLaptop={isMediumLaptop}
             />,
             <AgeGroupTimeline
               key="trends"
               filteredAgeGroupData={filteredAgeGroupData}
               filteredTimelineAgeGroupData={filteredTimelineAgeGroupData}
-              isMobile={isMobile}
+              isMobileOrTablet={isMobileOrTablet}
+              isMediumLaptop={isMediumLaptop}
             />,
             <BoroughTimeline
               key="trends"
               filteredBoroughUniqueValues={filteredBoroughUniqueValues}
               filteredTimelineBoroughData={filteredTimelineBoroughData}
-              isMobile={isMobile}
+              isMobileOrTablet={isMobileOrTablet}
+              isMediumLaptop={isMediumLaptop}
             />,
             <RaceTimeline
               key="trends"
               filteredRaceUniqueValues={filteredRaceUniqueValues}
               filteredTimelineRaceData={filteredTimelineRaceData}
-              isMobile={isMobile}
+              isMobileOrTablet={isMobileOrTablet}
+              isMediumLaptop={isMediumLaptop}
             />,
             <GenderTimeline
               key="trends"
               filteredSexUniqueValues={filteredSexUniqueValues}
               filteredTimelineSexData={filteredTimelineSexData}
-              isMobile={isMobile}
+              isMobileOrTablet={isMobileOrTablet}
+              isMediumLaptop={isMediumLaptop}
             />,
           ]}
         />
@@ -567,6 +620,10 @@ const BottomInfoPanel = (props) => {
           onClick={() => {
             CarouselRef.slideNext();
             CarouselTimelineRef.slideNext();
+
+            if (arrowTooltipVisible) {
+              changeArrowTooltipVisible(false);
+            }
           }}
         />
       </div>

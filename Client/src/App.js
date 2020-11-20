@@ -51,6 +51,7 @@ import ACTION_TRENDS_AVAILABLE from "./actions/trendsAvailable/ACTION_TRENDS_AVA
 import ACTION_TRENDS_NOT_AVAILABLE from "./actions/trendsAvailable/ACTION_TRENDS_NOT_AVAILABLE";
 import Div100vh from "react-div-100vh";
 import { useMediaQuery } from "react-responsive";
+import { FcRotateToLandscape } from "react-icons/fc";
 
 dayjs.extend(customParseFormat);
 
@@ -133,8 +134,9 @@ const App = () => {
     borough: [],
   });
 
-  const isMobile = useMediaQuery({ maxWidth: 767 });
-  const isDesktopLaptopOrTablet = useMediaQuery({ minWidth: 768 });
+  const isMobileOrTablet = useMediaQuery({ maxWidth: 1224 });
+  const isMediumLaptop = useMediaQuery({ maxWidth: 1440 });
+  const isPortrait = useMediaQuery({ orientation: "portrait" });
 
   const [laddaLoading, changeLaddaLoading] = useState(false);
   const [loadingYears, changeLoadingYears] = useState([]);
@@ -269,6 +271,8 @@ const App = () => {
         setFilterAndTimelineGraphWorkersInstance.onmessage = (receivedData) => {
           console.log("FILTER & TIMELINE WORKER FIRED");
 
+          applyingFiltersProgressRef.current += 25;
+
           const ageGroupTimelineGraphData =
             receivedData.data.ageGroupTimelineGraphData;
           const raceTimelineGraphData = receivedData.data.raceTimelineGraphData;
@@ -290,6 +294,7 @@ const App = () => {
           );
           dispatch(ACTION_TIMELINE_GENDER_GRAPH_DATA(genderTimelineGraphData));
           dispatch(ACTION_TIMELINE_RACE_GRAPH_DATA(raceTimelineGraphData));
+          dispatch(ACTION_APPLYING_FILTERS_RESET());
         };
       }
     },
@@ -325,7 +330,7 @@ const App = () => {
         filterWorkerInstance.onmessage = (receivedData) => {
           console.log("FILTERED WORKER FIRED");
 
-          applyingFiltersProgressRef.current += 34;
+          applyingFiltersProgressRef.current += 25;
 
           const parsedData = JSON.parse(receivedData.data);
 
@@ -353,11 +358,10 @@ const App = () => {
           changeBoroughUniqueValues(boroughUniqueValues);
           changeOffenseDescriptionUniqueValues(offenseDescriptionArr);
           changeReadyForTimelineColumnPosts(true);
-          dispatch(ACTION_APPLYING_FILTERS_RESET());
         };
       }
     },
-    [filterWorkerInstance, dispatch]
+    [filterWorkerInstance]
   );
 
   const postToMapFilterWorker = useCallback(
@@ -374,7 +378,7 @@ const App = () => {
         mapFilterWorkerInstance.onmessage = (receivedData) => {
           console.log("MAP WORKER FIRED");
 
-          applyingFiltersProgressRef.current += 33;
+          applyingFiltersProgressRef.current += 25;
 
           const parsedData = JSON.parse(receivedData.data);
 
@@ -429,7 +433,7 @@ const App = () => {
         timelineWorkerInstance.onmessage = (receivedData) => {
           console.log("TIMELINE WORKER FIRED");
 
-          applyingFiltersProgressRef.current += 33;
+          applyingFiltersProgressRef.current += 25;
 
           const parsedData = JSON.parse(receivedData.data);
 
@@ -1548,8 +1552,15 @@ const App = () => {
     if (workerInstance) {
       if (!loadedYears.includes(2020)) {
         if (loadingYears.length === 0) {
-          changeLoadingYears([2020]);
-          dataFetch(2020, filteredDataChunks.length);
+          if (isMobileOrTablet) {
+            if (isPortrait) {
+              changeLoadingYears([2020]);
+              dataFetch(2020, filteredDataChunks.length);
+            }
+          } else {
+            changeLoadingYears([2020]);
+            dataFetch(2020, filteredDataChunks.length);
+          }
         }
       } else {
         if (loadingYears.length > 0 && !loadDataChunks[0][loadingYears[0]]) {
@@ -1565,6 +1576,8 @@ const App = () => {
     loadingYears,
     loadDataChunks,
     filteredDataChunks.length,
+    isPortrait,
+    isMobileOrTablet,
   ]);
 
   useEffect(() => {
@@ -1603,12 +1616,24 @@ const App = () => {
 
   return (
     <div>
+      <div
+        className="mobile_landscape_block"
+        style={{
+          display: isMobileOrTablet ? (isPortrait ? "none" : "flex") : "none",
+        }}
+      >
+        <FcRotateToLandscape />
+        <p>
+          NYPD Arrest Map is available only for desktop mode or mobile portrait
+          mode.
+        </p>
+      </div>
       {layersRef.current.length === 0 ||
-      filteredAgeGroupData.length === 0 ||
-      filteredBoroughUniqueValues.length === 0 ||
-      filteredArrestCategory.length === 0 ||
-      filteredSexUniqueValues.length === 0 ||
-      filteredRaceUniqueValues.length === 0 ? (
+      (ageTimelineColumns ? ageTimelineColumns.length === 0 : true) ||
+      (boroughTimelineColumns ? boroughTimelineColumns.length === 0 : true) ||
+      (categoryTimelineColumns ? categoryTimelineColumns.length === 0 : true) ||
+      (raceTimelineColumns ? raceTimelineColumns.length === 0 : true) ||
+      (sexTimelineColumns ? sexTimelineColumns.length === 0 : true) ? (
         <InitialLoader
           countUp={countUp}
           loaderColor={loaderColor}
@@ -1628,11 +1653,15 @@ const App = () => {
         style={{
           opacity:
             layersRef.current.length === 0 ||
-            filteredAgeGroupData.length === 0 ||
-            filteredBoroughUniqueValues.length === 0 ||
-            filteredArrestCategory.length === 0 ||
-            filteredSexUniqueValues.length === 0 ||
-            filteredRaceUniqueValues.length === 0
+            (ageTimelineColumns ? ageTimelineColumns.length === 0 : true) ||
+            (boroughTimelineColumns
+              ? boroughTimelineColumns.length === 0
+              : true) ||
+            (categoryTimelineColumns
+              ? categoryTimelineColumns.length === 0
+              : true) ||
+            (raceTimelineColumns ? raceTimelineColumns.length === 0 : true) ||
+            (sexTimelineColumns ? sexTimelineColumns.length === 0 : true)
               ? 0
               : 1,
         }}
@@ -1653,13 +1682,8 @@ const App = () => {
           collapseOpen={collapseOpen}
           changeCollapseOpen={changeCollapseOpen}
           layersRef={layersRef}
-          filteredAgeGroupData={filteredAgeGroupData}
-          filteredBoroughUniqueValues={filteredBoroughUniqueValues}
-          filteredArrestCategory={filteredArrestCategory}
-          filteredSexUniqueValues={filteredSexUniqueValues}
-          filteredRaceUniqueValues={filteredRaceUniqueValues}
           footerMenuActive={footerMenuActive}
-          isMobile={isMobile}
+          isMobileOrTablet={isMobileOrTablet}
         />
         <DeckGL
           initialViewState={{
@@ -1722,8 +1746,8 @@ const App = () => {
               layersRef={layersRef}
               footerMenuActive={footerMenuActive}
               changeFooterMenuActive={changeFooterMenuActive}
-              isMobile={isMobile}
-              isDesktopLaptopOrTablet={isDesktopLaptopOrTablet}
+              isMobileOrTablet={isMobileOrTablet}
+              isMediumLaptop={isMediumLaptop}
             />
           </>
         ) : null}

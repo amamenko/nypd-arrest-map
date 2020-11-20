@@ -33,12 +33,7 @@ const NavigationBar = (props) => {
     collapseOpen,
     changeCollapseOpen,
     layersRef,
-    filteredAgeGroupData,
-    filteredBoroughUniqueValues,
-    filteredArrestCategory,
-    filteredSexUniqueValues,
-    filteredRaceUniqueValues,
-    isMobile,
+    isMobileOrTablet,
     footerMenuActive,
   } = props;
 
@@ -63,6 +58,23 @@ const NavigationBar = (props) => {
     (state) => state.offenseFilterReducer.offense
   );
   const raceFilter = useSelector((state) => state.raceFilterReducer.race);
+
+  // Timeline Column Data
+  const ageTimelineColumns = useSelector(
+    (state) => state.ageTimelineColumnsReducer.columns
+  );
+  const boroughTimelineColumns = useSelector(
+    (state) => state.boroughTimelineColumnsReducer.columns
+  );
+  const categoryTimelineColumns = useSelector(
+    (state) => state.categoryTimelineColumnsReducer.columns
+  );
+  const raceTimelineColumns = useSelector(
+    (state) => state.raceTimelineColumnsReducer.columns
+  );
+  const sexTimelineColumns = useSelector(
+    (state) => state.sexTimelineColumnsReducer.columns
+  );
 
   const logoContainerRef = useRef(null);
 
@@ -230,31 +242,69 @@ const NavigationBar = (props) => {
   };
 
   useEffect(() => {
-    if (isMobile) {
+    if (isMobileOrTablet) {
       if (footerMenuActive) {
         burgerMenu[0].style.opacity = 0.2;
         burgerMenu[0].style.pointerEvents = "none";
         burgerMenu[0].style.transition = "opacity 0.5s ease";
+
+        if (overviewTip[0] && mapDetailsTip[0]) {
+          overviewTip[0].style.setProperty("opacity", 0.4, "important");
+          overviewTip[0].style.setProperty("pointerEvents", "none");
+          overviewTip[0].style.setProperty("transition", "opacity 0.5s ease");
+
+          mapDetailsTip[0].style.setProperty("opacity", 0.4, "important");
+          mapDetailsTip[0].style.setProperty("pointerEvents", "none");
+          mapDetailsTip[0].style.setProperty("transition", "opacity 0.5s ease");
+        }
       } else {
         burgerMenu[0].style.opacity = 1;
         burgerMenu[0].style.pointerEvents = "all";
         burgerMenu[0].style.transition = "opacity 0.5s ease";
+
+        if (overviewTip[0] && mapDetailsTip[0]) {
+          overviewTip[0].style.setProperty("opacity", 1, "important");
+          overviewTip[0].style.setProperty("pointerEvents", "all");
+          overviewTip[0].style.setProperty("transition", "opacity 0.5s ease");
+
+          mapDetailsTip[0].style.setProperty("opacity", 1, "important");
+          mapDetailsTip[0].style.setProperty("pointerEvents", "all");
+          mapDetailsTip[0].style.setProperty("transition", "opacity 0.5s ease");
+        }
       }
     } else {
       burgerMenu[0].style.opacity = 1;
       burgerMenu[0].style.pointerEvents = "all";
       burgerMenu[0].style.transition = "opacity 0.5s ease";
+
+      if (overviewTip[0] && mapDetailsTip[0]) {
+        overviewTip[0].style.setProperty("opacity", 1, "important");
+        overviewTip[0].style.setProperty("pointerEvents", "all");
+        overviewTip[0].style.setProperty("transition", "opacity 0.5s ease");
+
+        mapDetailsTip[0].style.setProperty("opacity", 1, "important");
+        mapDetailsTip[0].style.setProperty("pointerEvents", "all");
+        mapDetailsTip[0].style.setProperty("transition", "opacity 0.5s ease");
+      }
     }
-  }, [footerMenuActive, burgerMenu, isMobile]);
+  }, [
+    footerMenuActive,
+    burgerMenu,
+    isMobileOrTablet,
+    mapDetailsTip,
+    overviewTip,
+  ]);
 
   useEffect(() => {
-    if (isMobile) {
+    if (isMobileOrTablet) {
       if (
-        filteredAgeGroupData.length > 0 &&
-        filteredBoroughUniqueValues.length > 0 &&
-        filteredArrestCategory.length > 0 &&
-        filteredSexUniqueValues.length > 0 &&
-        filteredRaceUniqueValues.length > 0
+        (ageTimelineColumns ? ageTimelineColumns.length > 0 : false) &&
+        (boroughTimelineColumns ? boroughTimelineColumns.length > 0 : false) &&
+        (categoryTimelineColumns
+          ? categoryTimelineColumns.length > 0
+          : false) &&
+        (raceTimelineColumns ? raceTimelineColumns.length > 0 : false) &&
+        (sexTimelineColumns ? sexTimelineColumns.length > 0 : false)
       ) {
         const tooltipHideDelay = setTimeout(() => {
           if (tooltipVisible) {
@@ -268,13 +318,13 @@ const NavigationBar = (props) => {
       }
     }
   }, [
-    isMobile,
+    isMobileOrTablet,
     tooltipVisible,
-    filteredAgeGroupData.length,
-    filteredArrestCategory.length,
-    filteredBoroughUniqueValues.length,
-    filteredRaceUniqueValues.length,
-    filteredSexUniqueValues.length,
+    ageTimelineColumns,
+    boroughTimelineColumns,
+    categoryTimelineColumns,
+    raceTimelineColumns,
+    sexTimelineColumns,
   ]);
 
   useEffect(() => {
@@ -317,7 +367,7 @@ const NavigationBar = (props) => {
                 of <strong>{totalCount.toLocaleString()}</strong>
               </p>
             </div>
-            {isMobile ? (
+            {isMobileOrTablet ? (
               <div
                 className="map_legend_container"
                 style={{
@@ -350,11 +400,15 @@ const NavigationBar = (props) => {
         }
         visible={
           layersRef.current.length > 0 &&
-          filteredAgeGroupData.length > 0 &&
-          filteredBoroughUniqueValues.length > 0 &&
-          filteredArrestCategory.length > 0 &&
-          filteredSexUniqueValues.length > 0 &&
-          filteredRaceUniqueValues.length > 0
+          (ageTimelineColumns ? ageTimelineColumns.length > 0 : false) &&
+          (boroughTimelineColumns
+            ? boroughTimelineColumns.length > 0
+            : false) &&
+          (categoryTimelineColumns
+            ? categoryTimelineColumns.length > 0
+            : false) &&
+          (raceTimelineColumns ? raceTimelineColumns.length > 0 : false) &&
+          (sexTimelineColumns ? sexTimelineColumns.length > 0 : false)
         }
         allowHTML={true}
         reference={logoContainerRef.current}
@@ -391,17 +445,21 @@ const NavigationBar = (props) => {
           </div>
         }
         visible={
-          isMobile
+          isMobileOrTablet
             ? false
             : layersRef.current.length > 0 &&
-              filteredAgeGroupData.length > 0 &&
-              filteredBoroughUniqueValues.length > 0 &&
-              filteredArrestCategory.length > 0 &&
-              filteredSexUniqueValues.length > 0 &&
-              filteredRaceUniqueValues.length > 0
+              (ageTimelineColumns ? ageTimelineColumns.length > 0 : false) &&
+              (boroughTimelineColumns
+                ? boroughTimelineColumns.length > 0
+                : false) &&
+              (categoryTimelineColumns
+                ? categoryTimelineColumns.length > 0
+                : false) &&
+              (raceTimelineColumns ? raceTimelineColumns.length > 0 : false) &&
+              (sexTimelineColumns ? sexTimelineColumns.length > 0 : false)
         }
         allowHTML={true}
-        reference={isMobile ? footerMenuTrigger[0] : mapboxAttribRef[0]}
+        reference={isMobileOrTablet ? footerMenuTrigger[0] : mapboxAttribRef[0]}
         className="overview_tooltip legend_tooltip"
         placement="top-start"
       />
@@ -414,7 +472,7 @@ const NavigationBar = (props) => {
       </div>
       <Tippy
         content={
-          isMobile ? (
+          isMobileOrTablet ? (
             <p style={{ textAlign: "center" }}>
               Click here <br />
               to set <br />
@@ -428,18 +486,25 @@ const NavigationBar = (props) => {
         arrow={true}
         visible={
           tooltipVisible &&
-          filteredAgeGroupData.length > 0 &&
-          filteredBoroughUniqueValues.length > 0 &&
-          filteredArrestCategory.length > 0 &&
-          filteredSexUniqueValues.length > 0 &&
-          filteredRaceUniqueValues.length > 0
+          (ageTimelineColumns ? ageTimelineColumns.length > 0 : false) &&
+          (boroughTimelineColumns
+            ? boroughTimelineColumns.length > 0
+            : false) &&
+          (categoryTimelineColumns
+            ? categoryTimelineColumns.length > 0
+            : false) &&
+          (raceTimelineColumns ? raceTimelineColumns.length > 0 : false) &&
+          (sexTimelineColumns ? sexTimelineColumns.length > 0 : false)
         }
         reference={burgerMenu[0]}
         className="burger_tooltip"
         placement="bottom-end"
         onClickOutside={() => changeTooltipVisible(false)}
       />
-      <InfoPopUp footerMenuActive={footerMenuActive} isMobile={isMobile} />
+      <InfoPopUp
+        footerMenuActive={footerMenuActive}
+        isMobileOrTablet={isMobileOrTablet}
+      />
       <Menu
         right
         className="navbar_nav_menu"
