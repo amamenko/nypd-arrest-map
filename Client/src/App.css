@@ -2,6 +2,12 @@
   --bottom-height: 8vh;
 }
 
+@media only screen and (min-width: 1244px) {
+  :root {
+    --bottom-height: 30vh;
+  }
+}
+
 @media only screen and (min-width: 1400px) {
   :root {
     --bottom-height: 28vh;

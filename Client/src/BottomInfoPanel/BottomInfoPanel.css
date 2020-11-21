@@ -381,6 +381,14 @@
 }
 
 @media only screen and (min-width: 1200px) {
+  .bottom_info_panel_container {
+    height: 30vh;
+  }
+
+  .bottom_info_main_info_box {
+    width: 25vw !important;
+  }
+
   .map_legend_container p {
     font-size: 0.7rem;
     margin-left: 0.5rem;
@@ -389,16 +397,6 @@
 
   .map_legend_container {
     margin-top: -0.25rem;
-  }
-}
-
-@media only screen and (min-width: 1400px) {
-  .bottom_info_main_info_box {
-    width: 25vw !important;
-  }
-
-  .bottom_info_panel_container {
-    height: 28vh;
   }
 
   .overview_carousel {
@@ -416,6 +414,12 @@
 
   .carousel_left_arrow {
     left: 31vw;
+  }
+}
+
+@media only screen and (min-width: 1400px) {
+  .bottom_info_panel_container {
+    height: 28vh;
   }
 }
 

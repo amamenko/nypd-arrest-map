@@ -246,7 +246,13 @@ const BottomInfoPanel = (props) => {
     <div
       className="bottom_info_panel_container"
       style={{
-        zIndex: isMobileOrTablet ? 10 : tooltipVisible ? -1 : 0,
+        zIndex: isMobileOrTablet
+          ? tooltipVisible
+            ? -1
+            : 10
+          : tooltipVisible
+          ? -1
+          : 0,
         transform: isMobileOrTablet
           ? footerMenuActive
             ? "translate3d(0, 0, 0)"

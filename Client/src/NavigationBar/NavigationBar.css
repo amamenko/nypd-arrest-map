@@ -65,6 +65,7 @@ label {
   padding: 0;
   margin: 0;
   font-size: 0.6rem;
+  white-space: nowrap;
 }
 
 .burger_tooltip {
@@ -233,6 +234,37 @@ input[type="checkbox"] {
 @media only screen and (min-width: 1200px) {
   .overview_tooltip_content p {
     font-size: 0.7rem;
+  }
+
+  .nypd_arrest_map_logo_container {
+    top: 1.5rem;
+  }
+
+  .overview_tooltip {
+    min-width: 0;
+    min-height: 100%;
+    opacity: 1;
+  }
+
+  .overview_tooltip_content {
+    padding-right: 2.5rem;
+  }
+
+  .map_details_tooltip_container {
+    min-width: 0;
+    min-height: 100%;
+    opacity: 1;
+  }
+
+  .overview_tooltip {
+    max-height: 13vh;
+  }
+}
+
+@media only screen and (min-width: 1400px) {
+  .overview_tooltip {
+    min-width: 0;
+    opacity: 1;
   }
 }
 
