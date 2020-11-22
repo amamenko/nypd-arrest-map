@@ -4,6 +4,12 @@
 
 @media only screen and (min-width: 1244px) {
   :root {
+    --bottom-height: 15vh;
+  }
+}
+
+@media only screen and (min-width: 1350px) {
+  :root {
     --bottom-height: 30vh;
   }
 }
@@ -137,7 +143,7 @@ div[id*="tippy-9"] {
   }
 }
 
-@media only screen and (min-width: 768px) {
+@media only screen and (min-width: 1224px) {
   .deck-tooltip {
     font-size: 0.8rem !important;
   }

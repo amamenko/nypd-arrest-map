@@ -172,6 +172,11 @@ input[type="checkbox"] {
   outline: none;
 }
 
+.is-closed:hover,
+.is-open:hover {
+  background: rgb(245, 245, 245);
+}
+
 .is-closed:active,
 .is-open:active {
   background: rgb(225, 225, 225);

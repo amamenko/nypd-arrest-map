@@ -74,7 +74,7 @@
   background: rgba(0, 0, 0, 0.3);
 }
 
-@media only screen and (min-width: 1200px) {
+@media only screen and (min-width: 1224px) {
   /* Position and sizing of burger button */
   .bm-burger-button {
     top: 1rem;
@@ -86,16 +86,6 @@
 
   .info_circle_container {
     top: 1.5vh;
-  }
-}
-
-@media only screen and (min-width: 1224px) {
-  .bm-burger-button {
-    top: 3vh;
-  }
-
-  .info_circle_container {
-    top: 3.5vh;
   }
 }
 
