@@ -18,8 +18,15 @@ app.use(compression());
 
 const cors = require("cors");
 
-app.use(cors());
+const corsOptions = {
+  origin:
+    process.env.NODE_ENV === "production"
+      ? "https://nypd-arrest-map.herokuapp.com"
+      : "http://localhost:3000",
+  optionsSuccessStatus: 200,
+};
 
+app.use(cors(corsOptions));
 const port = process.env.PORT || 4000;
 
 if (process.env.NODE_ENV === "production") {
