@@ -1,3 +1,4 @@
+import sslRedirect from "heroku-ssl-redirect";
 const express = require("express");
 const app = express();
 const WebSocket = require("ws").Server;
@@ -9,7 +10,6 @@ const yearlyTotals = require("./YearlyTotalsNode");
 const { StringDecoder } = require("string_decoder");
 const decoder = new StringDecoder("utf8");
 const path = require("path");
-const sslRedirect = require("heroku-ssl-redirect");
 
 require("dotenv").config();
 
