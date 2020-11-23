@@ -123,7 +123,7 @@ label {
   width: 100%;
   height: auto;
   max-height: 50vh;
-  overflow: hidden;
+  overflow: auto;
 }
 
 input[type="checkbox"] {

@@ -1,0 +1,29 @@
+{
+  "files": {
+    "main.css": "/static/css/main.d4c5d397.chunk.css",
+    "main.js": "/static/js/main.21843c01.chunk.js",
+    "main.js.map": "/static/js/main.21843c01.chunk.js.map",
+    "runtime-main.js": "/static/js/runtime-main.da87d9a3.js",
+    "runtime-main.js.map": "/static/js/runtime-main.da87d9a3.js.map",
+    "static/css/2.8172dbfc.chunk.css": "/static/css/2.8172dbfc.chunk.css",
+    "static/js/2.5f7c2c31.chunk.js": "/static/js/2.5f7c2c31.chunk.js",
+    "static/js/2.5f7c2c31.chunk.js.map": "/static/js/2.5f7c2c31.chunk.js.map",
+    "index.html": "/index.html",
+    "precache-manifest.d228341550fdfa0c0f784685092004a2.js": "/precache-manifest.d228341550fdfa0c0f784685092004a2.js",
+    "service-worker.js": "/service-worker.js",
+    "static/css/2.8172dbfc.chunk.css.map": "/static/css/2.8172dbfc.chunk.css.map",
+    "static/css/main.d4c5d397.chunk.css.map": "/static/css/main.d4c5d397.chunk.css.map",
+    "static/js/2.5f7c2c31.chunk.js.LICENSE.txt": "/static/js/2.5f7c2c31.chunk.js.LICENSE.txt",
+    "static/js/setFilterAndTimelineGraphWorkers.7f591846.worker.js": "/static/js/setFilterAndTimelineGraphWorkers.7f591846.worker.js",
+    "static/js/setFilterAndTimelineGraphWorkers.7f591846.worker.js.map": "/static/js/setFilterAndTimelineGraphWorkers.7f591846.worker.js.map",
+    "static/js/store.worker.134e029a.worker.js": "/static/js/store.worker.134e029a.worker.js",
+    "static/js/store.worker.134e029a.worker.js.map": "/static/js/store.worker.134e029a.worker.js.map"
+  },
+  "entrypoints": [
+    "static/js/runtime-main.da87d9a3.js",
+    "static/css/2.8172dbfc.chunk.css",
+    "static/js/2.5f7c2c31.chunk.js",
+    "static/css/main.d4c5d397.chunk.css",
+    "static/js/main.21843c01.chunk.js"
+  ]
+}
