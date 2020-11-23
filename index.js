@@ -29,9 +29,6 @@ const port = process.env.PORT || 4000;
 if (process.env.NODE_ENV === "production") {
   app.use(express.static("Client/build"));
 
-  // enable ssl redirect
-  app.use(sslRedirect());
-
   app.get("*", (req, res) => {
     res.redirect("https://" + req.headers.host + req.url);
     res.sendFile(path.resolve(__dirname, "./Client", "build", "index.html"));
