@@ -1475,7 +1475,7 @@ const App = () => {
               let ws = "";
 
               if (process.env.NODE_ENV === "production") {
-                const host = "wss://nypd-arrest-map.herokuapp.com:4000";
+                const host = "wss://nypd-arrest-map.herokuapp.com";
 
                 ws = new WebSocket(host);
               } else {
