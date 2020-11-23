@@ -277,30 +277,148 @@
 }
 
 @media only screen and (min-width: 768px) {
-  .trends_carousel {
-    padding-left: 25%;
+  .footer_menu_trigger {
+    height: 8vh;
+    top: -8vh;
   }
 
   .filters_applied {
     overflow: auto;
   }
 
-  .map_legend_items_container {
-    padding-right: 0rem;
+  .bottom_info_panel_container {
+    height: 45vh;
   }
 
-  .map_legend_container p {
-    font-size: 0.6rem;
-    margin-left: 0.5rem;
-    margin-right: 0.5rem;
+  .overview_carousel {
+    padding-left: 19%;
+  }
+
+  .trends_carousel {
+    padding-left: 19%;
+  }
+
+  .bottom_info_pie_container {
+    width: 100%;
+  }
+
+  .bottom_info_panel_info_box:first-child {
+    padding-right: 50%;
+  }
+}
+
+@media only screen and (min-width: 1000px) {
+  .footer_menu_trigger {
+    height: 7vh;
+    top: -7vh;
+  }
+
+  .bottom_info_panel_container {
+    height: 40vh;
+  }
+
+  .filters_applied {
+    height: 7vh;
+  }
+
+  .alice-carousel {
+    top: 55%;
+  }
+}
+
+@media only screen and (min-width: 1224px) {
+  .footer_menu_trigger {
+    display: none;
+  }
+
+  .filters_applied {
+    margin-left: 0rem;
+    margin-right: 0rem;
+    height: 33%;
+  }
+
+  .graph_options_container {
+    margin-left: 0rem;
+    margin-right: 0rem;
+  }
+
+  .shadow_overlay {
+    display: none;
+  }
+
+  .trend_tooltip {
+    z-index: 1 !important;
+  }
+
+  .bottom_info_pie_container {
+    width: 85%;
+  }
+
+  .bottom_info_panel_info_box:first-child {
+    padding-right: 100%;
+  }
+
+  .bottom_info_panel_container {
+    height: 15vh;
+    overflow: hidden;
+    max-width: none;
+    width: 100vw;
+  }
+
+  .bottom_info_main_info_box {
+    width: 25vw !important;
+    position: absolute;
+    left: 0;
+    right: auto;
+    height: 100%;
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+    border-right: 1px solid black;
+  }
+
+  .map_legend_items_container {
+    padding-right: 0rem;
   }
 
   .map_legend_container p:first-child {
     padding-right: 0rem;
   }
 
+  .map_legend_container p {
+    font-size: 0.7rem;
+    margin-left: 0.5rem;
+    margin-right: 0.5rem;
+  }
+
+  .map_legend_container {
+    margin-top: -0.25rem;
+    padding-left: 3rem;
+    padding-right: 3rem;
+  }
+
   .map_legend_element {
     font-size: 0.7rem;
+  }
+
+  .alice-carousel {
+    top: 0;
+    right: auto;
+    left: auto;
+    margin: auto;
+  }
+
+  .carousel_container {
+    width: 100%;
+    height: 100%;
+    position: relative;
+  }
+
+  .overview_carousel {
+    padding-left: 42%;
+  }
+
+  .trends_carousel {
+    padding-left: 40%;
   }
 
   .carousel_left_arrow {
@@ -317,92 +435,6 @@
     cursor: pointer;
     top: auto;
     font-size: 1rem;
-  }
-
-  .bottom_info_panel_info_box:first-child {
-    padding-right: 100%;
-  }
-
-  .alice-carousel {
-    top: 0;
-    right: auto;
-    left: auto;
-    margin: auto;
-  }
-
-  .bottom_info_panel_container {
-    overflow: hidden;
-    max-width: none;
-    width: 100vw;
-  }
-
-  .carousel_container {
-    width: 100%;
-    height: 100%;
-    position: relative;
-  }
-
-  .filters_applied {
-    margin-left: 0rem;
-    margin-right: 0rem;
-  }
-
-  .graph_options_container {
-    margin-left: 0rem;
-    margin-right: 0rem;
-  }
-
-  .bottom_info_main_info_box {
-    width: 15vw !important;
-    position: absolute;
-    left: 0;
-    right: auto;
-    height: 100%;
-    padding-left: 1.5rem;
-    padding-right: 1.5rem;
-    border-right: 1px solid black;
-  }
-}
-
-@media only screen and (min-width: 1224px) {
-  .footer_menu_trigger {
-    display: none;
-  }
-
-  .shadow_overlay {
-    display: none;
-  }
-
-  .trend_tooltip {
-    z-index: 1 !important;
-  }
-
-  .bottom_info_panel_container {
-    height: 15vh;
-  }
-
-  .bottom_info_main_info_box {
-    width: 25vw !important;
-  }
-
-  .map_legend_container p {
-    font-size: 0.7rem;
-    margin-left: 0.5rem;
-    margin-right: 0.5rem;
-  }
-
-  .map_legend_container {
-    margin-top: -0.25rem;
-    padding-left: 3rem;
-    padding-right: 3rem;
-  }
-
-  .overview_carousel {
-    padding-left: 42%;
-  }
-
-  .trends_carousel {
-    padding-left: 42%;
   }
 
   .carousel_right_arrow,
@@ -482,5 +514,9 @@
 @media only screen and (min-width: 2200px) {
   .bottom_info_panel_container {
     height: 16vh;
+  }
+
+  .trends_carousel {
+    padding-left: 25%;
   }
 }

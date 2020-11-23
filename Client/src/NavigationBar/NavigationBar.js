@@ -35,6 +35,7 @@ const NavigationBar = (props) => {
     layersRef,
     isMobileOrTablet,
     footerMenuActive,
+    isTablet,
   } = props;
 
   const dispatch = useDispatch();
@@ -88,6 +89,9 @@ const NavigationBar = (props) => {
   const overviewTip = document.getElementsByClassName("overview_tooltip");
   const mapDetailsTip = document.getElementsByClassName(
     "map_details_tooltip_container"
+  );
+  const mapLegend = document.getElementsByClassName(
+    "overview_tooltip legend_tooltip"
   );
 
   const [tooltipVisible, changeTooltipVisible] = useState(true);
@@ -333,8 +337,36 @@ const NavigationBar = (props) => {
         overviewTip[0].style.setProperty("opacity", 1, "important");
         mapDetailsTip[0].style.setProperty("opacity", 1, "important");
       }
+
+      if (mapLegend[0]) {
+        mapLegend[0].style.setProperty("opacity", 1, "important");
+      }
     }
-  }, [tooltipVisible, overviewTip, mapDetailsTip]);
+  }, [tooltipVisible, overviewTip, mapDetailsTip, mapLegend]);
+
+  useEffect(() => {
+    if (!isMobileOrTablet) {
+      if (menuClicked) {
+        if (overviewTip[0] && mapDetailsTip[0]) {
+          overviewTip[0].style.setProperty("opacity", 0.3, "important");
+          mapDetailsTip[0].style.setProperty("opacity", 0.3, "important");
+        }
+
+        if (mapLegend[0]) {
+          mapLegend[0].style.setProperty("opacity", 0.3, "important");
+        }
+      } else {
+        if (overviewTip[0] && mapDetailsTip[0]) {
+          overviewTip[0].style.setProperty("opacity", 1, "important");
+          mapDetailsTip[0].style.setProperty("opacity", 1, "important");
+        }
+
+        if (mapLegend[0]) {
+          mapLegend[0].style.setProperty("opacity", 1, "important");
+        }
+      }
+    }
+  }, [isMobileOrTablet, mapLegend, menuClicked, mapDetailsTip, overviewTip]);
 
   return (
     <div className="navigation_bar_container">
@@ -353,7 +385,7 @@ const NavigationBar = (props) => {
               }}
             >
               <p style={{ color: "rgb(166, 166, 166)" }}>
-                Data Last Updated: July 22, 2020
+                Data Last Updated: November 5, 2020
               </p>
               <p>
                 Showing Arrest Data for{" "}
@@ -368,33 +400,35 @@ const NavigationBar = (props) => {
               </p>
             </div>
             {isMobileOrTablet ? (
-              <div
-                className="map_legend_container"
-                style={{
-                  minWidth:
-                    logoContainerRef.current &&
-                    logoContainerRef.current.clientWidth,
-                  maxWidth:
-                    logoContainerRef.current &&
-                    logoContainerRef.current.clientWidth,
-                }}
-              >
-                <p>Map Legend</p>
-                <div className="map_legend_items_container">
-                  <div className="map_legend_element">
-                    <FaCircle color="rgb(255, 0, 0)" />
-                    <p>Felony</p>
-                  </div>
-                  <div className="map_legend_element">
-                    <FaCircle color="rgb(255, 116, 0)" />
-                    <p>Misdemeanor</p>
-                  </div>
-                  <div className="map_legend_element">
-                    <FaCircle color="rgb(255, 193, 0)" />
-                    <p>Violation</p>
+              isTablet ? null : (
+                <div
+                  className="map_legend_container"
+                  style={{
+                    minWidth:
+                      logoContainerRef.current &&
+                      logoContainerRef.current.clientWidth,
+                    maxWidth:
+                      logoContainerRef.current &&
+                      logoContainerRef.current.clientWidth,
+                  }}
+                >
+                  <p>Map Legend</p>
+                  <div className="map_legend_items_container">
+                    <div className="map_legend_element">
+                      <FaCircle color="rgb(255, 0, 0)" />
+                      <p>Felony</p>
+                    </div>
+                    <div className="map_legend_element">
+                      <FaCircle color="rgb(255, 116, 0)" />
+                      <p>Misdemeanor</p>
+                    </div>
+                    <div className="map_legend_element">
+                      <FaCircle color="rgb(255, 193, 0)" />
+                      <p>Violation</p>
+                    </div>
                   </div>
                 </div>
-              </div>
+              )
             ) : null}
           </div>
         }
@@ -446,7 +480,20 @@ const NavigationBar = (props) => {
         }
         visible={
           isMobileOrTablet
-            ? false
+            ? isTablet
+              ? layersRef.current.length > 0 &&
+                (ageTimelineColumns ? ageTimelineColumns.length > 0 : false) &&
+                (boroughTimelineColumns
+                  ? boroughTimelineColumns.length > 0
+                  : false) &&
+                (categoryTimelineColumns
+                  ? categoryTimelineColumns.length > 0
+                  : false) &&
+                (raceTimelineColumns
+                  ? raceTimelineColumns.length > 0
+                  : false) &&
+                (sexTimelineColumns ? sexTimelineColumns.length > 0 : false)
+              : false
             : layersRef.current.length > 0 &&
               (ageTimelineColumns ? ageTimelineColumns.length > 0 : false) &&
               (boroughTimelineColumns
@@ -459,7 +506,13 @@ const NavigationBar = (props) => {
               (sexTimelineColumns ? sexTimelineColumns.length > 0 : false)
         }
         allowHTML={true}
-        reference={isMobileOrTablet ? footerMenuTrigger[0] : mapboxAttribRef[0]}
+        reference={
+          isMobileOrTablet
+            ? isTablet
+              ? burgerMenu[0]
+              : footerMenuTrigger[0]
+            : mapboxAttribRef[0]
+        }
         className="overview_tooltip legend_tooltip"
         placement="top-start"
       />

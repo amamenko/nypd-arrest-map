@@ -36,7 +36,7 @@ const InitialLoader = (props) => {
           loading={
             filteredDataChunks === "" ||
             (typeof filteredDataChunks === "object" &&
-              filteredDataChunks.flat().length < 70000)
+              filteredDataChunks.flat().length < 90000)
           }
         />
       ) : countUp > 95 ? (

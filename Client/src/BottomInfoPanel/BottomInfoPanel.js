@@ -223,7 +223,7 @@ const BottomInfoPanel = (props) => {
       if (!firstTimeFooterActive) {
         setTimeout(() => {
           changeArrowTooltipVisible(true);
-        }, 1500);
+        }, 1800);
 
         changeFirstTimeFooterActive(true);
       }
@@ -489,7 +489,7 @@ const BottomInfoPanel = (props) => {
           disableAutoPlayOnAction={false}
           responsive={{
             0: { items: 1 },
-            768: { items: 2 },
+            760: { items: 2 },
             1600: { items: 3 },
           }}
           preservePosition={true}
@@ -540,10 +540,14 @@ const BottomInfoPanel = (props) => {
         <Tippy
           content={
             isMobileOrTablet
-              ? "Zoom feature only available on desktop"
+              ? null
               : "Scroll to zoom in and out of trend graphs"
           }
-          visible={graphOption === "trends" && timelineTooltipVisible}
+          visible={
+            isMobileOrTablet
+              ? false
+              : graphOption === "trends" && timelineTooltipVisible
+          }
           reference={
             categoryTimelineContainer.length > 2
               ? categoryTimelineContainer[1]
@@ -577,7 +581,7 @@ const BottomInfoPanel = (props) => {
           touchMoveDefaultEvents={false}
           responsive={{
             0: { items: 1 },
-            768: { items: 2 },
+            760: { items: 2 },
             1600: { items: 3 },
           }}
           preservePosition={true}

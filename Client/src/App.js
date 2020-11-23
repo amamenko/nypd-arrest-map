@@ -135,6 +135,7 @@ const App = () => {
   });
 
   const isMobileOrTablet = useMediaQuery({ maxWidth: 1224 });
+  const isTablet = useMediaQuery({ minWidth: 768 });
   const isMediumLaptop = useMediaQuery({ maxWidth: 1440 });
   const isPortrait = useMediaQuery({ orientation: "portrait" });
 
@@ -269,8 +270,6 @@ const App = () => {
         });
 
         setFilterAndTimelineGraphWorkersInstance.onmessage = (receivedData) => {
-          console.log("FILTER & TIMELINE WORKER FIRED");
-
           applyingFiltersProgressRef.current += 25;
 
           const ageGroupTimelineGraphData =
@@ -328,8 +327,6 @@ const App = () => {
         });
 
         filterWorkerInstance.onmessage = (receivedData) => {
-          console.log("FILTERED WORKER FIRED");
-
           applyingFiltersProgressRef.current += 25;
 
           const parsedData = JSON.parse(receivedData.data);
@@ -376,8 +373,6 @@ const App = () => {
         });
 
         mapFilterWorkerInstance.onmessage = (receivedData) => {
-          console.log("MAP WORKER FIRED");
-
           applyingFiltersProgressRef.current += 25;
 
           const parsedData = JSON.parse(receivedData.data);
@@ -431,8 +426,6 @@ const App = () => {
         timelineWorkerInstance.postMessage({ chunk });
 
         timelineWorkerInstance.onmessage = (receivedData) => {
-          console.log("TIMELINE WORKER FIRED");
-
           applyingFiltersProgressRef.current += 25;
 
           const parsedData = JSON.parse(receivedData.data);
@@ -579,7 +572,6 @@ const App = () => {
     if (totalCount > 0 && totalCount === expectedTotal) {
       if (filteredDataChanged) {
         if (!mapPostsCompleted) {
-          console.log("THIS IS RUNNING RIGHT HERE THIS PART");
           renderLayers();
 
           postToMapFilterWorker(
@@ -1024,7 +1016,6 @@ const App = () => {
 
             (() => {
               onmessage = (e) => {
-                const t0 = performance.now();
                 const dataSent = e.data;
 
                 const loadData = dataSent.loadData;
@@ -1233,12 +1224,6 @@ const App = () => {
                     ),
                   })
                 );
-
-                const t1 = performance.now();
-
-                console.log(
-                  `Map worker performance is ${t1 - t0} milliseconds.`
-                );
               };
             }).toString(),
 
@@ -1264,7 +1249,6 @@ const App = () => {
 
             (() => {
               onmessage = (e) => {
-                const t0 = performance.now();
                 const dataSent = e.data;
 
                 const chunk = dataSent.chunk;
@@ -1329,11 +1313,6 @@ const App = () => {
                     ),
                   })
                 );
-                const t1 = performance.now();
-
-                console.log(
-                  `Timeline worker performance is ${t1 - t0} milliseconds.`
-                );
               };
             }).toString(),
 
@@ -1366,7 +1345,6 @@ const App = () => {
             "(",
             (() => {
               onmessage = (e) => {
-                const t0 = performance.now();
                 const hasNumber = (input) => {
                   return /\d/.test(input);
                 };
@@ -1468,12 +1446,6 @@ const App = () => {
                       filteredOffenseDescriptionArr
                     ),
                   })
-                );
-
-                const t1 = performance.now();
-
-                console.log(
-                  `Filter worker performance is ${t1 - t0} milliseconds.`
                 );
               };
             }).toString(),
@@ -1581,7 +1553,7 @@ const App = () => {
   ]);
 
   useEffect(() => {
-    if (totalCount > 70000) {
+    if (totalCount > 90000) {
       if (
         ageTimelineColumns &&
         boroughTimelineColumns &&
@@ -1684,6 +1656,7 @@ const App = () => {
           layersRef={layersRef}
           footerMenuActive={footerMenuActive}
           isMobileOrTablet={isMobileOrTablet}
+          isTablet={isTablet}
         />
         <DeckGL
           initialViewState={{

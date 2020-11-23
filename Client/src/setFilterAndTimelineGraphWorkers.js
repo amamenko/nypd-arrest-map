@@ -70,8 +70,6 @@ onmessage = (e) => {
       assignFilteredDataFlat: assignFilteredDataFlat,
     });
   } else {
-    const t0 = performance.now();
-
     // Timeline graph calculations
     const ageObj = dataSent.ageObj;
     const raceObj = dataSent.raceObj;
@@ -221,11 +219,5 @@ onmessage = (e) => {
         boroughObj.data.flat()
       ),
     });
-
-    const t1 = performance.now();
-
-    console.log(
-      `Timeline graph columns worker performance is ${t1 - t0} milliseconds.`
-    );
   }
 };
