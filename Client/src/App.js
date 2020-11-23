@@ -1475,7 +1475,7 @@ const App = () => {
               let ws = new WebSocket("ws://localhost:4000");
 
               if (process.env.NODE_ENV === "production") {
-                const host = window.location.href.replace(/^http/, "ws");
+                const host = "wss://nypd-arrest-map.herokuapp.com:4000";
 
                 ws = new WebSocket(host);
               }

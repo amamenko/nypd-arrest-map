@@ -9,6 +9,7 @@ const yearlyTotals = require("./YearlyTotalsNode");
 const { StringDecoder } = require("string_decoder");
 const decoder = new StringDecoder("utf8");
 const path = require("path");
+import sslRedirect from "heroku-ssl-redirect";
 
 require("dotenv").config();
 
@@ -25,6 +26,17 @@ const corsOptions = {
 app.use(cors(corsOptions));
 
 const port = process.env.PORT || 4000;
+
+if (process.env.NODE_ENV === "production") {
+  app.use(express.static("Client/build"));
+
+  // enable ssl redirect
+  app.use(sslRedirect());
+
+  app.get("*", (req, res) => {
+    res.sendFile(path.resolve(__dirname, "./Client", "build", "index.html"));
+  });
+}
 
 const storage = new Storage({
   credentials: require("./nypd-arrest-map-details.js"),
@@ -92,13 +104,5 @@ wss.on("connection", (ws) => {
 
   ws.on("close", () => console.log("WebSocket closed"));
 });
-
-if (process.env.NODE_ENV === "production") {
-  app.use(express.static("Client/build"));
-
-  app.get("*", (req, res) => {
-    res.sendFile(path.resolve(__dirname, "./Client", "build", "index.html"));
-  });
-}
 
 server.listen(port, () => console.log("Listening to port " + port));
