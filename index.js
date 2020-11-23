@@ -9,6 +9,7 @@ const yearlyTotals = require("./YearlyTotalsNode");
 const { StringDecoder } = require("string_decoder");
 const decoder = new StringDecoder("utf8");
 const path = require("path");
+const enforce = require("express-sslify");
 
 require("dotenv").config();
 
@@ -27,10 +28,11 @@ app.use(cors(corsOptions));
 const port = process.env.PORT || 4000;
 
 if (process.env.NODE_ENV === "production") {
+  app.use(enforce.HTTPS({ trustProtoHeader: true }));
+
   app.use(express.static("Client/build"));
 
   app.get("*", (req, res) => {
-    res.redirect("https://" + req.headers.host + req.url);
     res.sendFile(path.resolve(__dirname, "./Client", "build", "index.html"));
   });
 }
