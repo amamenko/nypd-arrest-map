@@ -9,7 +9,7 @@ const yearlyTotals = require("./YearlyTotalsNode");
 const { StringDecoder } = require("string_decoder");
 const decoder = new StringDecoder("utf8");
 const path = require("path");
-import sslRedirect from "heroku-ssl-redirect";
+const sslRedirect = require("heroku-ssl-redirect");
 
 require("dotenv").config();
 
