@@ -1,15 +1,15 @@
 import sslRedirect from "heroku-ssl-redirect";
-const express = require("express");
+import express from "express";
 const app = express();
-const WebSocket = require("ws").Server;
-const server = require("http").createServer();
-const { Storage } = require("@google-cloud/storage");
-const compression = require("compression");
-const oboe = require("oboe");
-const yearlyTotals = require("./YearlyTotalsNode");
-const { StringDecoder } = require("string_decoder");
+import WebSocket from ("ws").Server;
+import server from ("http").createServer();
+import { Storage } from "@google-cloud/storage";
+import compression from "compression";
+import oboe from "oboe";
+import yearlyTotals from "./YearlyTotalsNode";
+import { StringDecoder } from "string_decoder";
 const decoder = new StringDecoder("utf8");
-const path = require("path");
+import path from "path";
 
 require("dotenv").config();
 
