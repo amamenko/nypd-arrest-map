@@ -36,7 +36,8 @@
     "react-spinners": "^0.9.0",
     "reactjs-popup": "^2.0.4",
     "redux": "^4.0.5",
-    "redux-in-worker": "^0.7.0"
+    "redux-in-worker": "^0.7.0",
+    "worker-loader": "^3.0.5"
   },
   "scripts": {
     "start": "react-scripts start",
@@ -60,10 +61,6 @@
     ]
   },
   "devDependencies": {
-    "comlink-loader": "^2.0.0",
-    "prettier": "2.1.1",
-    "worker-loader": "^3.0.5",
-    "worker-plugin": "^5.0.0",
-    "workerize-loader": "^1.3.0"
+    "prettier": "2.1.1"
   }
 }
