@@ -1472,12 +1472,14 @@ const App = () => {
 
             (() => {
               // Creates new websocket instance
-              let ws = new WebSocket("ws://localhost:4000");
+              let ws = "";
 
               if (process.env.NODE_ENV === "production") {
                 const host = "wss://nypd-arrest-map.herokuapp.com:4000";
 
                 ws = new WebSocket(host);
+              } else {
+                ws = new WebSocket("ws://localhost:4000");
               }
 
               onmessage = (e) => {
