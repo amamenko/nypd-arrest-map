@@ -1,15 +1,14 @@
-import sslRedirect from "heroku-ssl-redirect";
-import express from "express";
+const express = require("express");
 const app = express();
-import WebSocket from ("ws").Server;
-import server from ("http").createServer();
-import { Storage } from "@google-cloud/storage";
-import compression from "compression";
-import oboe from "oboe";
-import yearlyTotals from "./YearlyTotalsNode";
-import { StringDecoder } from "string_decoder";
+const WebSocket = require("ws").Server;
+const server = require("http").createServer();
+const { Storage } = require("@google-cloud/storage");
+const compression = require("compression");
+const oboe = require("oboe");
+const yearlyTotals = require("./YearlyTotalsNode");
+const { StringDecoder } = require("string_decoder");
 const decoder = new StringDecoder("utf8");
-import path from "path";
+const path = require("path");
 
 require("dotenv").config();
 
@@ -34,6 +33,7 @@ if (process.env.NODE_ENV === "production") {
   app.use(sslRedirect());
 
   app.get("*", (req, res) => {
+    res.redirect("https://" + req.headers.host + req.url);
     res.sendFile(path.resolve(__dirname, "./Client", "build", "index.html"));
   });
 }

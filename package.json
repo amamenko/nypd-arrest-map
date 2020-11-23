@@ -1,9 +1,9 @@
 {
+  "type": "module",
   "name": "nypd-arrest-map-server",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
-  "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node index",
@@ -17,7 +17,6 @@
     "cors": "^2.8.5",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
-    "heroku-ssl-redirect": "^0.1.1",
     "oboe": "^2.1.5",
     "string_decoder": "^1.3.0",
     "ws": "^7.3.1"
