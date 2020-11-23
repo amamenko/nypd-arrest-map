@@ -1008,229 +1008,220 @@ const App = () => {
 
   useEffect(() => {
     if (!mapFilterWorkerInstance) {
-      // Creates inline web worker from anonymous function
-      const blobURL = URL.createObjectURL(
-        new Blob(
-          [
-            "(",
+      const response = `self.onmessage = (e) => {
+        const dataSent = e.data;
 
-            (() => {
-              onmessage = (e) => {
-                const dataSent = e.data;
+        const loadData = dataSent.loadData;
+        const filteredData = dataSent.filteredData;
+        const filteredDataChunks = dataSent.filteredDataChunks;
+        const currentFilters = dataSent.currentFilters;
 
-                const loadData = dataSent.loadData;
-                const filteredData = dataSent.filteredData;
-                const filteredDataChunks = dataSent.filteredDataChunks;
-                const currentFilters = dataSent.currentFilters;
+        const filterArrIncluded = (
+          x,
+          filterExactName,
+          filterGeneralName
+        ) => {
+          if (x !== filterExactName) {
+            if (currentFilters[filterGeneralName]) {
+              if (currentFilters[filterGeneralName].length > 0) {
+                return currentFilters[filterGeneralName].includes(x);
+              } else {
+                return true;
+              }
+            } else {
+              return true;
+            }
+          } else {
+            return false;
+          }
+        };
 
-                const filterArrIncluded = (
-                  x,
-                  filterExactName,
-                  filterGeneralName
-                ) => {
-                  if (x !== filterExactName) {
-                    if (currentFilters[filterGeneralName]) {
-                      if (currentFilters[filterGeneralName].length > 0) {
-                        return currentFilters[filterGeneralName].includes(x);
-                      } else {
-                        return true;
-                      }
-                    } else {
-                      return true;
-                    }
+        const dataReducerFunction = (
+          chunk,
+          filterExactName,
+          filterGeneralName
+        ) => {
+          return chunk.reduce((acc, curr) => {
+            const exactName = curr[filterExactName];
+
+            if (filterArrIncluded(exactName, filterGeneralName)) {
+              acc.push(exactName);
+            }
+
+            return acc;
+          }, []);
+        };
+
+        const boroughLoadDataReducerFunction = (
+          chunk,
+          filterExactName
+        ) => {
+          return chunk.reduce((acc, curr) => {
+            const currentName = (x) => {
+              if (
+                x[filterExactName] === "K" &&
+                Number(x.Latitude) > 40.73912
+              ) {
+                return "B";
+              } else if (
+                x[filterExactName] === "M" &&
+                Number(x.Longitude) > -73.920961 &&
+                Number(x.Latitude) < 40.800709
+              ) {
+                return "Q";
+              } else if (
+                x[filterExactName] === "B" &&
+                Number(x.Latitude) < 40.697465
+              ) {
+                return "K";
+              } else if (
+                x[filterExactName] === "Q" &&
+                Number(x.Longitude) < -73.962745
+              ) {
+                return "M";
+              } else if (
+                x[filterExactName] === "Q" &&
+                Number(x.Longitude) < -73.878559 &&
+                Number(x.Latitude) > 40.787907
+              ) {
+                return "B";
+              } else {
+                return x[filterExactName];
+              }
+            };
+
+            const currentPushItem = currentName(curr);
+
+            if (filterArrIncluded(currentPushItem)) {
+              acc.push(currentPushItem);
+            }
+
+            return acc;
+          }, []);
+        };
+
+        const filteredDataChunksReducerFunction = (
+          filterExactName,
+          filterGeneralName
+        ) => {
+          const yearsArr = filteredDataChunks.map((x) => {
+            const date = x[5][filterExactName];
+
+            return Number(date.substring(date.length - 4, date.length));
+          });
+
+          const dateFilterArrIncluded = (item, index, generalName) => {
+            if (item !== filterExactName) {
+              if (currentFilters[generalName]) {
+                if (currentFilters[generalName].length > 0) {
+                  if (
+                    currentFilters[generalName].includes(
+                      yearsArr[index]
+                    )
+                  ) {
+                    return true;
                   } else {
                     return false;
                   }
-                };
+                } else {
+                  return true;
+                }
+              } else {
+                return false;
+              }
+            } else {
+              return false;
+            }
+          };
 
-                const dataReducerFunction = (
-                  chunk,
-                  filterExactName,
-                  filterGeneralName
-                ) => {
-                  return chunk.reduce((acc, curr) => {
-                    const exactName = curr[filterExactName];
+          return filteredDataChunks
+            .map((x, i) => [
+              ...new Set(
+                x.reduce((acc, curr) => {
+                  const exactName = curr[filterExactName];
 
-                    if (filterArrIncluded(exactName, filterGeneralName)) {
+                  if (filterGeneralName === "category") {
+                    if (
+                      filterArrIncluded(
+                        exactName,
+                        filterExactName,
+                        filterGeneralName
+                      )
+                    ) {
                       acc.push(exactName);
                     }
-
-                    return acc;
-                  }, []);
-                };
-
-                const boroughLoadDataReducerFunction = (
-                  chunk,
-                  filterExactName
-                ) => {
-                  return chunk.reduce((acc, curr) => {
-                    const currentName = (x) => {
-                      if (
-                        x[filterExactName] === "K" &&
-                        Number(x.Latitude) > 40.73912
-                      ) {
-                        return "B";
-                      } else if (
-                        x[filterExactName] === "M" &&
-                        Number(x.Longitude) > -73.920961 &&
-                        Number(x.Latitude) < 40.800709
-                      ) {
-                        return "Q";
-                      } else if (
-                        x[filterExactName] === "B" &&
-                        Number(x.Latitude) < 40.697465
-                      ) {
-                        return "K";
-                      } else if (
-                        x[filterExactName] === "Q" &&
-                        Number(x.Longitude) < -73.962745
-                      ) {
-                        return "M";
-                      } else if (
-                        x[filterExactName] === "Q" &&
-                        Number(x.Longitude) < -73.878559 &&
-                        Number(x.Latitude) > 40.787907
-                      ) {
-                        return "B";
-                      } else {
-                        return x[filterExactName];
-                      }
-                    };
-
-                    const currentPushItem = currentName(curr);
-
-                    if (filterArrIncluded(currentPushItem)) {
-                      acc.push(currentPushItem);
+                  } else {
+                    if (
+                      dateFilterArrIncluded(
+                        exactName,
+                        i,
+                        filterGeneralName
+                      )
+                    ) {
+                      acc.push(exactName);
                     }
+                  }
 
-                    return acc;
-                  }, []);
-                };
+                  return acc;
+                }, [])
+              ),
+            ])
+            .flat();
+        };
 
-                const filteredDataChunksReducerFunction = (
-                  filterExactName,
-                  filterGeneralName
-                ) => {
-                  const yearsArr = filteredDataChunks.map((x) => {
-                    const date = x[5][filterExactName];
+        postMessage(
+          JSON.stringify({
+            ageGroup: dataReducerFunction(loadData, "AGE_GROUP"),
+            raceArr: dataReducerFunction(loadData, "PERP_RACE"),
+            boroughArr: boroughLoadDataReducerFunction(
+              loadData,
+              "ARREST_BORO"
+            ),
+            offenseDescriptionArr: dataReducerFunction(
+              loadData,
+              "OFNS_DESC"
+            ),
+            filteredArrestCategory: dataReducerFunction(
+              filteredData,
+              "LAW_CAT_CD",
+              "category"
+            ),
+            filteredAgeGroup: dataReducerFunction(
+              filteredData,
+              "AGE_GROUP",
+              "age"
+            ),
+            filteredSexArr: dataReducerFunction(
+              filteredData,
+              "PERP_SEX",
+              "sex"
+            ),
+            filteredRaceArr: dataReducerFunction(
+              filteredData,
+              "PERP_RACE",
+              "race"
+            ),
+            filteredBoroughArr: boroughLoadDataReducerFunction(
+              filteredData,
+              "ARREST_BORO",
+              "borough"
+            ),
+            filteredOffenseDescriptionArr: dataReducerFunction(
+              filteredData,
+              "OFNS_DESC",
+              "offense"
+            ),
+            filteredUniqueCategory: filteredDataChunksReducerFunction(
+              "LAW_CAT_CD",
+              "category"
+            ),
+          })
+        );
+      };`;
 
-                    return Number(date.substring(date.length - 4, date.length));
-                  });
-
-                  const dateFilterArrIncluded = (item, index, generalName) => {
-                    if (item !== filterExactName) {
-                      if (currentFilters[generalName]) {
-                        if (currentFilters[generalName].length > 0) {
-                          if (
-                            currentFilters[generalName].includes(
-                              yearsArr[index]
-                            )
-                          ) {
-                            return true;
-                          } else {
-                            return false;
-                          }
-                        } else {
-                          return true;
-                        }
-                      } else {
-                        return false;
-                      }
-                    } else {
-                      return false;
-                    }
-                  };
-
-                  return filteredDataChunks
-                    .map((x, i) => [
-                      ...new Set(
-                        x.reduce((acc, curr) => {
-                          const exactName = curr[filterExactName];
-
-                          if (filterGeneralName === "category") {
-                            if (
-                              filterArrIncluded(
-                                exactName,
-                                filterExactName,
-                                filterGeneralName
-                              )
-                            ) {
-                              acc.push(exactName);
-                            }
-                          } else {
-                            if (
-                              dateFilterArrIncluded(
-                                exactName,
-                                i,
-                                filterGeneralName
-                              )
-                            ) {
-                              acc.push(exactName);
-                            }
-                          }
-
-                          return acc;
-                        }, [])
-                      ),
-                    ])
-                    .flat();
-                };
-
-                postMessage(
-                  JSON.stringify({
-                    ageGroup: dataReducerFunction(loadData, "AGE_GROUP"),
-                    raceArr: dataReducerFunction(loadData, "PERP_RACE"),
-                    boroughArr: boroughLoadDataReducerFunction(
-                      loadData,
-                      "ARREST_BORO"
-                    ),
-                    offenseDescriptionArr: dataReducerFunction(
-                      loadData,
-                      "OFNS_DESC"
-                    ),
-                    filteredArrestCategory: dataReducerFunction(
-                      filteredData,
-                      "LAW_CAT_CD",
-                      "category"
-                    ),
-                    filteredAgeGroup: dataReducerFunction(
-                      filteredData,
-                      "AGE_GROUP",
-                      "age"
-                    ),
-                    filteredSexArr: dataReducerFunction(
-                      filteredData,
-                      "PERP_SEX",
-                      "sex"
-                    ),
-                    filteredRaceArr: dataReducerFunction(
-                      filteredData,
-                      "PERP_RACE",
-                      "race"
-                    ),
-                    filteredBoroughArr: boroughLoadDataReducerFunction(
-                      filteredData,
-                      "ARREST_BORO",
-                      "borough"
-                    ),
-                    filteredOffenseDescriptionArr: dataReducerFunction(
-                      filteredData,
-                      "OFNS_DESC",
-                      "offense"
-                    ),
-                    filteredUniqueCategory: filteredDataChunksReducerFunction(
-                      "LAW_CAT_CD",
-                      "category"
-                    ),
-                  })
-                );
-              };
-            }).toString(),
-
-            ")()",
-          ],
-          { type: "application/javascript" }
-        )
+      // Creates inline web worker from anonymous function
+      const blobURL = URL.createObjectURL(
+        new Blob([response], { type: "application/javascript" })
       );
 
       const mapFilterWorker = new Worker(blobURL);
@@ -1241,85 +1232,76 @@ const App = () => {
 
   useEffect(() => {
     if (!timelineWorkerInstance) {
+      const response = `self.onmessage = (e) => {
+        const dataSent = e.data;
+
+        const chunk = dataSent.chunk;
+
+        const filteredDataChunksReducerFunction = (
+          filterGeneralName,
+          filterExactName
+        ) => {
+          return chunk.map((item) =>
+            item.reduce((acc, curr) => {
+              const formatName = (x) => {
+                return {
+                  date: x["ARREST_DATE"],
+                  [filterGeneralName]:
+                    filterGeneralName === "category"
+                      ? x[filterExactName] === "F"
+                        ? "Felony"
+                        : x[filterExactName] === "M"
+                        ? "Misdemeanor"
+                        : "Violation"
+                      : filterGeneralName === "sex"
+                      ? x[filterExactName] === "F"
+                        ? "Female"
+                        : "Male"
+                      : x[filterExactName],
+                };
+              };
+
+              const notNameMatchFilter = (x) =>
+                x.date !== "ARREST_DATE" &&
+                x[filterGeneralName] !== filterExactName;
+
+              const newPushItem = formatName(curr);
+
+              if (notNameMatchFilter(newPushItem)) {
+                acc.push(newPushItem);
+              }
+
+              return acc;
+            }, [])
+          );
+        };
+
+        postMessage(
+          JSON.stringify({
+            age_group: filteredDataChunksReducerFunction(
+              "age_group",
+              "AGE_GROUP"
+            ),
+            borough: filteredDataChunksReducerFunction(
+              "borough",
+              "ARREST_BORO"
+            ),
+            category: filteredDataChunksReducerFunction(
+              "category",
+              "LAW_CAT_CD"
+            ),
+            sex: filteredDataChunksReducerFunction("sex", "PERP_SEX"),
+            race: filteredDataChunksReducerFunction(
+              "race",
+              "PERP_RACE"
+            ),
+          })
+        );
+      }`;
+
       // Creates inline web worker from anonymous function
       const blobURL = URL.createObjectURL(
-        new Blob(
-          [
-            "(",
-
-            (() => {
-              onmessage = (e) => {
-                const dataSent = e.data;
-
-                const chunk = dataSent.chunk;
-
-                const filteredDataChunksReducerFunction = (
-                  filterGeneralName,
-                  filterExactName
-                ) => {
-                  return chunk.map((item) =>
-                    item.reduce((acc, curr) => {
-                      const formatName = (x) => {
-                        return {
-                          date: x["ARREST_DATE"],
-                          [filterGeneralName]:
-                            filterGeneralName === "category"
-                              ? x[filterExactName] === "F"
-                                ? "Felony"
-                                : x[filterExactName] === "M"
-                                ? "Misdemeanor"
-                                : "Violation"
-                              : filterGeneralName === "sex"
-                              ? x[filterExactName] === "F"
-                                ? "Female"
-                                : "Male"
-                              : x[filterExactName],
-                        };
-                      };
-
-                      const notNameMatchFilter = (x) =>
-                        x.date !== "ARREST_DATE" &&
-                        x[filterGeneralName] !== filterExactName;
-
-                      const newPushItem = formatName(curr);
-
-                      if (notNameMatchFilter(newPushItem)) {
-                        acc.push(newPushItem);
-                      }
-
-                      return acc;
-                    }, [])
-                  );
-                };
-
-                postMessage(
-                  JSON.stringify({
-                    age_group: filteredDataChunksReducerFunction(
-                      "age_group",
-                      "AGE_GROUP"
-                    ),
-                    borough: filteredDataChunksReducerFunction(
-                      "borough",
-                      "ARREST_BORO"
-                    ),
-                    category: filteredDataChunksReducerFunction(
-                      "category",
-                      "LAW_CAT_CD"
-                    ),
-                    sex: filteredDataChunksReducerFunction("sex", "PERP_SEX"),
-                    race: filteredDataChunksReducerFunction(
-                      "race",
-                      "PERP_RACE"
-                    ),
-                  })
-                );
-              };
-            }).toString(),
-
-            ")()",
-          ],
-          { type: "application/javascript" }
-        )
+        new Blob([response], { type: "application/javascript" })
       );
 
       const timelineWorker = new Worker(blobURL);
@@ -1338,122 +1320,114 @@ const App = () => {
 
   useEffect(() => {
     if (!filterWorkerInstance) {
+      const response = `self.onmessage = (e) => {
+        const hasNumber = (input) => {
+          return /[0-9]/.test(input); 
+        };
+
+        const dataSent = e.data;
+
+        const ageGroup = dataSent.ageGroup;
+        const raceArr = dataSent.raceArr;
+        const boroughArr = dataSent.boroughArr;
+        const offenseDescriptionArr = dataSent.offenseDescriptionArr;
+        const filteredAgeGroup = dataSent.filteredAgeGroup;
+        const filteredSexArr = dataSent.filteredSexArr;
+        const filteredRaceArr = dataSent.filteredRaceArr;
+        const filteredBoroughArr = dataSent.filteredBoroughArr;
+        const filteredOffenseDescriptionArr =
+          dataSent.filteredOffenseDescriptionArr;
+
+        const uniqueValuesReducerFunction = (
+          arrName,
+          categoryName,
+          arr
+        ) =>
+          arr
+            ? [...new Set(arr)]
+                .filter((x) => x !== categoryName)
+                .sort((a, b) => {
+                  if (
+                    arrName === "filteredAgeGroupData" ||
+                    arrName === "ageGroupData"
+                  ) {
+                    const first = hasNumber(a)
+                      ? Number(
+                          a.split(a[0] === "<" ? "<" : "-")[
+                            a[0] === "<" ? 1 : 0
+                          ]
+                        )
+                      : null;
+                    const second = hasNumber(b)
+                      ? Number(
+                          b.split(b[0] === "<" ? "<" : "-")[
+                            b[0] === "<" ? 1 : 0
+                          ]
+                        )
+                      : null;
+
+                    return first - second;
+                  } else {
+                    // Sort in increasing order
+                    return a - b;
+                  }
+                })
+            : [];
+
+        postMessage(
+          JSON.stringify({
+            ageGroupData: uniqueValuesReducerFunction(
+              "ageGroupData",
+              "AGE_GROUP",
+              ageGroup
+            ),
+            raceUniqueValues: uniqueValuesReducerFunction(
+              "raceUniqueValues",
+              "PERP_RACE",
+              raceArr
+            ),
+            boroughUniqueValues: uniqueValuesReducerFunction(
+              "boroughUniqueValues",
+              "ARREST_BORO",
+              boroughArr
+            ),
+            offenseDescriptionArr: uniqueValuesReducerFunction(
+              "offenseDescriptionArr",
+              "OFNS_DESC",
+              offenseDescriptionArr
+            ),
+            filteredAgeGroupData: uniqueValuesReducerFunction(
+              "filteredAgeGroupData",
+              "AGE_GROUP",
+              filteredAgeGroup
+            ),
+            filteredSexUniqueValues: uniqueValuesReducerFunction(
+              "filteredSexUniqueValues",
+              "PERP_SEX",
+              filteredSexArr
+            ),
+            filteredRaceUniqueValues: uniqueValuesReducerFunction(
+              "filteredRaceUniqueValues",
+              "PERP_RACE",
+              filteredRaceArr
+            ),
+            filteredBoroughUniqueValues: uniqueValuesReducerFunction(
+              "filteredBoroughUniqueValues",
+              "ARREST_BORO",
+              filteredBoroughArr
+            ),
+            filteredOffenseDescriptionUniqueValues: uniqueValuesReducerFunction(
+              "filteredOffenseDescriptionUniqueValues",
+              "OFNS_DESC",
+              filteredOffenseDescriptionArr
+            ),
+          })
+        );
+      };`;
+
       // Creates inline web worker from anonymous function
       const blobURL = URL.createObjectURL(
-        new Blob(
-          [
-            "(",
-            (() => {
-              onmessage = (e) => {
-                const hasNumber = (input) => {
-                  return /\d/.test(input);
-                };
-
-                const dataSent = e.data;
-
-                const ageGroup = dataSent.ageGroup;
-                const raceArr = dataSent.raceArr;
-                const boroughArr = dataSent.boroughArr;
-                const offenseDescriptionArr = dataSent.offenseDescriptionArr;
-                const filteredAgeGroup = dataSent.filteredAgeGroup;
-                const filteredSexArr = dataSent.filteredSexArr;
-                const filteredRaceArr = dataSent.filteredRaceArr;
-                const filteredBoroughArr = dataSent.filteredBoroughArr;
-                const filteredOffenseDescriptionArr =
-                  dataSent.filteredOffenseDescriptionArr;
-
-                const uniqueValuesReducerFunction = (
-                  arrName,
-                  categoryName,
-                  arr
-                ) =>
-                  arr
-                    ? [...new Set(arr)]
-                        .filter((x) => x !== categoryName)
-                        .sort((a, b) => {
-                          if (
-                            arrName === "filteredAgeGroupData" ||
-                            arrName === "ageGroupData"
-                          ) {
-                            const first = hasNumber(a)
-                              ? Number(
-                                  a.split(a[0] === "<" ? "<" : "-")[
-                                    a[0] === "<" ? 1 : 0
-                                  ]
-                                )
-                              : null;
-                            const second = hasNumber(b)
-                              ? Number(
-                                  b.split(b[0] === "<" ? "<" : "-")[
-                                    b[0] === "<" ? 1 : 0
-                                  ]
-                                )
-                              : null;
-
-                            return first - second;
-                          } else {
-                            // Sort in increasing order
-                            return a - b;
-                          }
-                        })
-                    : [];
-
-                postMessage(
-                  JSON.stringify({
-                    ageGroupData: uniqueValuesReducerFunction(
-                      "ageGroupData",
-                      "AGE_GROUP",
-                      ageGroup
-                    ),
-                    raceUniqueValues: uniqueValuesReducerFunction(
-                      "raceUniqueValues",
-                      "PERP_RACE",
-                      raceArr
-                    ),
-                    boroughUniqueValues: uniqueValuesReducerFunction(
-                      "boroughUniqueValues",
-                      "ARREST_BORO",
-                      boroughArr
-                    ),
-                    offenseDescriptionArr: uniqueValuesReducerFunction(
-                      "offenseDescriptionArr",
-                      "OFNS_DESC",
-                      offenseDescriptionArr
-                    ),
-                    filteredAgeGroupData: uniqueValuesReducerFunction(
-                      "filteredAgeGroupData",
-                      "AGE_GROUP",
-                      filteredAgeGroup
-                    ),
-                    filteredSexUniqueValues: uniqueValuesReducerFunction(
-                      "filteredSexUniqueValues",
-                      "PERP_SEX",
-                      filteredSexArr
-                    ),
-                    filteredRaceUniqueValues: uniqueValuesReducerFunction(
-                      "filteredRaceUniqueValues",
-                      "PERP_RACE",
-                      filteredRaceArr
-                    ),
-                    filteredBoroughUniqueValues: uniqueValuesReducerFunction(
-                      "filteredBoroughUniqueValues",
-                      "ARREST_BORO",
-                      filteredBoroughArr
-                    ),
-                    filteredOffenseDescriptionUniqueValues: uniqueValuesReducerFunction(
-                      "filteredOffenseDescriptionUniqueValues",
-                      "OFNS_DESC",
-                      filteredOffenseDescriptionArr
-                    ),
-                  })
-                );
-              };
-            }).toString(),
-
-            ")()",
-          ],
-          { type: "application/javascript" }
-        )
+        new Blob([response], { type: "application/javascript" })
       );
 
       const filterWorker = new Worker(blobURL);
