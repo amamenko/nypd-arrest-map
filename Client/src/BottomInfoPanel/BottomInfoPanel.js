@@ -39,7 +39,6 @@ const BottomInfoPanel = (props) => {
     filteredOffenseDescriptionUniqueValues,
 
     currentFilters,
-    loadedYears,
     isSame,
     usePrevious,
     graphOption,
@@ -57,8 +56,8 @@ const BottomInfoPanel = (props) => {
     filteredTimelineRaceData,
   } = props;
 
-  const loadDataChunks = useSelector(
-    (state) => state.loadDataChunksReducer.data
+  const applyingFilters = useSelector(
+    (state) => state.applyingFiltersReducer.filters
   );
   const trendsAvailable = useSelector(
     (state) => state.trendsAvailableReducer.available
@@ -97,7 +96,7 @@ const BottomInfoPanel = (props) => {
   const overviewCarouselContainer = document.getElementsByClassName(
     "overview_carousel"
   );
-  const trendsCarouselContainer = document.getElementsByClassName(
+  let trendsCarouselContainer = document.getElementsByClassName(
     "trends_carousel"
   );
   const categoryTimelineContainer = document.getElementsByClassName(
@@ -109,7 +108,7 @@ const BottomInfoPanel = (props) => {
 
   // Hide tooltip when trend dataset is untoggled
   useEffect(() => {
-    if (graphOption === "trends") {
+    if (graphOption === "trends" && !applyingFilters) {
       const checkForTooltip = setInterval(() => {
         const tooltip = googleTooltipContainer[0];
         const circles = document.getElementsByTagName("circle");
@@ -154,12 +153,21 @@ const BottomInfoPanel = (props) => {
         clearInterval(checkForTooltip);
       };
     }
-  }, [googleTooltipContainer, graphOption]);
+  }, [googleTooltipContainer, graphOption, applyingFilters]);
 
   useEffect(() => {
     if (graphOption === "overview") {
       if (CarouselTimelineRef.current) {
         CarouselTimelineRef.current.style.display = "none";
+      } else {
+        const findTimelineRefInterval = setInterval(() => {
+          if (CarouselTimelineRef) {
+            if (CarouselRef.current) {
+              CarouselTimelineRef.current.style.display = "none";
+              clearInterval(findTimelineRefInterval);
+            }
+          }
+        }, 500);
       }
     } else {
       if (CarouselRef.current) {
@@ -183,36 +191,73 @@ const BottomInfoPanel = (props) => {
   }, [trendsAvailable]);
 
   useEffect(() => {
-    for (let i = 0; i < aliceCarouselContainer.length; i++) {
-      if (i === 0) {
-        if (
-          !aliceCarouselContainer[i].className.includes("overview_carousel")
-        ) {
-          aliceCarouselContainer[i].className += " overview_carousel";
-        }
-      } else {
-        if (!aliceCarouselContainer[i].className.includes("trends_carousel")) {
-          aliceCarouselContainer[i].className += " trends_carousel";
+    if (!applyingFilters) {
+      for (let i = 0; i < aliceCarouselContainer.length; i++) {
+        if (i === 0) {
+          if (
+            !aliceCarouselContainer[i].className.includes("overview_carousel")
+          ) {
+            aliceCarouselContainer[i].className += " overview_carousel";
+          }
+        } else {
+          if (
+            !aliceCarouselContainer[i].className.includes("trends_carousel")
+          ) {
+            aliceCarouselContainer[i].className += " trends_carousel";
+          }
         }
       }
     }
-  }, [aliceCarouselContainer]);
+  }, [aliceCarouselContainer, applyingFilters]);
 
   useEffect(() => {
-    if (graphOption === "overview") {
-      overviewCarouselContainer[0].style.opacity = 1;
-      overviewCarouselContainer[0].style.zIndex = 1;
+    if (graphOption === "overview" && !applyingFilters) {
+      if (overviewCarouselContainer) {
+        if (overviewCarouselContainer[0]) {
+          overviewCarouselContainer[0].style.opacity = 1;
+          overviewCarouselContainer[0].style.zIndex = 1;
+        }
+      }
 
-      trendsCarouselContainer[0].style.opacity = 0;
-      trendsCarouselContainer[0].style.zIndex = -1;
+      if (trendsCarouselContainer) {
+        if (trendsCarouselContainer[0]) {
+          trendsCarouselContainer[0].style.opacity = 0;
+          trendsCarouselContainer[0].style.zIndex = -1;
+        } else {
+          const findTrendsCarousel = setInterval(() => {
+            let newTrendsCarouselContainer = document.getElementsByClassName(
+              "trends_carousel"
+            );
+
+            if (newTrendsCarouselContainer[0]) {
+              newTrendsCarouselContainer[0].style.opacity = 0;
+              newTrendsCarouselContainer[0].style.zIndex = -1;
+              clearInterval(findTrendsCarousel);
+            }
+          }, 500);
+        }
+      }
     } else {
-      overviewCarouselContainer[0].style.opacity = 0;
-      overviewCarouselContainer[0].style.opacity = -1;
+      if (overviewCarouselContainer) {
+        if (overviewCarouselContainer[0]) {
+          overviewCarouselContainer[0].style.opacity = 0;
+          overviewCarouselContainer[0].style.opacity = -1;
+        }
+      }
 
-      trendsCarouselContainer[0].style.opacity = 1;
-      trendsCarouselContainer[0].style.zIndex = 1;
+      if (trendsCarouselContainer) {
+        if (trendsCarouselContainer[0]) {
+          trendsCarouselContainer[0].style.opacity = 1;
+          trendsCarouselContainer[0].style.zIndex = 1;
+        }
+      }
     }
-  }, [graphOption, overviewCarouselContainer, trendsCarouselContainer]);
+  }, [
+    graphOption,
+    overviewCarouselContainer,
+    trendsCarouselContainer,
+    applyingFilters,
+  ]);
 
   const handleFooterMenuActive = () => {
     if (footerMenuActive) {
@@ -284,9 +329,7 @@ const BottomInfoPanel = (props) => {
       <div className="bottom_info_main_info_box">
         <div className="filters_applied">
           <h2>Filters Applied</h2>
-          {(currentFilters.year.length === 0 ||
-            isSame(loadedYears, Object.keys(loadDataChunks[0]))) &&
-          currentFilters.category.length === 0 &&
+          {currentFilters.category.length === 0 &&
           currentFilters.offense.length === 0 &&
           currentFilters.age.length === 0 &&
           currentFilters.race.length === 0 &&
@@ -297,20 +340,6 @@ const BottomInfoPanel = (props) => {
             </p>
           ) : (
             <>
-              <p>
-                <strong>
-                  {currentFilters.year.length === 0 ||
-                  currentFilters.year.length === loadedYears.length
-                    ? null
-                    : currentFilters.year.length === 1
-                    ? "Year: "
-                    : "Years: "}
-                </strong>
-                {currentFilters.year.length === 0 ||
-                currentFilters.year.length === loadedYears.length
-                  ? null
-                  : currentFilters.year.join(", ")}
-              </p>
               <p>
                 <strong>
                   {currentFilters.category.length === 0
@@ -570,60 +599,62 @@ const BottomInfoPanel = (props) => {
           offset={isMobileOrTablet ? [-30, -180] : [0, 50]}
           onClickOutside={() => changeTimelineTooltipVisible(false)}
         />
-        <AliceCarousel
-          ref={(el) => (CarouselTimelineRef = el)}
-          autoPlay={false}
-          dotsDisabled={true}
-          buttonsDisabled={true}
-          mouseTrackingEnabled={false}
-          playButtonEnabled={false}
-          disableAutoPlayOnAction={false}
-          touchMoveDefaultEvents={false}
-          responsive={{
-            0: { items: 1 },
-            760: { items: 2 },
-            1600: { items: 3 },
-          }}
-          preservePosition={true}
-          items={[
-            <CategoryTimeline
-              key="trends"
-              filteredTimelineCategoryData={filteredTimelineCategoryData}
-              filteredArrestCategory={filteredArrestCategory}
-              filteredUniqueCategory={filteredUniqueCategory}
-              isMobileOrTablet={isMobileOrTablet}
-              isMediumLaptop={isMediumLaptop}
-            />,
-            <AgeGroupTimeline
-              key="trends"
-              filteredAgeGroupData={filteredAgeGroupData}
-              filteredTimelineAgeGroupData={filteredTimelineAgeGroupData}
-              isMobileOrTablet={isMobileOrTablet}
-              isMediumLaptop={isMediumLaptop}
-            />,
-            <BoroughTimeline
-              key="trends"
-              filteredBoroughUniqueValues={filteredBoroughUniqueValues}
-              filteredTimelineBoroughData={filteredTimelineBoroughData}
-              isMobileOrTablet={isMobileOrTablet}
-              isMediumLaptop={isMediumLaptop}
-            />,
-            <RaceTimeline
-              key="trends"
-              filteredRaceUniqueValues={filteredRaceUniqueValues}
-              filteredTimelineRaceData={filteredTimelineRaceData}
-              isMobileOrTablet={isMobileOrTablet}
-              isMediumLaptop={isMediumLaptop}
-            />,
-            <GenderTimeline
-              key="trends"
-              filteredSexUniqueValues={filteredSexUniqueValues}
-              filteredTimelineSexData={filteredTimelineSexData}
-              isMobileOrTablet={isMobileOrTablet}
-              isMediumLaptop={isMediumLaptop}
-            />,
-          ]}
-        />
+        {applyingFilters ? null : (
+          <AliceCarousel
+            ref={(el) => (CarouselTimelineRef = el)}
+            autoPlay={false}
+            dotsDisabled={true}
+            buttonsDisabled={true}
+            mouseTrackingEnabled={false}
+            playButtonEnabled={false}
+            disableAutoPlayOnAction={false}
+            touchMoveDefaultEvents={false}
+            responsive={{
+              0: { items: 1 },
+              760: { items: 2 },
+              1600: { items: 3 },
+            }}
+            preservePosition={true}
+            items={[
+              <CategoryTimeline
+                key="trends"
+                filteredTimelineCategoryData={filteredTimelineCategoryData}
+                filteredArrestCategory={filteredArrestCategory}
+                filteredUniqueCategory={filteredUniqueCategory}
+                isMobileOrTablet={isMobileOrTablet}
+                isMediumLaptop={isMediumLaptop}
+              />,
+              <AgeGroupTimeline
+                key="trends"
+                filteredAgeGroupData={filteredAgeGroupData}
+                filteredTimelineAgeGroupData={filteredTimelineAgeGroupData}
+                isMobileOrTablet={isMobileOrTablet}
+                isMediumLaptop={isMediumLaptop}
+              />,
+              <BoroughTimeline
+                key="trends"
+                filteredBoroughUniqueValues={filteredBoroughUniqueValues}
+                filteredTimelineBoroughData={filteredTimelineBoroughData}
+                isMobileOrTablet={isMobileOrTablet}
+                isMediumLaptop={isMediumLaptop}
+              />,
+              <RaceTimeline
+                key="trends"
+                filteredRaceUniqueValues={filteredRaceUniqueValues}
+                filteredTimelineRaceData={filteredTimelineRaceData}
+                isMobileOrTablet={isMobileOrTablet}
+                isMediumLaptop={isMediumLaptop}
+              />,
+              <GenderTimeline
+                key="trends"
+                filteredSexUniqueValues={filteredSexUniqueValues}
+                filteredTimelineSexData={filteredTimelineSexData}
+                isMobileOrTablet={isMobileOrTablet}
+                isMediumLaptop={isMediumLaptop}
+              />,
+            ]}
+          />
+        )}
         <FaChevronRight
           color="rgb(0, 0, 0)"
           className="carousel_right_arrow"

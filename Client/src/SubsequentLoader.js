@@ -10,7 +10,7 @@ import yearlyTotals from "./YearlyTotals";
 import { useSelector } from "react-redux";
 
 const SubsequentLoader = (props) => {
-  const { modalActive, changeModalActive, loadedYears } = props;
+  const { modalActive, changeModalActive } = props;
 
   const loadDataChunks = useSelector(
     (state) => state.loadDataChunksReducer.data
@@ -31,10 +31,7 @@ const SubsequentLoader = (props) => {
             yearlyTotals[modalActive.year.toString()]
         ).toFixed(1) * 100;
 
-      if (
-        newProgress === 100 &&
-        filteredDataChunks.length === loadedYears.length
-      ) {
+      if (newProgress === 100) {
         changeModalActive({ active: false, year: null });
       } else {
         if (progress && progress !== newProgress) {
@@ -48,7 +45,6 @@ const SubsequentLoader = (props) => {
     changeModalActive,
     newProgress,
     filteredDataChunks.length,
-    loadedYears.length,
   ]);
 
   return (

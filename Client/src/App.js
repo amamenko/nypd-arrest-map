@@ -14,14 +14,11 @@ import InitialLoader from "./InitialLoader";
 import SubsequentLoader from "./SubsequentLoader";
 import Modal from "react-modal";
 import { useDispatch, useSelector } from "react-redux";
-import ACTION_LOAD_DATA_CHUNKS_ADD_TO_YEAR from "./actions/loadDataChunks/ACTION_LOAD_DATA_CHUNKS_ADD_TO_YEAR";
-import ACTION_LOAD_DATA_CHUNKS_ADD_YEAR from "./actions/loadDataChunks/ACTION_LOAD_DATA_CHUNKS_ADD_YEAR";
 import ACTION_FILTERED_DATA_CHUNKS_ADD_TO_YEAR from "./actions/filteredDataChunks/ACTION_FILTERED_DATA_CHUNKS_ADD_TO_YEAR";
 import ACTION_FILTERED_DATA_CHUNKS_ADD_YEAR from "./actions/filteredDataChunks/ACTION_FILTERED_DATA_CHUNKS_ADD_YEAR";
 import ACTION_ASSIGN_FILTERED_DATA_CHUNKS from "./actions/filteredDataChunks/ACTION_ASSIGN_FILTERED_DATA_CHUNKS";
 import ACTION_INCREMENT_TOTAL_COUNT from "./actions/totalCount/ACTION_INCREMENT_TOTAL_COUNT";
 import ACTION_ASSIGN_LOAD_DATA from "./actions/loadData/ACTION_ASSIGN_LOAD_DATA";
-import ACTION_ASSIGN_FILTERED_DATA from "./actions/filteredData/ACTION_ASSIGN_FILTERED_DATA";
 import ACTION_FILTERED_DATA_CHANGED from "./actions/filteredData/ACTION_FILTERED_DATA_CHANGED";
 import ACTION_FILTERED_DATA_CHANGED_RESET from "./actions/filteredData/ACTION_FILTERED_DATA_CHANGED_RESET";
 import ACTION_TIMELINE_AGE_GROUP_GRAPH_DATA from "./actions/timelineGraphData/ageGroup/ACTION_TIMELINE_AGE_GROUP_GRAPH_DATA";
@@ -35,14 +32,6 @@ import ACTION_BOROUGH_TIMELINE_COLUMNS from "./actions/timelineColumns/borough/A
 import ACTION_CATEGORY_TIMELINE_COLUMNS from "./actions/timelineColumns/category/ACTION_CATEGORY_TIMELINE_COLUMNS";
 import ACTION_SEX_TIMELINE_COLUMNS from "./actions/timelineColumns/sex/ACTION_SEX_TIMELINE_COLUMNS";
 import ACTION_RACE_TIMELINE_COLUMNS from "./actions/timelineColumns/race/ACTION_RACE_TIMELINE_COLUMNS";
-import ACTION_CHANGE_YEAR_FILTER from "./actions/filters/year/ACTION_CHANGE_YEAR_FILTER";
-import ACTION_CHANGE_CATEGORY_FILTER from "./actions/filters/category/ACTION_CHANGE_CATEGORY_FILTER";
-import ACTION_CHANGE_OFFENSE_FILTER from "./actions/filters/offense/ACTION_CHANGE_OFFENSE_FILTER";
-import ACTION_CHANGE_RACE_FILTER from "./actions/filters/race/ACTION_CHANGE_RACE_FILTER";
-import ACTION_CHANGE_AGE_FILTER from "./actions/filters/age/ACTION_CHANGE_AGE_FILTER";
-import ACTION_CHANGE_SEX_FILTER from "./actions/filters/sex/ACTION_CHANGE_SEX_FILTER";
-import ACTION_CHANGE_BOROUGH_FILTER from "./actions/filters/borough/ACTION_CHANGE_BOROUGH_FILTER";
-import ACTION_APPLYING_FILTERS from "./actions/applyingFilters/ACTION_APPLYING_FILTERS";
 import ACTION_APPLYING_FILTERS_RESET from "./actions/applyingFilters/ACTION_APPLYING_FILTERS_RESET";
 import ApplyingFiltersPopUp from "./ApplyingFiltersPopUp/ApplyingFiltersPopUp";
 import ACTION_NEW_YEAR_FINISHED_LOADING_RESET from "./actions/newYearFinishedLoading/ACTION_NEW_YEAR_FINISHED_LOADING_RESET";
@@ -59,7 +48,6 @@ const App = () => {
   const dispatch = useDispatch();
 
   const loadData = useSelector((state) => state.loadDataReducer.data);
-  const filteredData = useSelector((state) => state.filteredDataReducer.data);
   const filteredDataChanged = useSelector(
     (state) => state.filteredDataReducer.changed
   );
@@ -70,9 +58,6 @@ const App = () => {
     (state) => state.newYearFinishedLoadingReducer.finished
   );
 
-  const loadDataChunks = useSelector(
-    (state) => state.loadDataChunksReducer.data
-  );
   const totalCount = useSelector((state) => state.totalCountReducer.total);
 
   const ageGroupTimelineGraphData = useSelector(
@@ -125,7 +110,6 @@ const App = () => {
   const [footerMenuActive, changeFooterMenuActive] = useState(false);
 
   const [currentFilters, changeCurrentFilters] = useState({
-    year: [],
     category: [],
     offense: [],
     age: [],
@@ -178,47 +162,28 @@ const App = () => {
 
   const prevFilters = usePrevious(currentFilters);
 
-  const loadedYears = loadDataChunks[0]
-    ? Object.keys(loadDataChunks[0]).map((x) => Number(x))
-    : [];
-
   const { countUp, update } = useCountUp({
     start: 0,
-    end: loadDataChunks[0]
-      ? loadDataChunks[0]["2020"]
-        ? Number(
-            (
-              loadDataChunks[0]["2020"]
-                .map((x) => x.length)
-                .reduce((a, b) => a + b, 0) / yearlyTotals["2020"]
-            ).toFixed(1)
-          ) * 100
-        : 0
-      : 0,
+    end:
+      loadData.length > 0
+        ? Number((loadData.length / yearlyTotals["2020"]).toFixed(1)) * 100
+        : 0,
     delay: 0,
     duration: 1,
   });
 
   useEffect(() => {
-    if (loadDataChunks[0]) {
-      if (loadDataChunks[0]["2020"]) {
-        const newProgress =
-          Number(
-            (
-              loadDataChunks[0]["2020"]
-                .map((x) => x.length)
-                .reduce((a, b) => a + b, 0) / yearlyTotals["2020"]
-            ).toFixed(1)
-          ) * 100;
+    if (loadData.length > 0) {
+      const newProgress =
+        Number((loadData.length / yearlyTotals["2020"]).toFixed(1)) * 100;
 
-        if (newProgress >= 60) {
-          update(100);
-        } else {
-          update(newProgress);
-        }
+      if (newProgress >= 60) {
+        update(100);
+      } else {
+        update(newProgress);
       }
     }
-  }, [update, countUp, loadDataChunks]);
+  }, [update, countUp, loadData]);
 
   const isSame = (arr1, arr2) =>
     arr1.length === arr2.length &&
@@ -361,12 +326,11 @@ const App = () => {
   );
 
   const postToMapFilterWorker = useCallback(
-    (loadData, filteredData, filteredDataChunks, currentFilters) => {
+    (loadData, filteredDataChunks, currentFilters) => {
       if (mapFilterWorkerInstance) {
         // Send from main thread to web worker
         mapFilterWorkerInstance.postMessage({
           loadData,
-          filteredData,
           filteredDataChunks,
           currentFilters,
         });
@@ -527,33 +491,22 @@ const App = () => {
             : [255, 193, 0],
         pickable: true,
         useDevicePixels: false,
-
-        parameters: {
-          depthTest: false,
-          depthRange: [0, 1],
-        },
       });
     });
   }, [filteredDataChunks]);
 
   useEffect(() => {
-    const expectedTotal = loadedYears
-      .map((x) => yearlyTotals[x])
-      .reduce((a, b) => a + b, 0);
+    const expectedTotal = yearlyTotals["2020"];
 
     if (newYearFinishedLoading) {
       dispatch(ACTION_NEW_YEAR_FINISHED_LOADING_RESET());
       if (totalCount === expectedTotal && loadData.length === expectedTotal) {
-        if (loadedYears.length === 1) {
-          dispatch(ACTION_ASSIGN_FILTERED_DATA(loadData));
-        } else {
-          dispatch(ACTION_ASSIGN_FILTERED_DATA("loadData"));
-        }
+        dispatch(ACTION_ASSIGN_FILTERED_DATA_CHUNKS([loadData]));
 
         dispatch(ACTION_FILTERED_DATA_CHANGED());
       }
     }
-  }, [newYearFinishedLoading, loadData, dispatch, loadedYears, totalCount]);
+  }, [newYearFinishedLoading, loadData, dispatch, totalCount]);
 
   useEffect(() => {
     if (!filteredDataChanged) {
@@ -564,21 +517,14 @@ const App = () => {
   }, [filteredDataChanged, mapPostsCompleted]);
 
   useEffect(() => {
-    const expectedTotal = loadedYears
-      .map((x) => yearlyTotals[x])
-      .reduce((a, b) => a + b, 0);
+    const expectedTotal = yearlyTotals["2020"];
 
     if (totalCount > 0 && totalCount === expectedTotal) {
       if (filteredDataChanged) {
         if (!mapPostsCompleted) {
           renderLayers();
 
-          postToMapFilterWorker(
-            loadData,
-            filteredData,
-            filteredDataChunks,
-            currentFilters
-          );
+          postToMapFilterWorker(loadData, filteredDataChunks, currentFilters);
           postToTimelineWorker(filteredDataChunks);
 
           dispatch(ACTION_FILTERED_DATA_CHANGED_RESET());
@@ -597,7 +543,6 @@ const App = () => {
     boroughArr,
     filteredAgeGroup,
     filteredBoroughArr,
-    filteredData,
     filteredOffenseDescriptionArr,
     filteredRaceArr,
     filteredSexArr,
@@ -609,7 +554,6 @@ const App = () => {
     postToTimelineWorker,
     filteredUniqueCategory,
     filteredTimelineCategoryData,
-    loadedYears,
     totalCount,
   ]);
 
@@ -850,12 +794,8 @@ const App = () => {
 
   const onNewDataArrive = useCallback(
     (chunk, dataIndex, firstMessage, lastMessage) => {
-      const chunkYear = chunk.year;
-
       // Year does not exist, create new year and add data
       if (firstMessage) {
-        dispatch(ACTION_LOAD_DATA_CHUNKS_ADD_YEAR(chunk.data, chunkYear));
-
         dispatch(ACTION_FILTERED_DATA_CHUNKS_ADD_YEAR(chunk.data));
 
         dispatch(ACTION_ASSIGN_LOAD_DATA(chunk.data));
@@ -865,8 +805,6 @@ const App = () => {
         }
 
         // Year exists, add additional data to it
-        dispatch(ACTION_LOAD_DATA_CHUNKS_ADD_TO_YEAR(chunk.data, chunkYear));
-
         dispatch(
           ACTION_FILTERED_DATA_CHUNKS_ADD_TO_YEAR(chunk.data, dataIndex)
         );
@@ -908,7 +846,6 @@ const App = () => {
   );
 
   const setFilters = (
-    year,
     category,
     offense,
     age,
@@ -932,7 +869,6 @@ const App = () => {
 
       // Send from main thread to web worker
       setFilterAndTimelineGraphWorkersInstance.postMessage({
-        year: year,
         category: category,
         offense: offense,
         age: age,
@@ -942,20 +878,13 @@ const App = () => {
         suppliedData: suppliedData,
       });
 
-      if (!downloadYear) {
-        dispatch(ACTION_APPLYING_FILTERS());
-      }
-
       setFilterAndTimelineGraphWorkersInstance.onmessage = (receivedData) => {
         const assignFilteredData = receivedData.data.assignFilteredData;
 
         if (assignFilteredData) {
           dispatch(ACTION_ASSIGN_FILTERED_DATA_CHUNKS(assignFilteredData));
 
-          dispatch(ACTION_ASSIGN_FILTERED_DATA(assignFilteredData));
-
           changeCurrentFilters({
-            year: year,
             category: category,
             offense: offense,
             age: age,
@@ -982,36 +911,12 @@ const App = () => {
     }
   }, [currentFilters, prevFilters, renderLayers, dispatch, filteredDataChunks]);
 
-  const handleDownloadYear = (year) => {
-    const newYearArr = [...loadedYears, year];
-
-    if (graphOption === "trends") {
-      changeGraphOption("overview");
-    }
-
-    dispatch(ACTION_CHANGE_YEAR_FILTER(newYearArr));
-    dispatch(ACTION_CHANGE_CATEGORY_FILTER([]));
-    dispatch(ACTION_CHANGE_OFFENSE_FILTER([]));
-    dispatch(ACTION_CHANGE_RACE_FILTER([]));
-    dispatch(ACTION_CHANGE_AGE_FILTER([]));
-    dispatch(ACTION_CHANGE_SEX_FILTER([]));
-    dispatch(ACTION_CHANGE_BOROUGH_FILTER([]));
-    dispatch(ACTION_TRENDS_NOT_AVAILABLE());
-
-    setFilters(newYearArr, [], [], [], [], [], [], loadData, true);
-    changeModalActive({ active: true, year: year });
-    changeLoadingYears([year]);
-    changeCollapseOpen("");
-    changeMenuClicked(false);
-  };
-
   useEffect(() => {
     if (!mapFilterWorkerInstance) {
       const response = `self.onmessage = (e) => {
         const dataSent = e.data;
 
         const loadData = dataSent.loadData;
-        const filteredData = dataSent.filteredData;
         const filteredDataChunks = dataSent.filteredDataChunks;
         const currentFilters = dataSent.currentFilters;
 
@@ -1181,32 +1086,32 @@ const App = () => {
               "OFNS_DESC"
             ),
             filteredArrestCategory: dataReducerFunction(
-              filteredData,
+              filteredDataChunks[0],
               "LAW_CAT_CD",
               "category"
             ),
             filteredAgeGroup: dataReducerFunction(
-              filteredData,
+              filteredDataChunks[0],
               "AGE_GROUP",
               "age"
             ),
             filteredSexArr: dataReducerFunction(
-              filteredData,
+              filteredDataChunks[0],
               "PERP_SEX",
               "sex"
             ),
             filteredRaceArr: dataReducerFunction(
-              filteredData,
+              filteredDataChunks[0],
               "PERP_RACE",
               "race"
             ),
             filteredBoroughArr: boroughLoadDataReducerFunction(
-              filteredData,
+              filteredDataChunks[0],
               "ARREST_BORO",
               "borough"
             ),
             filteredOffenseDescriptionArr: dataReducerFunction(
-              filteredData,
+              filteredDataChunks[0],
               "OFNS_DESC",
               "offense"
             ),
@@ -1452,7 +1357,7 @@ const App = () => {
 
                 ws = new WebSocket(host);
               } else {
-                ws = new WebSocket("ws://localhost:4000");
+                ws = new WebSocket("ws://192.168.68.101:4000");
               }
 
               onmessage = (e) => {
@@ -1497,7 +1402,7 @@ const App = () => {
 
   useEffect(() => {
     if (workerInstance) {
-      if (!loadedYears.includes(2020)) {
+      if (loadData.length === 0) {
         if (loadingYears.length === 0) {
           if (isMobileOrTablet) {
             if (isPortrait) {
@@ -1510,7 +1415,7 @@ const App = () => {
           }
         }
       } else {
-        if (loadingYears.length > 0 && !loadDataChunks[0][loadingYears[0]]) {
+        if (loadingYears.length > 0 && loadData.length === 0) {
           dataFetch(loadingYears[0], filteredDataChunks.length);
           changeLoadingYears([]);
         }
@@ -1519,12 +1424,12 @@ const App = () => {
   }, [
     workerInstance,
     dataFetch,
-    loadedYears,
     loadingYears,
-    loadDataChunks,
     filteredDataChunks.length,
     isPortrait,
     isMobileOrTablet,
+    loadData.length,
+    totalCount,
   ]);
 
   useEffect(() => {
@@ -1592,7 +1497,6 @@ const App = () => {
         <SubsequentLoader
           modalActive={modalActive}
           changeModalActive={changeModalActive}
-          loadedYears={loadedYears}
         />
       ) : null}
       <Div100vh
@@ -1620,10 +1524,8 @@ const App = () => {
           offenseDescriptionUniqueValues={offenseDescriptionUniqueValues}
           ageGroupData={ageGroupData}
           setFilters={setFilters}
-          loadedYears={loadedYears}
           changeLaddaLoading={changeLaddaLoading}
           laddaLoading={laddaLoading}
-          handleDownloadYear={handleDownloadYear}
           menuClicked={menuClicked}
           changeMenuClicked={changeMenuClicked}
           collapseOpen={collapseOpen}
@@ -1681,7 +1583,6 @@ const App = () => {
               filteredSexArr={filteredSexArr}
               filteredBoroughArr={filteredBoroughArr}
               filteredOffenseDescriptionArr={filteredOffenseDescriptionArr}
-              loadedYears={loadedYears}
               usePrevious={usePrevious}
               currentFilters={currentFilters}
               filteredTimelineAgeGroupData={filteredTimelineAgeGroupData}

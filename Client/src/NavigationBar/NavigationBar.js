@@ -16,6 +16,7 @@ import ACTION_CHANGE_AGE_FILTER from "../actions/filters/age/ACTION_CHANGE_AGE_F
 import ACTION_CHANGE_RACE_FILTER from "../actions/filters/race/ACTION_CHANGE_RACE_FILTER";
 import ACTION_CHANGE_SEX_FILTER from "../actions/filters/sex/ACTION_CHANGE_SEX_FILTER";
 import ACTION_CHANGE_BOROUGH_FILTER from "../actions/filters/borough/ACTION_CHANGE_BOROUGH_FILTER";
+import ACTION_APPLYING_FILTERS from "../actions/applyingFilters/ACTION_APPLYING_FILTERS";
 
 const NavigationBar = (props) => {
   const {
@@ -27,7 +28,6 @@ const NavigationBar = (props) => {
     setFilters,
     changeLaddaLoading,
     laddaLoading,
-    loadedYears,
     menuClicked,
     changeMenuClicked,
     collapseOpen,
@@ -40,6 +40,9 @@ const NavigationBar = (props) => {
 
   const dispatch = useDispatch();
 
+  const applyingFilters = useSelector(
+    (state) => state.applyingFiltersReducer.filters
+  );
   const filteredDataChunks = useSelector(
     (state) => state.filteredDataChunksReducer.data
   );
@@ -50,7 +53,6 @@ const NavigationBar = (props) => {
     (state) => state.categoryFilterReducer.category
   );
   const ageFilter = useSelector((state) => state.ageFilterReducer.age);
-  const yearFilter = useSelector((state) => state.yearFilterReducer.year);
   const boroughFilter = useSelector(
     (state) => state.boroughFilterReducer.borough
   );
@@ -388,10 +390,6 @@ const NavigationBar = (props) => {
                 Data Last Updated: November 5, 2020
               </p>
               <p>
-                Showing Arrest Data for{" "}
-                <strong>{loadedYears.sort().join(", ")}</strong>
-              </p>
-              <p>
                 Total Number of Arrests Shown: <br />
                 <strong>
                   {filteredDataChunks.flat().length.toLocaleString()}
@@ -668,21 +666,23 @@ const NavigationBar = (props) => {
           <div className="nav_item_content_container">
             {!ageGroupData
               ? null
-              : ageGroupData.map((age, i) => {
-                  return (
-                    <p key={i}>
-                      <label>
-                        <input
-                          name="my-checkbox"
-                          type="checkbox"
-                          checked={ageFilter.includes(age)}
-                          onChange={() => handleAgeFilters(age)}
-                        />
-                        {age === "65" ? "65+" : age}
-                      </label>
-                    </p>
-                  );
-                })}
+              : ageGroupData
+                  .sort((a, b) => a.localeCompare(b))
+                  .map((age, i) => {
+                    return (
+                      <p key={i}>
+                        <label>
+                          <input
+                            name="my-checkbox"
+                            type="checkbox"
+                            checked={ageFilter.includes(age)}
+                            onChange={() => handleAgeFilters(age)}
+                          />
+                          {age === "65" ? "65+" : age}
+                        </label>
+                      </p>
+                    );
+                  })}
           </div>
         </Collapsible>
         <Collapsible
@@ -804,12 +804,15 @@ const NavigationBar = (props) => {
         <LaddaButton
           loading={laddaLoading}
           className="apply_filters_button"
-          onClick={(e) => {
-            e.preventDefault();
+          onClick={() => {
+            if (!applyingFilters) {
+              dispatch(ACTION_APPLYING_FILTERS());
+            }
 
-            changeLaddaLoading(true);
+            if (!laddaLoading) {
+              changeLaddaLoading(true);
+            }
             setFilters(
-              yearFilter,
               categoryFilter,
               offenseFilter,
               ageFilter,

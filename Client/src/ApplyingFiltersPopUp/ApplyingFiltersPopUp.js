@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from "react";
 import Popup from "reactjs-popup";
-import GridLoader from "react-spinners/GridLoader";
+import ClipLoader from "react-spinners/ClipLoader";
 import { css } from "@emotion/core";
 import "react-circular-progressbar/dist/styles.css";
 import "./ApplyingFiltersPopUp.css";
@@ -42,9 +42,9 @@ const ApplyingFiltersPopUp = (props) => {
       closeOnEscape={false}
     >
       <div className="applying_filters_modal">
-        <GridLoader
+        <ClipLoader
           css={override}
-          size={40}
+          size={80}
           color={"rgb(0, 109, 129)"}
           style={{ transition: "all 0.5s ease" }}
           loading={true}

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Chart } from "react-google-charts";
 import DoubleBounce from "better-react-spinkit/dist/DoubleBounce";
+import { useSelector } from "react-redux";
 
 const TopOffenses = (props) => {
   const {
@@ -21,15 +22,9 @@ const TopOffenses = (props) => {
   const prevFilteredOffenseDescriptionUniqueValues = usePrevious(
     filteredOffenseDescriptionUniqueValues
   );
-
-  const chartEvents = [
-    {
-      eventName: "select",
-      callback({ chartWrapper }) {
-        return chartWrapper.getChart().setSelection([]);
-      },
-    },
-  ];
+  const applyingFilters = useSelector(
+    (state) => state.applyingFiltersReducer.filters
+  );
 
   useEffect(() => {
     if (
@@ -79,37 +74,40 @@ const TopOffenses = (props) => {
         <>
           <p className="bottom_info_section_title">Top 5 Offenses</p>
           <div className="bottom_info_pie_container">
-            <Chart
-              chartType="BarChart"
-              loader={<DoubleBounce size={100} color="rgb(93, 188, 210)" />}
-              chartEvents={chartEvents}
-              data={
-                [
-                  [["Offense Description", "Number of Arrests"]].concat(
-                    sortedArr.length > 0
-                      ? sortedArr
-                          .slice(sortedArr.length - 5, sortedArr.length)
-                          .sort((a, b) => {
-                            if (a[1] > b[1]) {
-                              return -1;
-                            } else {
-                              return 1;
-                            }
-                          })
-                      : ["UNKNOWN", 1]
-                  ),
-                ][0]
-              }
-              options={{
-                backgroundColor: "transparent",
-                legend: { position: "none" },
-                width: isMobileOrTablet ? 300 : isMediumLaptop ? 400 : 600,
-                bar: isMobileOrTablet ? null : { groupWidth: "95%" },
-                chartArea: isMobileOrTablet
-                  ? null
-                  : { width: "50%", height: "50%" },
-              }}
-            />
+            {applyingFilters ? (
+              <DoubleBounce size={100} color="rgb(93, 188, 210)" />
+            ) : (
+              <Chart
+                chartType="BarChart"
+                loader={<DoubleBounce size={100} color="rgb(93, 188, 210)" />}
+                data={
+                  [
+                    [["Offense Description", "Number of Arrests"]].concat(
+                      sortedArr.length > 0
+                        ? sortedArr
+                            .slice(sortedArr.length - 5, sortedArr.length)
+                            .sort((a, b) => {
+                              if (a[1] > b[1]) {
+                                return -1;
+                              } else {
+                                return 1;
+                              }
+                            })
+                        : ["UNKNOWN", 1]
+                    ),
+                  ][0]
+                }
+                options={{
+                  backgroundColor: "transparent",
+                  legend: { position: "none" },
+                  width: isMobileOrTablet ? 300 : isMediumLaptop ? 400 : 600,
+                  bar: isMobileOrTablet ? null : { groupWidth: "95%" },
+                  chartArea: isMobileOrTablet
+                    ? null
+                    : { width: "50%", height: "50%" },
+                }}
+              />
+            )}
           </div>
         </>
       ) : null}

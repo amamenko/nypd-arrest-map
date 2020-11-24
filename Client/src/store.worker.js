@@ -2,12 +2,10 @@ import { createStore, combineReducers } from "redux";
 import { exposeStore } from "redux-in-worker";
 
 const initialState = {
-  loadDataChunksReducer: { data: [{}] },
   loadDataReducer: {
     data: [],
   },
   filteredDataReducer: {
-    data: [],
     changed: false,
   },
   filteredDataChunksReducer: {
@@ -45,39 +43,6 @@ const currentState = {
   },
 };
 
-const LOAD_DATA_CHUNKS_ADD_YEAR = "LOAD_DATA_CHUNKS_ADD_YEAR";
-const LOAD_DATA_CHUNKS_ADD_TO_YEAR = "LOAD_DATA_CHUNKS_ADD_TO_YEAR";
-
-const loadDataChunksReducer = (
-  state = initialState.loadDataChunksReducer,
-  action
-) => {
-  switch (action.type) {
-    // Year does not exist, create new year and assign it initial data
-    case LOAD_DATA_CHUNKS_ADD_YEAR:
-      let newAssignState = Object.assign({}, state.data[0]);
-      newAssignState[action.year.toString()] = [action.data];
-
-      return {
-        ...state,
-        data: [newAssignState],
-      };
-    // Year exists, add additional data to its initial data
-    case LOAD_DATA_CHUNKS_ADD_TO_YEAR:
-      let newPushState = Object.assign({}, state.data[0]);
-      newPushState[action.year.toString()] = newPushState[
-        action.year.toString()
-      ].concat([action.data]);
-
-      return {
-        ...state,
-        data: [newPushState],
-      };
-    default:
-      return { ...state };
-  }
-};
-
 const ASSIGN_LOAD_DATA = "ASSIGN_LOAD_DATA";
 
 const loadDataReducer = (state = initialState.loadDataReducer, action) => {
@@ -97,7 +62,6 @@ const loadDataReducer = (state = initialState.loadDataReducer, action) => {
   }
 };
 
-const ASSIGN_FILTERED_DATA = "ASSIGN_FILTERED_DATA";
 const FILTERED_DATA_CHANGED = "FILTERED_DATA_CHANGED";
 const FILTERED_DATA_CHANGED_RESET = "FILTERED_DATA_CHANGED_RESET";
 
@@ -106,14 +70,6 @@ const filteredDataReducer = (
   action
 ) => {
   switch (action.type) {
-    case ASSIGN_FILTERED_DATA:
-      return {
-        ...state,
-        data:
-          action.data === "loadData"
-            ? currentState.loadDataReducer.data
-            : action.data.flat(),
-      };
     case FILTERED_DATA_CHANGED:
       return {
         ...state,
@@ -525,7 +481,6 @@ const trendsAvailableReducer = (
 
 const RootReducer = combineReducers({
   // General data states
-  loadDataChunksReducer: loadDataChunksReducer,
   loadDataReducer: loadDataReducer,
   filteredDataReducer: filteredDataReducer,
   filteredDataChunksReducer: filteredDataChunksReducer,

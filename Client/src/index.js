@@ -9,10 +9,8 @@ import storeWorker from "worker-loader!./store.worker.js"; // eslint-disable-lin
 require("dotenv").config();
 
 const initialState = {
-  loadDataChunksReducer: { data: [{}] },
   loadDataReducer: { data: [] },
   filteredDataReducer: {
-    data: [],
     changed: false,
   },
   filteredDataChunksReducer: {

@@ -7,8 +7,7 @@ self.onmessage = (e) => {
   const argumentsLength = Object.entries(dataSent).length;
 
   // Changing Data Filters
-  if (argumentsLength === 8) {
-    const year = dataSent.year;
+  if (argumentsLength === 7) {
     const category = dataSent.category;
     const offense = dataSent.offense;
     const age = dataSent.age;
@@ -20,10 +19,6 @@ self.onmessage = (e) => {
     const assignFilteredData = [suppliedData].map((chunk) => {
       return chunk.filter((x) => {
         if (
-          (year.includes(
-            Number(dayjs(x.ARREST_DATE, "MM/DD/YYYY").format("YYYY"))
-          ) ||
-            year.length === 0) &&
           (category.includes(x.LAW_CAT_CD) || category.length === 0) &&
           (offense.includes(x.OFNS_DESC) || offense.length === 0) &&
           (age.includes(x.AGE_GROUP) || age.length === 0) &&
