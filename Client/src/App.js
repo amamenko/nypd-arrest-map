@@ -1357,7 +1357,7 @@ const App = () => {
 
                 ws = new WebSocket(host);
               } else {
-                ws = new WebSocket("ws://192.168.68.101:4000");
+                ws = new WebSocket("ws://localhost:4000");
               }
 
               onmessage = (e) => {
