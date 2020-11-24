@@ -293,7 +293,6 @@ const App = () => {
           );
           dispatch(ACTION_TIMELINE_GENDER_GRAPH_DATA(genderTimelineGraphData));
           dispatch(ACTION_TIMELINE_RACE_GRAPH_DATA(raceTimelineGraphData));
-          dispatch(ACTION_APPLYING_FILTERS_RESET());
         };
       }
     },
@@ -744,6 +743,7 @@ const App = () => {
         }
 
         dispatch(ACTION_TRENDS_AVAILABLE());
+        dispatch(ACTION_APPLYING_FILTERS_RESET());
       }
     }
   }, [
@@ -948,12 +948,11 @@ const App = () => {
 
       setFilterAndTimelineGraphWorkersInstance.onmessage = (receivedData) => {
         const assignFilteredData = receivedData.data.assignFilteredData;
-        const assignFilteredDataFlat = receivedData.data.assignFilteredDataFlat;
 
-        if (assignFilteredData && assignFilteredDataFlat) {
+        if (assignFilteredData) {
           dispatch(ACTION_ASSIGN_FILTERED_DATA_CHUNKS(assignFilteredData));
 
-          dispatch(ACTION_ASSIGN_FILTERED_DATA(assignFilteredDataFlat));
+          dispatch(ACTION_ASSIGN_FILTERED_DATA(assignFilteredData));
 
           changeCurrentFilters({
             year: year,

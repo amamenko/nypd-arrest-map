@@ -804,7 +804,9 @@ const NavigationBar = (props) => {
         <LaddaButton
           loading={laddaLoading}
           className="apply_filters_button"
-          onClick={() => {
+          onClick={(e) => {
+            e.preventDefault();
+
             changeLaddaLoading(true);
             setFilters(
               yearFilter,

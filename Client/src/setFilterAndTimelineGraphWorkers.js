@@ -63,11 +63,8 @@ self.onmessage = (e) => {
       });
     });
 
-    const assignFilteredDataFlat = assignFilteredData.flat();
-
     postMessage({
       assignFilteredData: assignFilteredData,
-      assignFilteredDataFlat: assignFilteredDataFlat,
     });
   } else {
     // Timeline graph calculations

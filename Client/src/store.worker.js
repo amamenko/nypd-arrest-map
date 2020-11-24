@@ -112,7 +112,7 @@ const filteredDataReducer = (
         data:
           action.data === "loadData"
             ? currentState.loadDataReducer.data
-            : action.data,
+            : action.data.flat(),
       };
     case FILTERED_DATA_CHANGED:
       return {
