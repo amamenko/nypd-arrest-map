@@ -21,17 +21,19 @@ const ApplyingFiltersPopUp = (props) => {
     (state) => state.applyingFiltersReducer.filters
   );
 
+  const resetFilters = useSelector((state) => state.resetFiltersReducer.reset);
+
   useEffect(() => {
     if (applyingFiltersRef) {
       if (applyingFiltersRef.current) {
-        if (applyingFilters) {
+        if (applyingFilters || resetFilters) {
           applyingFiltersRef.current.open();
         } else {
           applyingFiltersRef.current.close();
         }
       }
     }
-  }, [applyingFilters]);
+  }, [applyingFilters, resetFilters]);
 
   return (
     <Popup
@@ -49,7 +51,10 @@ const ApplyingFiltersPopUp = (props) => {
           style={{ transition: "all 0.5s ease" }}
           loading={true}
         />
-        <p>Applying Filters ({applyingFiltersProgressRef.current}% Done)</p>
+        <p>
+          {resetFilters ? "Resetting" : "Applying"} Filters (
+          {applyingFiltersProgressRef.current}% Done)
+        </p>
       </div>
     </Popup>
   );

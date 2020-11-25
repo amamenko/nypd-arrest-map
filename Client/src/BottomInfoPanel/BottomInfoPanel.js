@@ -522,6 +522,7 @@ const BottomInfoPanel = (props) => {
             1600: { items: 3 },
           }}
           preservePosition={true}
+          infinite={true}
           items={[
             <Category
               key="overview"
@@ -609,6 +610,7 @@ const BottomInfoPanel = (props) => {
             playButtonEnabled={false}
             disableAutoPlayOnAction={false}
             touchMoveDefaultEvents={false}
+            infinite={true}
             responsive={{
               0: { items: 1 },
               760: { items: 2 },

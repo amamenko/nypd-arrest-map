@@ -41,6 +41,7 @@ import ACTION_TRENDS_NOT_AVAILABLE from "./actions/trendsAvailable/ACTION_TRENDS
 import Div100vh from "react-div-100vh";
 import { useMediaQuery } from "react-responsive";
 import { FcRotateToLandscape } from "react-icons/fc";
+import ACTION_RESET_FILTERS_RESET from "./actions/resetFilters/ACTION_RESET_FILTERS_RESET";
 
 dayjs.extend(customParseFormat);
 
@@ -57,6 +58,11 @@ const App = () => {
   const newYearFinishedLoading = useSelector(
     (state) => state.newYearFinishedLoadingReducer.finished
   );
+
+  const applyingFilters = useSelector(
+    (state) => state.applyingFiltersReducer.filters
+  );
+  const resetFilters = useSelector((state) => state.resetFiltersReducer.reset);
 
   const totalCount = useSelector((state) => state.totalCountReducer.total);
 
@@ -124,6 +130,7 @@ const App = () => {
   const isPortrait = useMediaQuery({ orientation: "portrait" });
 
   const [laddaLoading, changeLaddaLoading] = useState(false);
+  const [resetLaddaLoading, changeResetLaddaLoading] = useState(false);
   const [loadingYears, changeLoadingYears] = useState([]);
 
   // Web Worker Instances
@@ -574,9 +581,9 @@ const App = () => {
             ACTION_AGE_TIMELINE_COLUMNS(
               [
                 [{ type: "date", label: "Date" }].concat(
-                  filteredAgeGroupData.map((item) =>
-                    item === "65" ? "65+" : item
-                  )
+                  filteredAgeGroupData
+                    .sort((a, b) => a.localeCompare(b))
+                    .map((item) => (item === "65" ? "65+" : item))
                 ),
               ].concat(ageGroupTimelineGraphData)
             )
@@ -687,7 +694,14 @@ const App = () => {
         }
 
         dispatch(ACTION_TRENDS_AVAILABLE());
-        dispatch(ACTION_APPLYING_FILTERS_RESET());
+
+        if (applyingFilters) {
+          dispatch(ACTION_APPLYING_FILTERS_RESET());
+        }
+
+        if (resetFilters) {
+          dispatch(ACTION_RESET_FILTERS_RESET());
+        }
       }
     }
   }, [
@@ -707,6 +721,8 @@ const App = () => {
     filteredUniqueCategory,
     filteredRaceUniqueValues,
     filteredSexUniqueValues,
+    applyingFilters,
+    resetFilters,
   ]);
 
   useEffect(() => {
@@ -852,8 +868,7 @@ const App = () => {
     race,
     sex,
     borough,
-    suppliedData,
-    downloadYear
+    suppliedData
   ) => {
     if (setFilterAndTimelineGraphWorkersInstance) {
       if (applyingFiltersProgressRef.current !== 0) {
@@ -893,13 +908,12 @@ const App = () => {
             borough: borough,
           });
 
-          if (!downloadYear) {
-            dispatch(ACTION_FILTERED_DATA_CHANGED());
-          }
+          dispatch(ACTION_FILTERED_DATA_CHANGED());
         }
       };
 
       setTimeout(() => changeLaddaLoading(false), 1000);
+      setTimeout(() => changeResetLaddaLoading(false), 1000);
     }
   };
 
@@ -1526,6 +1540,8 @@ const App = () => {
           setFilters={setFilters}
           changeLaddaLoading={changeLaddaLoading}
           laddaLoading={laddaLoading}
+          resetLaddaLoading={resetLaddaLoading}
+          changeResetLaddaLoading={changeResetLaddaLoading}
           menuClicked={menuClicked}
           changeMenuClicked={changeMenuClicked}
           collapseOpen={collapseOpen}
@@ -1534,6 +1550,8 @@ const App = () => {
           footerMenuActive={footerMenuActive}
           isMobileOrTablet={isMobileOrTablet}
           isTablet={isTablet}
+          currentFilters={currentFilters}
+          isSame={isSame}
         />
         <DeckGL
           initialViewState={{
@@ -1546,7 +1564,7 @@ const App = () => {
           }}
           ref={deckGLRef}
           layers={layersRef.current}
-          pickingRadius={10}
+          pickingRadius={20}
           controller={true}
           onLoad={() => changeMapLoaded(true)}
           onError={() => changeMapError(true)}

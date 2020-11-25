@@ -314,7 +314,7 @@ a.mapboxgl-ctrl-logo.mapboxgl-compact {
     padding: 0;
     margin: 10px;
     position: relative;
-    background-color: #fff;
+    background: none;
     border-radius: 3px 12px 12px 3px;
   }
 

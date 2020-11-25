@@ -27,10 +27,12 @@ const AgeGroup = (props) => {
             data={
               [
                 [["Age Group", "Number of Arrests"]].concat(
-                  filteredAgeGroupData.map((item) => [
-                    item === "65" ? "65+" : item,
-                    filteredAgeGroup.filter((x) => x === item).length,
-                  ])
+                  filteredAgeGroupData
+                    .sort((a, b) => a.localeCompare(b))
+                    .map((item) => [
+                      item === "65" ? "65+" : item,
+                      filteredAgeGroup.filter((x) => x === item).length,
+                    ])
                 ),
               ][0]
             }

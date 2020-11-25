@@ -20,7 +20,6 @@ const initialState = {
   offenseFilterReducer: { offense: [] },
   raceFilterReducer: { race: [] },
   sexFilterReducer: { sex: [] },
-  yearFilterReducer: { year: [] },
   ageTimelineColumnReducer: { columns: [] },
   boroughTimelineColumnsReducer: { columns: [] },
   categoryTimelineColumnsReducer: { columns: [] },
@@ -32,8 +31,8 @@ const initialState = {
   genderTimelineGraphDataReducer: { data: [] },
   raceTimelineGraphDataReducer: { data: [] },
   totalCountReducer: { total: 0 },
+  resetFiltersReducer: { reset: false },
   applyingFiltersReducer: { filters: false },
-  applyingFiltersProgressReducer: { progress: 0 },
   trendsAvailableReducer: { available: false },
 };
 
@@ -206,20 +205,6 @@ const sexFilterReducer = (state = initialState.sexFilterReducer, action) => {
       return {
         ...state,
         sex: action.sex,
-      };
-    default:
-      return { ...state };
-  }
-};
-
-const CHANGE_YEAR_FILTER = "CHANGE_YEAR_FILTER";
-
-const yearFilterReducer = (state = initialState.yearFilterReducer, action) => {
-  switch (action.type) {
-    case CHANGE_YEAR_FILTER:
-      return {
-        ...state,
-        year: action.year,
       };
     default:
       return { ...state };
@@ -433,6 +418,29 @@ const applyingFiltersReducer = (
   }
 };
 
+const RESET_FILTERS = "RESET_FILTERS";
+const RESET_FILTERS_RESET = "RESET_FILTERS_RESET";
+
+const resetFiltersReducer = (
+  state = initialState.resetFiltersReducer,
+  action
+) => {
+  switch (action.type) {
+    case RESET_FILTERS:
+      return {
+        ...state,
+        reset: true,
+      };
+    case RESET_FILTERS_RESET:
+      return {
+        ...state,
+        reset: false,
+      };
+    default:
+      return { ...state };
+  }
+};
+
 const NEW_YEAR_FINISHED_LOADING = "NEW_YEAR_FINISHED_LOADING";
 const NEW_YEAR_FINISHED_LOADING_RESET = "NEW_YEAR_FINISHED_LOADING_RESET";
 
@@ -495,7 +503,6 @@ const RootReducer = combineReducers({
   sexTimelineColumnsReducer: sexTimelineColumnsReducer,
 
   // Filters
-  yearFilterReducer: yearFilterReducer,
   categoryFilterReducer: categoryFilterReducer,
   offenseFilterReducer: offenseFilterReducer,
   ageFilterReducer: ageFilterReducer,
@@ -503,6 +510,7 @@ const RootReducer = combineReducers({
   sexFilterReducer: sexFilterReducer,
   boroughFilterReducer: boroughFilterReducer,
   applyingFiltersReducer: applyingFiltersReducer,
+  resetFiltersReducer: resetFiltersReducer,
 
   // Timeline graph data
   trendsAvailableReducer: trendsAvailableReducer,

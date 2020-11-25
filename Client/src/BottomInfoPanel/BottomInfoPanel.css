@@ -117,11 +117,11 @@
 }
 
 .overview_carousel {
-  padding-left: 25%;
+  padding-left: 30%;
 }
 
 .trends_carousel {
-  padding-left: 20%;
+  padding-left: 25%;
 }
 
 .trend_tooltip {
@@ -173,7 +173,7 @@
 }
 
 .bottom_info_panel_info_box:first-child {
-  padding-right: 1.5rem;
+  padding-right: 10rem;
 }
 
 .bottom_info_panel_info_box:not(:first-child) {

@@ -1,7 +1,6 @@
-import dayjs from "dayjs";
 import groupBy from "lodash.groupby";
 
-self.onmessage = (e) => {
+onmessage = (e) => {
   const dataSent = e.data;
 
   const argumentsLength = Object.entries(dataSent).length;

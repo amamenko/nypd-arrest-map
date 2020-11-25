@@ -183,18 +183,25 @@ input[type="checkbox"] {
   background: rgb(227, 227, 227);
 }
 
-.apply_filters_button {
-  color: #fff;
-  cursor: pointer;
+.filter_buttons_container {
   margin-left: 1.5rem;
   margin-right: 1.5rem;
   margin-bottom: 50vh;
+}
+
+.reset_filters_button,
+.apply_filters_button {
+  width: 100%;
+  color: #fff;
+  cursor: pointer;
   margin-top: 5vh;
   font-size: 0.7rem;
   min-height: 3rem;
   outline: none;
+  transition: opacity 0.5s ease;
 }
 
+.reset_filters_button:focus,
 .apply_filters_button:focus {
   outline: 1px solid black;
 }

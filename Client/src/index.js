@@ -25,7 +25,6 @@ const initialState = {
   offenseFilterReducer: { offense: [] },
   raceFilterReducer: { race: [] },
   sexFilterReducer: { sex: [] },
-  yearFilterReducer: { year: [] },
   ageTimelineColumnsReducer: { columns: [] },
   boroughTimelineColumnsReducer: { columns: [] },
   categoryTimelineColumnsReducer: { columns: [] },
@@ -38,6 +37,7 @@ const initialState = {
   raceTimelineGraphDataReducer: { data: [] },
   totalCountReducer: { total: 0 },
   applyingFiltersReducer: { filters: false },
+  resetFiltersReducer: { reset: false },
   trendsAvailableReducer: { available: false },
 };
 

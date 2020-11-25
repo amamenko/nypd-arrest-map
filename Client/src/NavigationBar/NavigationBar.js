@@ -17,6 +17,7 @@ import ACTION_CHANGE_RACE_FILTER from "../actions/filters/race/ACTION_CHANGE_RAC
 import ACTION_CHANGE_SEX_FILTER from "../actions/filters/sex/ACTION_CHANGE_SEX_FILTER";
 import ACTION_CHANGE_BOROUGH_FILTER from "../actions/filters/borough/ACTION_CHANGE_BOROUGH_FILTER";
 import ACTION_APPLYING_FILTERS from "../actions/applyingFilters/ACTION_APPLYING_FILTERS";
+import ACTION_RESET_FILTERS from "../actions/resetFilters/ACTION_RESET_FILTERS";
 
 const NavigationBar = (props) => {
   const {
@@ -28,6 +29,8 @@ const NavigationBar = (props) => {
     setFilters,
     changeLaddaLoading,
     laddaLoading,
+    resetLaddaLoading,
+    changeResetLaddaLoading,
     menuClicked,
     changeMenuClicked,
     collapseOpen,
@@ -36,6 +39,8 @@ const NavigationBar = (props) => {
     isMobileOrTablet,
     footerMenuActive,
     isTablet,
+    currentFilters,
+    isSame,
   } = props;
 
   const dispatch = useDispatch();
@@ -61,6 +66,7 @@ const NavigationBar = (props) => {
     (state) => state.offenseFilterReducer.offense
   );
   const raceFilter = useSelector((state) => state.raceFilterReducer.race);
+  const resetFilters = useSelector((state) => state.resetFiltersReducer.reset);
 
   // Timeline Column Data
   const ageTimelineColumns = useSelector(
@@ -94,6 +100,12 @@ const NavigationBar = (props) => {
   );
   const mapLegend = document.getElementsByClassName(
     "overview_tooltip legend_tooltip"
+  );
+  const resetFiltersButton = document.getElementsByClassName(
+    "reset_filters_button"
+  );
+  const applyFiltersButton = document.getElementsByClassName(
+    "apply_filters_button"
   );
 
   const [tooltipVisible, changeTooltipVisible] = useState(true);
@@ -369,6 +381,94 @@ const NavigationBar = (props) => {
       }
     }
   }, [isMobileOrTablet, mapLegend, menuClicked, mapDetailsTip, overviewTip]);
+
+  useEffect(() => {
+    if (!menuClicked) {
+      const filterMenu = document.getElementsByClassName("bm-menu");
+      const scrollContainers = document.getElementsByClassName(
+        "nav_item_content_container"
+      );
+
+      setTimeout(() => {
+        if (filterMenu[0]) {
+          filterMenu[0].scrollTop = 0;
+        }
+
+        for (let i = 0; i < scrollContainers.length; i++) {
+          scrollContainers[i].scrollTop = 0;
+        }
+      }, 1500);
+
+      if (collapseOpen !== "") {
+        changeCollapseOpen("");
+      }
+    }
+  }, [menuClicked, collapseOpen, changeCollapseOpen]);
+
+  useEffect(() => {
+    if (
+      currentFilters.category.length === 0 &&
+      currentFilters.offense.length === 0 &&
+      currentFilters.age.length === 0 &&
+      currentFilters.race.length === 0 &&
+      currentFilters.sex.length === 0 &&
+      currentFilters.borough.length === 0
+    ) {
+      if (resetFiltersButton[0]) {
+        resetFiltersButton[0].style.opacity = 0.4;
+        resetFiltersButton[0].style.pointerEvents = "none";
+      }
+    } else {
+      if (resetFiltersButton[0]) {
+        resetFiltersButton[0].style.opacity = 1;
+        resetFiltersButton[0].style.pointerEvents = "auto";
+      }
+    }
+  }, [
+    currentFilters.age.length,
+    currentFilters.borough.length,
+    currentFilters.category.length,
+    currentFilters.offense.length,
+    currentFilters.race.length,
+    currentFilters.sex.length,
+    resetFiltersButton,
+  ]);
+
+  useEffect(() => {
+    if (
+      isSame(currentFilters.category, categoryFilter) &&
+      isSame(currentFilters.offense, offenseFilter) &&
+      isSame(currentFilters.age, ageFilter) &&
+      isSame(currentFilters.race, raceFilter) &&
+      isSame(currentFilters.sex, sexFilter) &&
+      isSame(currentFilters.borough, boroughFilter)
+    ) {
+      if (applyFiltersButton[0]) {
+        applyFiltersButton[0].style.opacity = 0.4;
+        applyFiltersButton[0].style.pointerEvents = "none";
+      }
+    } else {
+      if (applyFiltersButton[0]) {
+        applyFiltersButton[0].style.opacity = 1;
+        applyFiltersButton[0].style.pointerEvents = "auto";
+      }
+    }
+  }, [
+    currentFilters.age,
+    currentFilters.borough,
+    currentFilters.category,
+    currentFilters.offense,
+    currentFilters.race,
+    currentFilters.sex,
+    ageFilter,
+    boroughFilter,
+    categoryFilter,
+    offenseFilter,
+    raceFilter,
+    sexFilter,
+    applyFiltersButton,
+    isSame,
+  ]);
 
   return (
     <div className="navigation_bar_container">
@@ -801,37 +901,69 @@ const NavigationBar = (props) => {
           </div>
         </Collapsible>
         <span className="spacer" />
-        <LaddaButton
-          loading={laddaLoading}
-          className="apply_filters_button"
-          onClick={() => {
-            if (!applyingFilters) {
-              dispatch(ACTION_APPLYING_FILTERS());
-            }
+        <div className="filter_buttons_container">
+          <LaddaButton
+            loading={laddaLoading}
+            className="apply_filters_button"
+            onClick={() => {
+              if (!applyingFilters) {
+                dispatch(ACTION_APPLYING_FILTERS());
+              }
 
-            if (!laddaLoading) {
-              changeLaddaLoading(true);
-            }
-            setFilters(
-              categoryFilter,
-              offenseFilter,
-              ageFilter,
-              raceFilter,
-              sexFilter,
-              boroughFilter,
-              loadData,
-              false
-            );
-          }}
-          data-color={"blue"}
-          data-size={XL}
-          data-style={EXPAND_LEFT}
-          data-spinner-size={30}
-          data-spinner-color={"#fff"}
-          data-spinner-lines={12}
-        >
-          {laddaLoading ? "APPLYING FILTERS" : "APPLY FILTERS"}
-        </LaddaButton>
+              if (!laddaLoading) {
+                changeLaddaLoading(true);
+              }
+
+              setFilters(
+                categoryFilter,
+                offenseFilter,
+                ageFilter,
+                raceFilter,
+                sexFilter,
+                boroughFilter,
+                loadData
+              );
+            }}
+            data-color={"blue"}
+            data-size={XL}
+            data-style={EXPAND_LEFT}
+            data-spinner-size={30}
+            data-spinner-color={"#fff"}
+            data-spinner-lines={12}
+          >
+            {laddaLoading ? "APPLYING FILTERS" : "APPLY FILTERS"}
+          </LaddaButton>
+          <LaddaButton
+            loading={resetLaddaLoading}
+            className="reset_filters_button"
+            onClick={() => {
+              if (!resetFilters) {
+                dispatch(ACTION_RESET_FILTERS());
+              }
+
+              if (!resetLaddaLoading) {
+                changeResetLaddaLoading(true);
+              }
+
+              dispatch(ACTION_CHANGE_CATEGORY_FILTER([]));
+              dispatch(ACTION_CHANGE_OFFENSE_FILTER([]));
+              dispatch(ACTION_CHANGE_AGE_FILTER([]));
+              dispatch(ACTION_CHANGE_RACE_FILTER([]));
+              dispatch(ACTION_CHANGE_SEX_FILTER([]));
+              dispatch(ACTION_CHANGE_BOROUGH_FILTER([]));
+
+              setFilters([], [], [], [], [], [], loadData);
+            }}
+            data-color={"red"}
+            data-size={XL}
+            data-style={EXPAND_LEFT}
+            data-spinner-size={30}
+            data-spinner-color={"#fff"}
+            data-spinner-lines={12}
+          >
+            {resetLaddaLoading ? "RESETTING" : "RESET FILTERS"}
+          </LaddaButton>
+        </div>
       </Menu>
     </div>
   );

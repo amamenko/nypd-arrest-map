@@ -29,3 +29,10 @@ svg > g > g:last-child {
 rect ~ g {
   pointer-events: auto !important;
 }
+
+input,
+button,
+submit {
+  background: none;
+  padding: 0;
+}
