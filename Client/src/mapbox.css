@@ -309,13 +309,28 @@ a.mapboxgl-ctrl-logo.mapboxgl-compact {
 }
 
 @media screen {
+  .mapboxgl-ctrl-attrib > input,
+  .mapboxgl-ctrl-attrib > button,
+  .mapboxgl-ctrl-attrib > submit {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    display: none;
+  }
+
   .mapboxgl-ctrl-attrib.mapboxgl-compact {
-    min-height: 20px;
+    max-height: 20px;
     padding: 0;
     margin: 10px;
     position: relative;
     background: none;
     border-radius: 3px 12px 12px 3px;
+    display: flex;
+    flex-direction: row;
+    overflow: hidden;
+    align-items: center;
+    justify-content: center;
   }
 
   .mapboxgl-ctrl-attrib.mapboxgl-compact:hover {

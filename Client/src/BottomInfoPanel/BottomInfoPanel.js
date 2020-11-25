@@ -520,6 +520,7 @@ const BottomInfoPanel = (props) => {
             0: { items: 1 },
             760: { items: 2 },
             1600: { items: 3 },
+            1800: { items: 4 },
           }}
           preservePosition={true}
           infinite={true}
@@ -615,6 +616,7 @@ const BottomInfoPanel = (props) => {
               0: { items: 1 },
               760: { items: 2 },
               1600: { items: 3 },
+              2000: { items: 4 },
             }}
             preservePosition={true}
             items={[
