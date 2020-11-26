@@ -48,6 +48,10 @@ const BottomInfoPanel = (props) => {
     isMediumLaptop,
     footerMenuActive,
     changeFooterMenuActive,
+    menuClicked,
+    isTinyPhone,
+    bottomInfoMainInfoBox,
+    carouselContainer,
 
     filteredTimelineAgeGroupData,
     filteredTimelineBoroughData,
@@ -287,6 +291,60 @@ const BottomInfoPanel = (props) => {
     }
   };
 
+  // useEffect(() => {
+  //   if (isMobileOrTablet) {
+  //     if (
+  //       layersRef.current.length > 0 &&
+  //       (ageTimelineColumns ? ageTimelineColumns.length > 0 : false) &&
+  //       (boroughTimelineColumns ? boroughTimelineColumns.length > 0 : false) &&
+  //       (categoryTimelineColumns
+  //         ? categoryTimelineColumns.length > 0
+  //         : false) &&
+  //       (raceTimelineColumns ? raceTimelineColumns.length > 0 : false) &&
+  //       (sexTimelineColumns ? sexTimelineColumns.length > 0 : false)
+  //     ) {
+  //       if (footerMenuActive) {
+  //         if (bottomInfoMainInfoBox[0] && carouselContainer[0]) {
+  //           bottomInfoMainInfoBox[0].style.display = "block";
+  //           carouselContainer[0].style.display = "block";
+  //         }
+  //       } else {
+  //         if (bottomInfoMainInfoBox[0] && carouselContainer[0]) {
+  //           if (menuClicked) {
+  //             bottomInfoMainInfoBox[0].style.display = "none";
+  //             carouselContainer[0].style.display = "none";
+  //           } else {
+  //             if (firstTimeFooterActive) {
+  //               setTimeout(() => {
+  //                 bottomInfoMainInfoBox[0].style.display = "none";
+  //                 carouselContainer[0].style.display = "none";
+  //               }, 1000);
+  //             }
+  //           }
+  //         }
+  //       }
+  //     }
+  //   } else {
+  //     if (bottomInfoMainInfoBox[0] && carouselContainer[0]) {
+  //       bottomInfoMainInfoBox[0].style.display = "block";
+  //       carouselContainer[0].style.display = "block";
+  //     }
+  //   }
+  // }, [
+  //   footerMenuActive,
+  //   firstTimeFooterActive,
+  //   bottomInfoMainInfoBox,
+  //   carouselContainer,
+  //   isMobileOrTablet,
+  //   menuClicked,
+  //   ageTimelineColumns,
+  //   boroughTimelineColumns,
+  //   categoryTimelineColumns,
+  //   layersRef,
+  //   raceTimelineColumns,
+  //   sexTimelineColumns,
+  // ]);
+
   return (
     <div
       className="bottom_info_panel_container"
@@ -511,8 +569,8 @@ const BottomInfoPanel = (props) => {
           ref={(el) => (CarouselRef = el)}
           autoPlay={false}
           fadeOutAnimation={true}
-          dotsDisabled={true}
-          buttonsDisabled={true}
+          disableDotsControls={true}
+          disableButtonsControls={true}
           mouseTrackingEnabled={true}
           playButtonEnabled={false}
           disableAutoPlayOnAction={false}
@@ -605,8 +663,8 @@ const BottomInfoPanel = (props) => {
           <AliceCarousel
             ref={(el) => (CarouselTimelineRef = el)}
             autoPlay={false}
-            dotsDisabled={true}
-            buttonsDisabled={true}
+            disableDotsControls={true}
+            disableButtonsControls={true}
             mouseTrackingEnabled={false}
             playButtonEnabled={false}
             disableAutoPlayOnAction={false}
@@ -627,6 +685,7 @@ const BottomInfoPanel = (props) => {
                 filteredUniqueCategory={filteredUniqueCategory}
                 isMobileOrTablet={isMobileOrTablet}
                 isMediumLaptop={isMediumLaptop}
+                isTinyPhone={isTinyPhone}
               />,
               <AgeGroupTimeline
                 key="trends"
@@ -634,6 +693,7 @@ const BottomInfoPanel = (props) => {
                 filteredTimelineAgeGroupData={filteredTimelineAgeGroupData}
                 isMobileOrTablet={isMobileOrTablet}
                 isMediumLaptop={isMediumLaptop}
+                isTinyPhone={isTinyPhone}
               />,
               <BoroughTimeline
                 key="trends"
@@ -641,6 +701,7 @@ const BottomInfoPanel = (props) => {
                 filteredTimelineBoroughData={filteredTimelineBoroughData}
                 isMobileOrTablet={isMobileOrTablet}
                 isMediumLaptop={isMediumLaptop}
+                isTinyPhone={isTinyPhone}
               />,
               <RaceTimeline
                 key="trends"
@@ -648,6 +709,7 @@ const BottomInfoPanel = (props) => {
                 filteredTimelineRaceData={filteredTimelineRaceData}
                 isMobileOrTablet={isMobileOrTablet}
                 isMediumLaptop={isMediumLaptop}
+                isTinyPhone={isTinyPhone}
               />,
               <GenderTimeline
                 key="trends"
@@ -655,6 +717,7 @@ const BottomInfoPanel = (props) => {
                 filteredTimelineSexData={filteredTimelineSexData}
                 isMobileOrTablet={isMobileOrTablet}
                 isMediumLaptop={isMediumLaptop}
+                isTinyPhone={isTinyPhone}
               />,
             ]}
           />

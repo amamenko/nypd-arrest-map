@@ -260,6 +260,22 @@
   transition: opacity 1s ease;
 }
 
+.alice-carousel__dots,
+.alice-carousel__prev-btn,
+.alice-carousel__next-btn {
+  display: none;
+}
+
+@media only screen and (max-width: 375px) {
+  .bottom_info_panel_container {
+    height: 65vh !important;
+  }
+
+  .trends_carousel {
+    padding-left: 19%;
+  }
+}
+
 @media only screen and (min-width: 405px) {
   .map_legend_items_container {
     padding-right: 0rem;

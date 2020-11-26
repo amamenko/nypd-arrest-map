@@ -397,7 +397,7 @@ const NavigationBar = (props) => {
         for (let i = 0; i < scrollContainers.length; i++) {
           scrollContainers[i].scrollTop = 0;
         }
-      }, 1500);
+      }, 800);
 
       if (collapseOpen !== "") {
         changeCollapseOpen("");
@@ -470,6 +470,18 @@ const NavigationBar = (props) => {
     isSame,
   ]);
 
+  const handleOffenseDescriptionCollapseClosing = () => {
+    const scrollContainers = document.getElementsByClassName(
+      "nav_item_content_container"
+    );
+
+    setTimeout(() => {
+      for (let i = 0; i < scrollContainers.length; i++) {
+        scrollContainers[i].scrollTop = 0;
+      }
+    }, 800);
+  };
+
   return (
     <div className="navigation_bar_container">
       <Tippy
@@ -487,7 +499,8 @@ const NavigationBar = (props) => {
               }}
             >
               <p style={{ color: "rgb(166, 166, 166)" }}>
-                Data Last Updated: November 5, 2020
+                Data Last Updated: <br />
+                November 5, 2020
               </p>
               <p>
                 Total Number of Arrests Shown: <br />
@@ -711,6 +724,7 @@ const NavigationBar = (props) => {
           trigger={filterByOffense()}
           onTriggerOpening={() => changeCollapseOpen("description")}
           onTriggerClosing={() => changeCollapseOpen("")}
+          onClose={handleOffenseDescriptionCollapseClosing}
           open={collapseOpen === "description"}
           className="nav_item"
         >
@@ -718,7 +732,7 @@ const NavigationBar = (props) => {
             {!offenseDescriptionUniqueValues ||
             offenseDescriptionUniqueValues.length === 0
               ? null
-              : offenseDescriptionUniqueValues.map((desc, i) => {
+              : offenseDescriptionUniqueValues.sort().map((desc, i) => {
                   if (
                     desc &&
                     !(desc.includes("OTHER STATE LAWS") && desc.includes("("))
@@ -795,7 +809,7 @@ const NavigationBar = (props) => {
           <div className="nav_item_content_container">
             {!raceUniqueValues
               ? null
-              : raceUniqueValues.map((race, i) => {
+              : raceUniqueValues.sort().map((race, i) => {
                   if (race) {
                     return (
                       <p key={i}>
@@ -873,7 +887,7 @@ const NavigationBar = (props) => {
           <div className="nav_item_content_container">
             {!boroughUniqueValues
               ? null
-              : boroughUniqueValues.map((borough, i) => {
+              : boroughUniqueValues.sort().map((borough, i) => {
                   return (
                     <p key={i}>
                       <label>

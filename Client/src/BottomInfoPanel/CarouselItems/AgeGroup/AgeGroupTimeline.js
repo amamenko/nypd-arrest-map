@@ -4,7 +4,7 @@ import DoubleBounce from "better-react-spinkit/dist/DoubleBounce";
 import { useSelector } from "react-redux";
 
 const AgeGroupTimeline = (props) => {
-  const { isMobileOrTablet, isMediumLaptop } = props;
+  const { isMobileOrTablet, isMediumLaptop, isTinyPhone } = props;
 
   const ageTimelineColumns = useSelector(
     (state) => state.ageTimelineColumnsReducer.columns
@@ -24,7 +24,13 @@ const AgeGroupTimeline = (props) => {
           data={ageTimelineColumns}
           options={{
             backgroundColor: "transparent",
-            width: isMobileOrTablet ? 300 : isMediumLaptop ? 400 : 500,
+            width: isMobileOrTablet
+              ? isTinyPhone
+                ? 275
+                : 300
+              : isMediumLaptop
+              ? 400
+              : 500,
             chartArea: { width: "50%", height: "50%" },
             hAxis: {
               title: "Dates",

@@ -316,7 +316,7 @@ a.mapboxgl-ctrl-logo.mapboxgl-compact {
     flex-direction: row;
     align-items: center;
     justify-content: center;
-    display: none;
+    opacity: 0;
   }
 
   .mapboxgl-ctrl-attrib.mapboxgl-compact {
@@ -328,7 +328,6 @@ a.mapboxgl-ctrl-logo.mapboxgl-compact {
     border-radius: 3px 12px 12px 3px;
     display: flex;
     flex-direction: row;
-    overflow: hidden;
     align-items: center;
     justify-content: center;
   }

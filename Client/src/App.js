@@ -124,6 +124,7 @@ const App = () => {
     borough: [],
   });
 
+  const isTinyPhone = useMediaQuery({ maxWidth: 375 });
   const isMobileOrTablet = useMediaQuery({ maxWidth: 1224 });
   const isTablet = useMediaQuery({ minWidth: 768 });
   const isMediumLaptop = useMediaQuery({ maxWidth: 1440 });
@@ -227,6 +228,13 @@ const App = () => {
   const [filteredTimelineSexData, changeFilteredTimelineSexData] = useState([]);
   const [filteredTimelineRaceData, changeFilteredTimelineRaceData] = useState(
     []
+  );
+
+  const bottomInfoMainInfoBox = document.getElementsByClassName(
+    "bottom_info_main_info_box"
+  );
+  const carouselContainer = document.getElementsByClassName(
+    "carousel_container"
   );
 
   const postToTimelineGraphWorker = useCallback(
@@ -1371,7 +1379,7 @@ const App = () => {
 
                 ws = new WebSocket(host);
               } else {
-                ws = new WebSocket("ws://localhost:4000");
+                ws = new WebSocket("ws://192.168.68.101:4000");
               }
 
               onmessage = (e) => {
@@ -1615,6 +1623,10 @@ const App = () => {
               changeFooterMenuActive={changeFooterMenuActive}
               isMobileOrTablet={isMobileOrTablet}
               isMediumLaptop={isMediumLaptop}
+              menuClicked={menuClicked}
+              isTinyPhone={isTinyPhone}
+              bottomInfoMainInfoBox={bottomInfoMainInfoBox}
+              carouselContainer={carouselContainer}
             />
           </>
         ) : null}
