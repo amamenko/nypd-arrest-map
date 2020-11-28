@@ -1,0 +1,313 @@
+.navigation_bar_container {
+  height: 6vh;
+  position: relative;
+  max-width: 100vw;
+  z-index: 99999999999;
+}
+
+label {
+  cursor: pointer;
+}
+
+.nypd_arrest_map_logo_container {
+  position: absolute;
+  left: 1rem;
+  top: 1rem;
+  z-index: 10;
+}
+
+.overview_tooltip {
+  height: 100%;
+  background: white;
+  color: black;
+  height: max-content;
+  position: relative;
+  margin-left: 0.5rem;
+  margin-right: 0.5rem;
+  overflow: hidden;
+  min-width: 94vw;
+  opacity: 0.3;
+  transition: opacity 0.5s ease;
+}
+
+.overview_tooltip.legend_tooltip {
+  margin-left: 0.5rem;
+  transition: opacity 0.5s ease;
+  background: rgb(255, 255, 255);
+}
+
+.map_details_tooltip_container {
+  min-width: 100vw;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  background: white;
+  opacity: 0.3;
+  transition: opacity 0.5s ease;
+}
+
+.overview_tooltip > .tippy-arrow::before {
+  display: none;
+}
+
+.overview_tooltip_content {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
+  overflow-y: visible;
+  padding: 0.5rem;
+  padding-right: 0rem;
+  position: relative;
+  min-width: 45% !important;
+}
+
+.overview_tooltip_content p {
+  padding: 0;
+  margin: 0;
+  font-size: 0.6rem;
+  white-space: nowrap;
+}
+
+.burger_tooltip {
+  background: white;
+  color: black;
+  font-size: 0.6rem;
+  transition: opacity 0.5s ease;
+}
+
+.tippy-arrow::before {
+  color: white !important;
+  transition: opacity 0.5s ease;
+}
+
+.tippy_content {
+  color: black;
+}
+
+.nypd_arrest_map_logo_container p {
+  display: inline-block;
+  font-weight: 600;
+  margin: 0 auto;
+  margin-right: 0.3rem;
+  font-size: calc(0.3rem + 2vh);
+}
+
+.nypd_arrest_map_logo_container p:first-child {
+  color: rgb(93, 188, 210);
+}
+
+.nypd_arrest_map_logo_container p:nth-child(2) {
+  color: rgb(255, 255, 255);
+}
+
+.nypd_arrest_map_logo_container p:last-child {
+  color: #f9c124;
+}
+
+.nav_item {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  cursor: pointer;
+}
+
+.nav_item p {
+  display: inline-block;
+}
+
+.nav_item_content_container {
+  background: rgb(227, 227, 227);
+  width: 100%;
+  height: auto;
+  max-height: 50vh;
+  overflow: auto;
+}
+
+input[type="checkbox"] {
+  cursor: pointer;
+  transform: scale(1.5);
+  -webkit-transform: scale(1.5);
+  margin-right: 1.5rem;
+}
+
+.unfetched_year_button {
+  cursor: pointer;
+}
+
+.unfetched_year_button:hover {
+  color: rgb(43, 120, 43) !important;
+}
+
+.year_download_icon {
+  transform: scale(1.5);
+  cursor: pointer;
+  margin-right: 1.5rem;
+}
+
+.nav_item_content_container p {
+  color: #000;
+  font-weight: 500;
+  /* Keeps individual options on their own line when collapsing/uncollapsing */
+  display: block;
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+  line-height: 2rem;
+}
+
+.filter_identifier {
+  color: #000;
+  font-weight: 600;
+}
+
+.is-closed,
+.is-open {
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+  display: flex;
+  align-items: center;
+  background: rgb(255, 255, 255);
+  border-bottom: 1px solid rgb(155, 155, 155);
+  outline: none;
+}
+
+.is-closed:active,
+.is-open:active {
+  background: rgb(225, 225, 225);
+}
+
+.Collapsible__contentOuter {
+  padding-left: 1.5rem;
+  background: rgb(227, 227, 227);
+}
+
+.filter_buttons_container {
+  margin-left: 1.5rem;
+  margin-right: 1.5rem;
+  padding-bottom: 25vh;
+}
+
+.reset_filters_button,
+.apply_filters_button {
+  width: 100%;
+  color: #fff;
+  cursor: pointer;
+  margin-top: 5vh;
+  font-size: 0.7rem;
+  min-height: 3rem;
+  outline: none;
+  transition: opacity 0.5s ease;
+}
+
+.reset_filters_button:focus,
+.apply_filters_button:focus {
+  outline: 1px solid black;
+}
+
+.spacer {
+  display: flex !important;
+  flex: 1;
+}
+
+.spacer:focus {
+  outline: none;
+}
+
+@media only screen and (max-width: 768px) {
+  .overview_tooltip_content p {
+    white-space: normal;
+  }
+}
+
+@media only screen and (min-width: 768px) {
+  .burger_tooltip {
+    font-size: 0.9rem;
+  }
+
+  .overview_tooltip {
+    min-width: max-content;
+    opacity: 1;
+    overflow: visible;
+    margin: 0;
+  }
+
+  .overview_tooltip.legend_tooltip {
+    margin-bottom: 0vh;
+    margin-left: 0.5rem;
+    transition: opacity 0.5s ease;
+    background: rgb(255, 255, 255);
+    opacity: 0.3;
+    transition: opacity 0.5s ease;
+  }
+
+  .overview_tooltip_content {
+    padding-right: 0rem;
+  }
+
+  .map_details_tooltip_container {
+    min-width: 0;
+    opacity: 1;
+  }
+}
+
+@media only screen and (min-width: 1200px) {
+  .overview_tooltip_content p {
+    font-size: 0.7rem;
+  }
+
+  .nypd_arrest_map_logo_container {
+    top: 1.5rem;
+  }
+
+  .overview_tooltip.legend_tooltip {
+    opacity: 1 !important;
+  }
+
+  .overview_tooltip {
+    min-width: 0;
+    min-height: 100%;
+    opacity: 1;
+    overflow: hidden;
+    margin-left: 0.5rem;
+    margin-right: 0.5rem;
+  }
+
+  .overview_tooltip_content {
+    padding-right: 2.5rem;
+  }
+
+  .map_details_tooltip_container {
+    min-width: 0;
+    min-height: 100%;
+    opacity: 1;
+  }
+
+  .overview_tooltip {
+    max-height: 13vh;
+  }
+
+  .is-closed:hover,
+  .is-open:hover {
+    background: rgb(245, 245, 245);
+  }
+
+  .nav_item_content_container {
+    overflow: auto;
+  }
+}
+
+@media only screen and (min-width: 1400px) {
+  .overview_tooltip {
+    min-width: 0;
+    opacity: 1;
+  }
+}
+
+@media only screen and (min-width: 2000px) {
+  .overview_tooltip_content p {
+    font-size: 1rem;
+  }
+}

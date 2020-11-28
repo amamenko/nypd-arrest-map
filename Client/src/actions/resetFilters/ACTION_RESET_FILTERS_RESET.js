@@ -1,0 +1,9 @@
+const RESET_FILTERS_RESET = "RESET_FILTERS_RESET";
+
+const ACTION_RESET_FILTERS_RESET = () => {
+  return {
+    type: RESET_FILTERS_RESET,
+  };
+};
+
+export default ACTION_RESET_FILTERS_RESET;

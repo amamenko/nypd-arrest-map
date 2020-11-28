@@ -1,0 +1,27 @@
+{
+  "files": {
+    "main.css": "/static/css/main.76af43fe.chunk.css",
+    "main.js": "/static/js/main.df8a11a2.chunk.js",
+    "main.js.map": "/static/js/main.df8a11a2.chunk.js.map",
+    "runtime-main.js": "/static/js/runtime-main.01a08af8.js",
+    "runtime-main.js.map": "/static/js/runtime-main.01a08af8.js.map",
+    "static/css/2.d661a272.chunk.css": "/static/css/2.d661a272.chunk.css",
+    "static/js/2.6c6fc03d.chunk.js": "/static/js/2.6c6fc03d.chunk.js",
+    "static/js/2.6c6fc03d.chunk.js.map": "/static/js/2.6c6fc03d.chunk.js.map",
+    "index.html": "/index.html",
+    "static/css/2.d661a272.chunk.css.map": "/static/css/2.d661a272.chunk.css.map",
+    "static/css/main.76af43fe.chunk.css.map": "/static/css/main.76af43fe.chunk.css.map",
+    "static/js/2.6c6fc03d.chunk.js.LICENSE.txt": "/static/js/2.6c6fc03d.chunk.js.LICENSE.txt",
+    "static/js/setFilterAndTimelineGraphWorkers.ad7e120d.worker.js": "/static/js/setFilterAndTimelineGraphWorkers.ad7e120d.worker.js",
+    "static/js/setFilterAndTimelineGraphWorkers.ad7e120d.worker.js.map": "/static/js/setFilterAndTimelineGraphWorkers.ad7e120d.worker.js.map",
+    "static/js/store.worker.30a9de6f.worker.js": "/static/js/store.worker.30a9de6f.worker.js",
+    "static/js/store.worker.30a9de6f.worker.js.map": "/static/js/store.worker.30a9de6f.worker.js.map"
+  },
+  "entrypoints": [
+    "static/js/runtime-main.01a08af8.js",
+    "static/css/2.d661a272.chunk.css",
+    "static/js/2.6c6fc03d.chunk.js",
+    "static/css/main.76af43fe.chunk.css",
+    "static/js/main.df8a11a2.chunk.js"
+  ]
+}

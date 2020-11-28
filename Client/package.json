@@ -1,0 +1,68 @@
+{
+  "name": "nypd-arrest-map",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "@luma.gl/webgl2-polyfill": "^7.3.2",
+    "@testing-library/jest-dom": "^5.11.6",
+    "@testing-library/react": "^11.2.2",
+    "@testing-library/user-event": "^12.2.2",
+    "@tippyjs/react": "^4.2.0",
+    "better-react-spinkit": "^2.0.4",
+    "dayjs": "^1.9.6",
+    "deck.gl": "^8.3.9",
+    "dotenv": "^8.2.0",
+    "lodash.groupby": "^4.6.0",
+    "npm": "^6.14.9",
+    "react": "^17.0.1",
+    "react-alice-carousel": "^2.1.0",
+    "react-burger-menu": "^2.9.2",
+    "react-circular-progressbar": "^2.0.3",
+    "react-collapsible": "^2.8.1",
+    "react-countup": "^4.3.3",
+    "react-div-100vh": "^0.5.6",
+    "react-dom": "^17.0.1",
+    "react-google-charts": "^3.0.15",
+    "react-icons": "^3.11.0",
+    "react-ladda": "^6.0.0",
+    "react-loader-spinner": "^3.1.14",
+    "react-map-gl": "^5.2.10",
+    "react-modal": "^3.12.1",
+    "react-radio-buttons": "^1.2.2",
+    "react-redux": "^7.2.2",
+    "react-responsive": "^8.1.1",
+    "react-router-dom": "^5.2.0",
+    "react-scripts": "^4.0.1",
+    "react-spinners": "^0.9.0",
+    "reactjs-popup": "^2.0.4",
+    "redux": "^4.0.5",
+    "redux-in-worker": "^0.7.0",
+    "worker-loader": "^3.0.5",
+    "worker-plugin": "^5.0.0"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts --max_old_space_size=4096 build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject",
+    "heroku-postbuild": "npm install && npm run build"
+  },
+  "eslintConfig": {
+    "extends": "react-app"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "devDependencies": {
+    "prettier": "^2.1.1"
+  }
+}
