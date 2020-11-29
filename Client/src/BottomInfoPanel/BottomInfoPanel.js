@@ -48,10 +48,7 @@ const BottomInfoPanel = (props) => {
     isMediumLaptop,
     footerMenuActive,
     changeFooterMenuActive,
-    menuClicked,
     isTinyPhone,
-    bottomInfoMainInfoBox,
-    carouselContainer,
 
     filteredTimelineAgeGroupData,
     filteredTimelineBoroughData,
@@ -196,23 +193,33 @@ const BottomInfoPanel = (props) => {
 
   useEffect(() => {
     if (!applyingFilters) {
-      for (let i = 0; i < aliceCarouselContainer.length; i++) {
-        if (i === 0) {
-          if (
-            !aliceCarouselContainer[i].className.includes("overview_carousel")
-          ) {
-            aliceCarouselContainer[i].className += " overview_carousel";
-          }
-        } else {
-          if (
-            !aliceCarouselContainer[i].className.includes("trends_carousel")
-          ) {
-            aliceCarouselContainer[i].className += " trends_carousel";
+      const findOverviewCarouselInterval = setInterval(() => {
+        if (!overviewCarouselContainer[0]) {
+          for (let i = 0; i < aliceCarouselContainer.length; i++) {
+            if (i === 0) {
+              if (
+                !aliceCarouselContainer[i].className.includes(
+                  "overview_carousel"
+                )
+              ) {
+                aliceCarouselContainer[i].className += " overview_carousel";
+              }
+            } else {
+              if (
+                !aliceCarouselContainer[i].className.includes("trends_carousel")
+              ) {
+                aliceCarouselContainer[i].className += " trends_carousel";
+              }
+            }
           }
         }
-      }
+      }, 500);
+
+      return () => {
+        clearInterval(findOverviewCarouselInterval);
+      };
     }
-  }, [aliceCarouselContainer, applyingFilters]);
+  }, [overviewCarouselContainer, aliceCarouselContainer, applyingFilters]);
 
   useEffect(() => {
     if (graphOption === "overview" && !applyingFilters) {
@@ -266,6 +273,7 @@ const BottomInfoPanel = (props) => {
   const handleFooterMenuActive = () => {
     if (footerMenuActive) {
       changeFooterMenuActive(false);
+      changeGraphOption("overview");
     } else {
       changeFooterMenuActive(true);
 
@@ -291,53 +299,6 @@ const BottomInfoPanel = (props) => {
     }
   };
 
-  useEffect(() => {
-    if (isMobileOrTablet) {
-      if (
-        layersRef.current.length > 0 &&
-        (ageTimelineColumns ? ageTimelineColumns.length > 0 : false) &&
-        (boroughTimelineColumns ? boroughTimelineColumns.length > 0 : false) &&
-        (categoryTimelineColumns
-          ? categoryTimelineColumns.length > 0
-          : false) &&
-        (raceTimelineColumns ? raceTimelineColumns.length > 0 : false) &&
-        (sexTimelineColumns ? sexTimelineColumns.length > 0 : false)
-      ) {
-        if (footerMenuActive) {
-          if (bottomInfoMainInfoBox[0] && carouselContainer[0]) {
-            bottomInfoMainInfoBox[0].style.display = "block";
-            carouselContainer[0].style.display = "block";
-          }
-        } else {
-          if (bottomInfoMainInfoBox[0] && carouselContainer[0]) {
-            if (menuClicked) {
-              bottomInfoMainInfoBox[0].style.display = "none";
-              carouselContainer[0].style.display = "none";
-            }
-          }
-        }
-      }
-    } else {
-      if (bottomInfoMainInfoBox[0] && carouselContainer[0]) {
-        bottomInfoMainInfoBox[0].style.display = "block";
-        carouselContainer[0].style.display = "block";
-      }
-    }
-  }, [
-    footerMenuActive,
-    firstTimeFooterActive,
-    bottomInfoMainInfoBox,
-    carouselContainer,
-    isMobileOrTablet,
-    menuClicked,
-    ageTimelineColumns,
-    boroughTimelineColumns,
-    categoryTimelineColumns,
-    layersRef,
-    raceTimelineColumns,
-    sexTimelineColumns,
-  ]);
-
   return (
     <div
       className="bottom_info_panel_container"
@@ -358,7 +319,10 @@ const BottomInfoPanel = (props) => {
     >
       <div
         className="shadow_overlay"
-        onClick={() => changeFooterMenuActive(false)}
+        onClick={() => {
+          changeFooterMenuActive(false);
+          changeGraphOption("overview");
+        }}
         style={{
           opacity: footerMenuActive ? 1 : 0,
           display: footerMenuActive ? "block" : "none",
@@ -558,7 +522,7 @@ const BottomInfoPanel = (props) => {
             }
           }}
         />
-        {applyingFilters && isMobileOrTablet ? null : (
+        {isMobileOrTablet && (applyingFilters || !footerMenuActive) ? null : (
           <AliceCarousel
             ref={(el) => (CarouselRef = el)}
             autoPlay={false}
@@ -654,7 +618,7 @@ const BottomInfoPanel = (props) => {
           offset={isMobileOrTablet ? [-30, -180] : [0, 50]}
           onClickOutside={() => changeTimelineTooltipVisible(false)}
         />
-        {applyingFilters ? null : (
+        {applyingFilters || (isMobileOrTablet && !footerMenuActive) ? null : (
           <AliceCarousel
             ref={(el) => (CarouselTimelineRef = el)}
             autoPlay={false}

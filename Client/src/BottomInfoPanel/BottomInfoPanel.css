@@ -266,13 +266,19 @@
   display: none;
 }
 
-@media only screen and (max-width: 375px) {
+@media only screen and (max-width: 374px) {
   .bottom_info_panel_container {
     height: 65vh !important;
   }
 
   .trends_carousel {
     padding-left: 19%;
+  }
+}
+
+@media only screen and (min-width: 375px) {
+  .bottom_info_panel_container {
+    height: 65vh !important;
   }
 }
 
@@ -283,6 +289,10 @@
 
   .map_legend_container p:first-child {
     padding-right: 0rem;
+  }
+
+  .bottom_info_panel_container {
+    height: 55vh !important;
   }
 }
 

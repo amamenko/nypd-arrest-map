@@ -67,18 +67,12 @@ const InitialLoader = (props) => {
           : totalCount === 0
           ? "Initializing NYPD Arrest Map"
           : countUp > 95
-<<<<<<< HEAD
           ? `Analyzing Arrest Data`
           : "Loading Most Recent Arrest Data"}
       </p>
       {totalCount !== 0 && countUp > 95 ? (
         <span>({applyingFiltersProgressRef.current}% Done)</span>
       ) : null}
-=======
-          ? `Analyzing Arrest Data (${applyingFiltersProgressRef.current}% Done)`
-          : "Loading Most Recent Arrest Data"}
-      </p>
->>>>>>> a59113954729992d1a6baf97a2d99a8f7a9ecaea
     </Div100vh>
   );
 };

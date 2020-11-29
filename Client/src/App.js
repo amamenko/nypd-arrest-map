@@ -230,13 +230,6 @@ const App = () => {
     []
   );
 
-  const bottomInfoMainInfoBox = document.getElementsByClassName(
-    "bottom_info_main_info_box"
-  );
-  const carouselContainer = document.getElementsByClassName(
-    "carousel_container"
-  );
-
   const postToTimelineGraphWorker = useCallback(
     (ageObj, raceObj, categoryObj, sexObj, boroughObj) => {
       if (setFilterAndTimelineGraphWorkersInstance) {
@@ -1623,10 +1616,7 @@ const App = () => {
               changeFooterMenuActive={changeFooterMenuActive}
               isMobileOrTablet={isMobileOrTablet}
               isMediumLaptop={isMediumLaptop}
-              menuClicked={menuClicked}
               isTinyPhone={isTinyPhone}
-              bottomInfoMainInfoBox={bottomInfoMainInfoBox}
-              carouselContainer={carouselContainer}
             />
           </>
         ) : null}
