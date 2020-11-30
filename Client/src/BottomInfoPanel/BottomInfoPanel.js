@@ -20,6 +20,7 @@ import RaceTimeline from "./CarouselItems/Race/RaceTimeline";
 import { RadioGroup, RadioButton } from "react-radio-buttons";
 import { useSelector } from "react-redux";
 import Tippy from "@tippyjs/react";
+import Skeleton from "react-loading-skeleton";
 
 const BottomInfoPanel = (props) => {
   const {
@@ -49,6 +50,7 @@ const BottomInfoPanel = (props) => {
     footerMenuActive,
     changeFooterMenuActive,
     isTinyPhone,
+    resetFilters,
 
     filteredTimelineAgeGroupData,
     filteredTimelineBoroughData,
@@ -209,6 +211,8 @@ const BottomInfoPanel = (props) => {
                 !aliceCarouselContainer[i].className.includes("trends_carousel")
               ) {
                 aliceCarouselContainer[i].className += " trends_carousel";
+                aliceCarouselContainer[i].style.opacity = 0;
+                aliceCarouselContainer[i].style.zIndex = -1;
               }
             }
           }
@@ -330,6 +334,21 @@ const BottomInfoPanel = (props) => {
       >
         {" "}
       </div>
+      <div
+        className="desktop_bottom_footer_placeholder"
+        onClick={() => {
+          changeFooterMenuActive(true);
+        }}
+        style={{
+          display: isMobileOrTablet
+            ? "none"
+            : footerMenuActive
+            ? "none"
+            : "flex",
+        }}
+      >
+        <GoGraph /> Click to view graphs and trends
+      </div>
       <div className="footer_menu_trigger" onClick={handleFooterMenuActive}>
         {!footerMenuActive ? (
           <>
@@ -341,7 +360,14 @@ const BottomInfoPanel = (props) => {
           </>
         )}
       </div>
-      <div className="bottom_info_main_info_box">
+      <div
+        className="bottom_info_main_info_box"
+        style={{
+          zIndex: footerMenuActive ? 99999999 : 99999,
+          filter: footerMenuActive ? "none" : "blur(3px)",
+          WebkitFilter: footerMenuActive ? "none" : "blur(3px)",
+        }}
+      >
         <div className="filters_applied">
           <h2>Filters Applied</h2>
           {currentFilters.category.length === 0 &&
@@ -472,57 +498,50 @@ const BottomInfoPanel = (props) => {
           </RadioGroup>
         </div>
       </div>
-      <div className="carousel_container" onTouchStart={handleDismissTooltips}>
+      <div
+        className="carousel_container"
+        onTouchStart={handleDismissTooltips}
+        style={{
+          display: footerMenuActive ? "block" : "flex",
+          paddingLeft: isMobileOrTablet ? "0" : footerMenuActive ? "0" : "15%",
+        }}
+      >
         <Tippy
           content="Click the left and right arrows to view more graphs"
           visible={
-            isMobileOrTablet
-              ? footerMenuActive &&
-                arrowTooltipVisible &&
-                layersRef.current.length > 0 &&
-                (ageTimelineColumns ? ageTimelineColumns.length > 0 : false) &&
-                (boroughTimelineColumns
-                  ? boroughTimelineColumns.length > 0
-                  : false) &&
-                (categoryTimelineColumns
-                  ? categoryTimelineColumns.length > 0
-                  : false) &&
-                (raceTimelineColumns
-                  ? raceTimelineColumns.length > 0
-                  : false) &&
-                (sexTimelineColumns ? sexTimelineColumns.length > 0 : false)
-              : arrowTooltipVisible &&
-                layersRef.current.length > 0 &&
-                (ageTimelineColumns ? ageTimelineColumns.length > 0 : false) &&
-                (boroughTimelineColumns
-                  ? boroughTimelineColumns.length > 0
-                  : false) &&
-                (categoryTimelineColumns
-                  ? categoryTimelineColumns.length > 0
-                  : false) &&
-                (raceTimelineColumns
-                  ? raceTimelineColumns.length > 0
-                  : false) &&
-                (sexTimelineColumns ? sexTimelineColumns.length > 0 : false)
+            footerMenuActive &&
+            arrowTooltipVisible &&
+            layersRef.current.length > 0 &&
+            (ageTimelineColumns ? ageTimelineColumns.length > 0 : false) &&
+            (boroughTimelineColumns
+              ? boroughTimelineColumns.length > 0
+              : false) &&
+            (categoryTimelineColumns
+              ? categoryTimelineColumns.length > 0
+              : false) &&
+            (raceTimelineColumns ? raceTimelineColumns.length > 0 : false) &&
+            (sexTimelineColumns ? sexTimelineColumns.length > 0 : false)
           }
           reference={rightArrow[0]}
           className="burger_tooltip"
           placement="left"
           onClickOutside={() => changeArrowTooltipVisible(false)}
         />
-        <FaChevronLeft
-          color="rgb(0, 0, 0)"
-          className="carousel_left_arrow"
-          onClick={() => {
-            CarouselRef.slidePrev();
-            CarouselTimelineRef.slidePrev();
+        {footerMenuActive ? (
+          <FaChevronLeft
+            color="rgb(0, 0, 0)"
+            className="carousel_left_arrow"
+            onClick={() => {
+              CarouselRef.slidePrev();
+              CarouselTimelineRef.slidePrev();
 
-            if (arrowTooltipVisible) {
-              changeArrowTooltipVisible(false);
-            }
-          }}
-        />
-        {isMobileOrTablet && (applyingFilters || !footerMenuActive) ? null : (
+              if (arrowTooltipVisible) {
+                changeArrowTooltipVisible(false);
+              }
+            }}
+          />
+        ) : null}
+        {!footerMenuActive || applyingFilters || resetFilters ? null : (
           <AliceCarousel
             ref={(el) => (CarouselRef = el)}
             autoPlay={false}
@@ -535,7 +554,7 @@ const BottomInfoPanel = (props) => {
             responsive={{
               0: { items: 1 },
               760: { items: 2 },
-              1600: { items: 3 },
+              1224: { items: 3 },
               1800: { items: 4 },
             }}
             preservePosition={true}
@@ -585,6 +604,42 @@ const BottomInfoPanel = (props) => {
             ]}
           />
         )}
+        <Skeleton
+          circle={true}
+          height={150}
+          width={150}
+          style={{
+            display: isMobileOrTablet
+              ? "none"
+              : footerMenuActive
+              ? "none"
+              : "flex",
+          }}
+        />
+        <Skeleton
+          circle={true}
+          height={150}
+          width={150}
+          style={{
+            display: isMobileOrTablet
+              ? "none"
+              : footerMenuActive
+              ? "none"
+              : "flex",
+          }}
+        />
+        <Skeleton
+          circle={true}
+          height={150}
+          width={150}
+          style={{
+            display: isMobileOrTablet
+              ? "none"
+              : footerMenuActive
+              ? "none"
+              : "flex",
+          }}
+        />
         <Tippy
           content={
             isMobileOrTablet
@@ -618,7 +673,7 @@ const BottomInfoPanel = (props) => {
           offset={isMobileOrTablet ? [-30, -180] : [0, 50]}
           onClickOutside={() => changeTimelineTooltipVisible(false)}
         />
-        {applyingFilters || (isMobileOrTablet && !footerMenuActive) ? null : (
+        {applyingFilters || resetFilters || !footerMenuActive ? null : (
           <AliceCarousel
             ref={(el) => (CarouselTimelineRef = el)}
             autoPlay={false}
@@ -632,7 +687,7 @@ const BottomInfoPanel = (props) => {
             responsive={{
               0: { items: 1 },
               760: { items: 2 },
-              1600: { items: 3 },
+              1224: { items: 3 },
               2000: { items: 4 },
             }}
             preservePosition={true}
@@ -681,18 +736,20 @@ const BottomInfoPanel = (props) => {
             ]}
           />
         )}
-        <FaChevronRight
-          color="rgb(0, 0, 0)"
-          className="carousel_right_arrow"
-          onClick={() => {
-            CarouselRef.slideNext();
-            CarouselTimelineRef.slideNext();
+        {footerMenuActive ? (
+          <FaChevronRight
+            color="rgb(0, 0, 0)"
+            className="carousel_right_arrow"
+            onClick={() => {
+              CarouselRef.slideNext();
+              CarouselTimelineRef.slideNext();
 
-            if (arrowTooltipVisible) {
-              changeArrowTooltipVisible(false);
-            }
-          }}
-        />
+              if (arrowTooltipVisible) {
+                changeArrowTooltipVisible(false);
+              }
+            }}
+          />
+        ) : null}
       </div>
     </div>
   );

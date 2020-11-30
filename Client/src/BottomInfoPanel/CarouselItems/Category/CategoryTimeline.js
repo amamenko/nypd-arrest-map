@@ -30,7 +30,7 @@ const CategoryTimeline = (props) => {
                 ? 275
                 : 300
               : isMediumLaptop
-              ? 400
+              ? 350
               : 500,
             chartArea: { width: "50%", height: "50%" },
             hAxis: {

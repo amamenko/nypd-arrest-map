@@ -1588,6 +1588,7 @@ const App = () => {
               mapVisible={mapVisible}
               loadData={loadData}
               tooltipVisible={tooltipVisible}
+              resetFilters={resetFilters}
               filteredArrestCategory={filteredArrestCategory}
               filteredAgeGroupData={filteredAgeGroupData}
               filteredRaceUniqueValues={filteredRaceUniqueValues}

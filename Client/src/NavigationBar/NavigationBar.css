@@ -271,8 +271,6 @@ input[type="checkbox"] {
     min-height: 100%;
     opacity: 1;
     overflow: hidden;
-    margin-left: 0.5rem;
-    margin-right: 0.5rem;
   }
 
   .overview_tooltip_content {
@@ -297,12 +295,17 @@ input[type="checkbox"] {
   .nav_item_content_container {
     overflow: auto;
   }
+
+  .filter_buttons_container {
+    padding-bottom: 50vh;
+  }
 }
 
 @media only screen and (min-width: 1400px) {
   .overview_tooltip {
     min-width: 0;
     opacity: 1;
+    margin-left: 0.5rem;
   }
 }
 

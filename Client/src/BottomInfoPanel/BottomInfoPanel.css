@@ -8,8 +8,8 @@
   align-items: flex-start;
   justify-content: flex-start;
   padding-left: 1rem;
-  transition: all 1s ease;
-  -webkit-transition: all 1s ease;
+  transition: all 0.5s ease;
+  -webkit-transition: all 0.5s ease;
 }
 
 .bottom_info_section_title {
@@ -97,7 +97,6 @@
   position: absolute;
   left: 0;
   right: 0;
-  z-index: 99999999;
   height: 45%;
   background: rgb(240, 240, 240);
   overflow: hidden;
@@ -148,6 +147,9 @@
   left: 0;
   right: 0;
   background: rgb(211, 211, 211);
+  flex-direction: row;
+  justify-content: space-evenly;
+  align-items: center;
 }
 
 .bottom_info_panel_info_box:not(:first-child) {
@@ -266,19 +268,19 @@
   display: none;
 }
 
+.graph_skeleton_loaders_container {
+  display: none;
+}
+
 @media only screen and (max-width: 374px) {
   .bottom_info_panel_container {
     height: 65vh !important;
-  }
-
-  .trends_carousel {
-    padding-left: 19%;
   }
 }
 
 @media only screen and (min-width: 375px) {
   .bottom_info_panel_container {
-    height: 65vh !important;
+    height: 65vh;
   }
 }
 
@@ -292,7 +294,7 @@
   }
 
   .bottom_info_panel_container {
-    height: 55vh !important;
+    height: 55vh;
   }
 }
 
@@ -357,6 +359,41 @@
     display: none;
   }
 
+  .desktop_bottom_footer_placeholder {
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    width: 100%;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    margin: 0 auto;
+    opacity: 0.8;
+    font-size: 4rem;
+    backdrop-filter: blur(50px) brightness(0.35);
+    -webkit-backdrop-filter: blur(50px) brightness(0.35);
+    color: white;
+    z-index: 999999 !important;
+    cursor: pointer;
+  }
+
+  .desktop_bottom_footer_placeholder svg {
+    padding-right: 1rem;
+  }
+
+  .desktop_bottom_footer_placeholder:hover {
+    backdrop-filter: blur(50px) brightness(0.3);
+    -webkit-backdrop-filter: blur(50px) brightness(0.3);
+  }
+
+  .desktop_bottom_footer_placeholder:active {
+    backdrop-filter: blur(50px) brightness(0.25);
+    -webkit-backdrop-filter: blur(50px) brightness(0.25);
+  }
+
   .filters_applied {
     margin-left: 0rem;
     margin-right: 0rem;
@@ -366,10 +403,6 @@
   .graph_options_container {
     margin-left: 0rem;
     margin-right: 0rem;
-  }
-
-  .shadow_overlay {
-    display: none;
   }
 
   .trend_tooltip {
@@ -400,6 +433,11 @@
     padding-left: 1.5rem;
     padding-right: 1.5rem;
     border-right: 1px solid black;
+  }
+
+  .react-loading-skeleton {
+    filter: blur(2px);
+    -webkit-filter: blur(2px);
   }
 
   .map_legend_items_container {
@@ -444,7 +482,7 @@
   }
 
   .trends_carousel {
-    padding-left: 40%;
+    padding-left: 42%;
   }
 
   .carousel_left_arrow {
@@ -529,7 +567,7 @@
   .carousel_right_arrow,
   .carousel_left_arrow {
     height: 90%;
-    z-index: 999999 !important;
+    /* z-index: 999999 !important; */
   }
 
   .trends_carousel {
