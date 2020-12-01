@@ -158,4 +158,13 @@ div[id*="tippy-9"] {
   .deck-tooltip {
     font-size: 0.8rem !important;
   }
+
+  /* Prevent carousel transition on Safari desktops due to duplication of carousel items on slide issue */
+
+  _::-webkit-full-page-media,
+  _:future,
+  :root .alice-carousel__stage {
+    transition: none !important;
+    -webkit-transition: none !important;
+  }
 }

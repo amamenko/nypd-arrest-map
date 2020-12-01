@@ -25,7 +25,7 @@ const InfoPopUp = (props) => {
           <BsInfoCircle
             color="rgb(255, 255, 255)"
             style={{
-              opacity: isMobileOrTablet ? (footerMenuActive ? 0.2 : 1) : 1,
+              opacity: footerMenuActive ? 0.2 : 1,
               transition: "opacity 1s ease",
             }}
             className="info_button"

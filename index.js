@@ -10,6 +10,8 @@ const { StringDecoder } = require("string_decoder");
 const decoder = new StringDecoder("utf8");
 const path = require("path");
 const enforce = require("express-sslify");
+const request = require("request");
+const csv = require("csvtojson");
 
 require("dotenv").config();
 
@@ -46,6 +48,16 @@ const storage = new Storage({
 const wss = new WebSocket({ server });
 
 server.on("request", app);
+
+// csv()
+//   .fromStream(
+//     request.get(
+//       "https://data.cityofnewyork.us/api/views/uip8-fykc/rows.csv?accessType=DOWNLOAD"
+//     )
+//   )
+//   .subscribe((json) => {
+//     console.log(json);
+//   });
 
 wss.on("connection", (ws) => {
   console.log("Websocket successfully connected");

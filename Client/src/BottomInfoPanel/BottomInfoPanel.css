@@ -131,15 +131,6 @@
   overflow: visible;
 }
 
-.alice-carousel__stage-item {
-  opacity: 0.1;
-  transition: opacity 0.2s ease;
-}
-
-.alice-carousel__stage-item.__active {
-  opacity: 1;
-}
-
 .carousel_container {
   width: 100vw;
   height: 100%;
@@ -272,6 +263,23 @@
   display: none;
 }
 
+.footer_carousel_loading_container {
+  width: 100%;
+  height: 100%;
+  background: rgb(211, 211, 211);
+  color: white;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
 @media only screen and (max-width: 374px) {
   .bottom_info_panel_container {
     height: 65vh !important;
@@ -319,11 +327,11 @@
   }
 
   .overview_carousel {
-    padding-left: 19%;
+    padding-left: 14%;
   }
 
   .trends_carousel {
-    padding-left: 19%;
+    padding-left: 13%;
   }
 
   .bottom_info_pie_container {
@@ -332,6 +340,14 @@
 
   .bottom_info_panel_info_box:first-child {
     padding-right: 50%;
+  }
+
+  .carousel_left_arrow {
+    left: 2vw;
+  }
+
+  .carousel_right_arrow {
+    right: 2vw;
   }
 }
 
@@ -352,11 +368,51 @@
   .alice-carousel {
     top: 55%;
   }
+
+  .overview_carousel {
+    padding-left: 19%;
+  }
+
+  .trends_carousel {
+    padding-left: 19%;
+  }
 }
 
 @media only screen and (min-width: 1224px) {
   .footer_menu_trigger {
     display: none;
+  }
+
+  .footer_carousel_loading_container {
+    width: 105%;
+    left: -5%;
+  }
+
+  .desktop_return_to_map_overlay {
+    display: block;
+    width: 100%;
+    height: calc(100% - var(--bottom-height)) !important;
+    color: rgb(235, 235, 235, 0.7);
+    font-size: 3rem;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    margin: 0 auto;
+    text-align: center;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+  }
+
+  .desktop_return_to_map_overlay svg {
+    padding-right: 1rem;
+  }
+
+  .shadow_overlay {
+    top: 0;
   }
 
   .desktop_bottom_footer_placeholder {
@@ -372,7 +428,7 @@
     right: 0;
     margin: 0 auto;
     opacity: 0.8;
-    font-size: 4rem;
+    font-size: 3rem;
     backdrop-filter: blur(50px) brightness(0.35);
     -webkit-backdrop-filter: blur(50px) brightness(0.35);
     color: white;
@@ -454,12 +510,6 @@
     margin-right: 0.5rem;
   }
 
-  .map_legend_container {
-    margin-top: -0.25rem;
-    padding-left: 3rem;
-    padding-right: 3rem;
-  }
-
   .map_legend_element {
     font-size: 0.7rem;
   }
@@ -482,7 +532,7 @@
   }
 
   .trends_carousel {
-    padding-left: 42%;
+    padding-left: 40%;
   }
 
   .carousel_left_arrow {
@@ -509,9 +559,15 @@
   .carousel_left_arrow {
     left: 31vw;
   }
+
+  .map_legend_container {
+    margin-top: -0.25rem;
+    padding-left: 3rem;
+    padding-right: 3rem;
+  }
 }
 
-@media only screen and (min-width: 1360px) {
+@media only screen and (min-width: 1350px) {
   .bottom_info_panel_container {
     height: 30vh;
   }

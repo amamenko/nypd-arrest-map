@@ -165,7 +165,6 @@
 
 .mapboxgl-ctrl-icon,
 .mapboxgl-ctrl-icon > .mapboxgl-ctrl-compass-arrow {
-  speak: none;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }

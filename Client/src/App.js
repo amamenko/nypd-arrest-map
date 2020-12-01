@@ -159,6 +159,28 @@ const App = () => {
     Modal.setAppElement("body");
   }, []);
 
+  // Click Outside Component Hook
+  const useOnClickOutside = (ref, handler) => {
+    useEffect(() => {
+      const listener = (e) => {
+        // Do nothing if clicking ref's element or descendent elements
+        if (!ref.current || ref.current.contains(e.target)) {
+          return;
+        }
+
+        handler(e);
+      };
+
+      document.addEventListener("mousedown", listener);
+      document.addEventListener("touchstart", listener);
+
+      return () => {
+        document.removeEventListener("mousedown", listener);
+        document.removeEventListener("touchstart", listener);
+      };
+    });
+  };
+
   // Custom Hook to check for previous state
   const usePrevious = (value) => {
     const ref = useRef();
@@ -1372,7 +1394,7 @@ const App = () => {
 
                 ws = new WebSocket(host);
               } else {
-                ws = new WebSocket("ws://localhost:4000");
+                ws = new WebSocket("ws://192.168.68.101:4000");
               }
 
               onmessage = (e) => {
@@ -1569,7 +1591,9 @@ const App = () => {
           controller={true}
           onLoad={() => changeMapLoaded(true)}
           onError={() => changeMapError(true)}
-          onHover={({ object, x, y }) => showTooltip(object, x, y)}
+          onHover={({ object, x, y }) =>
+            footerMenuActive ? null : showTooltip(object, x, y)
+          }
           useDevicePixels={false}
         >
           <StaticMap
@@ -1618,6 +1642,7 @@ const App = () => {
               isMobileOrTablet={isMobileOrTablet}
               isMediumLaptop={isMediumLaptop}
               isTinyPhone={isTinyPhone}
+              useOnClickOutside={useOnClickOutside}
             />
           </>
         ) : null}

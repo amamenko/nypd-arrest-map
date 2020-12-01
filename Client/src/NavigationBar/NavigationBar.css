@@ -224,7 +224,7 @@ input[type="checkbox"] {
 
 @media only screen and (min-width: 768px) {
   .burger_tooltip {
-    font-size: 0.9rem;
+    font-size: 0.7rem;
   }
 
   .overview_tooltip {
@@ -244,7 +244,7 @@ input[type="checkbox"] {
   }
 
   .overview_tooltip_content {
-    padding-right: 0rem;
+    padding-right: 3rem;
   }
 
   .map_details_tooltip_container {
@@ -256,6 +256,10 @@ input[type="checkbox"] {
 @media only screen and (min-width: 1200px) {
   .overview_tooltip_content p {
     font-size: 0.7rem;
+  }
+
+  .burger_tooltip {
+    font-size: 0.9rem;
   }
 
   .nypd_arrest_map_logo_container {
@@ -271,6 +275,8 @@ input[type="checkbox"] {
     min-height: 100%;
     opacity: 1;
     overflow: hidden;
+    max-height: 13vh;
+    margin-left: 0.5rem;
   }
 
   .overview_tooltip_content {
@@ -281,10 +287,6 @@ input[type="checkbox"] {
     min-width: 0;
     min-height: 100%;
     opacity: 1;
-  }
-
-  .overview_tooltip {
-    max-height: 13vh;
   }
 
   .is-closed:hover,
@@ -305,7 +307,6 @@ input[type="checkbox"] {
   .overview_tooltip {
     min-width: 0;
     opacity: 1;
-    margin-left: 0.5rem;
   }
 }
 

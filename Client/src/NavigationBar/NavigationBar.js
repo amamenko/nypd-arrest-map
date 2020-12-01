@@ -260,35 +260,25 @@ const NavigationBar = (props) => {
   };
 
   useEffect(() => {
-    if (isMobileOrTablet) {
-      if (footerMenuActive) {
-        burgerMenu[0].style.opacity = 0.2;
-        burgerMenu[0].style.pointerEvents = "none";
-        burgerMenu[0].style.transition = "opacity 0.5s ease";
+    if (footerMenuActive) {
+      burgerMenu[0].style.opacity = 0.2;
+      burgerMenu[0].style.pointerEvents = "none";
+      burgerMenu[0].style.transition = "opacity 0.5s ease";
 
-        if (overviewTip[0] && mapDetailsTip[0]) {
-          overviewTip[0].style.setProperty("opacity", 0.4, "important");
-          overviewTip[0].style.setProperty("pointerEvents", "none");
-          overviewTip[0].style.setProperty("transition", "opacity 0.5s ease");
+      if (overviewTip[0] && mapDetailsTip[0]) {
+        overviewTip[0].style.setProperty("opacity", 0.4, "important");
+        overviewTip[0].style.setProperty("pointerEvents", "none");
+        overviewTip[0].style.setProperty("transition", "opacity 0.5s ease");
 
-          mapDetailsTip[0].style.setProperty("opacity", 0.4, "important");
-          mapDetailsTip[0].style.setProperty("pointerEvents", "none");
-          mapDetailsTip[0].style.setProperty("transition", "opacity 0.5s ease");
-        }
-      } else {
-        burgerMenu[0].style.opacity = 1;
-        burgerMenu[0].style.pointerEvents = "all";
-        burgerMenu[0].style.transition = "opacity 0.5s ease";
+        mapDetailsTip[0].style.setProperty("opacity", 0.4, "important");
+        mapDetailsTip[0].style.setProperty("pointerEvents", "none");
+        mapDetailsTip[0].style.setProperty("transition", "opacity 0.5s ease");
+      }
 
-        if (overviewTip[0] && mapDetailsTip[0]) {
-          overviewTip[0].style.setProperty("opacity", 1, "important");
-          overviewTip[0].style.setProperty("pointerEvents", "all");
-          overviewTip[0].style.setProperty("transition", "opacity 0.5s ease");
-
-          mapDetailsTip[0].style.setProperty("opacity", 1, "important");
-          mapDetailsTip[0].style.setProperty("pointerEvents", "all");
-          mapDetailsTip[0].style.setProperty("transition", "opacity 0.5s ease");
-        }
+      if (mapLegend[0]) {
+        mapLegend[0].style.setProperty("opacity", 0.4, "important");
+        mapLegend[0].style.setProperty("pointerEvents", "none");
+        mapLegend[0].style.setProperty("transition", "opacity 0.5s ease");
       }
     } else {
       burgerMenu[0].style.opacity = 1;
@@ -304,6 +294,12 @@ const NavigationBar = (props) => {
         mapDetailsTip[0].style.setProperty("pointerEvents", "all");
         mapDetailsTip[0].style.setProperty("transition", "opacity 0.5s ease");
       }
+
+      if (mapLegend[0]) {
+        mapLegend[0].style.setProperty("opacity", 1, "important");
+        mapLegend[0].style.setProperty("pointerEvents", "all");
+        mapLegend[0].style.setProperty("transition", "opacity 0.5s ease");
+      }
     }
   }, [
     footerMenuActive,
@@ -311,6 +307,7 @@ const NavigationBar = (props) => {
     isMobileOrTablet,
     mapDetailsTip,
     overviewTip,
+    mapLegend,
   ]);
 
   useEffect(() => {
@@ -489,6 +486,7 @@ const NavigationBar = (props) => {
           <div className="map_details_tooltip_container">
             <div
               className="overview_tooltip_content"
+              placement="bottom-start"
               style={{
                 minWidth:
                   logoContainerRef.current &&
