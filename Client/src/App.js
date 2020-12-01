@@ -154,6 +154,11 @@ const App = () => {
   let applyingFiltersProgressRef = useRef(0);
   const deckGLRef = useRef(null);
 
+  const lastUpdatedYear = dayjs(
+    yearlyTotals["lastUpdatedDate"],
+    "MMMM D, YYYY"
+  ).format("YYYY");
+
   // Needed for screen-readers
   useEffect(() => {
     Modal.setAppElement("body");
@@ -196,7 +201,8 @@ const App = () => {
     start: 0,
     end:
       loadData.length > 0
-        ? Number((loadData.length / yearlyTotals["2020"]).toFixed(1)) * 100
+        ? Number((loadData.length / yearlyTotals[lastUpdatedYear]).toFixed(1)) *
+          100
         : 0,
     delay: 0,
     duration: 1,
@@ -205,7 +211,8 @@ const App = () => {
   useEffect(() => {
     if (loadData.length > 0) {
       const newProgress =
-        Number((loadData.length / yearlyTotals["2020"]).toFixed(1)) * 100;
+        Number((loadData.length / yearlyTotals[lastUpdatedYear]).toFixed(1)) *
+        100;
 
       if (newProgress >= 60) {
         update(100);
@@ -213,7 +220,7 @@ const App = () => {
         update(newProgress);
       }
     }
-  }, [update, countUp, loadData]);
+  }, [update, countUp, loadData, lastUpdatedYear]);
 
   const isSame = (arr1, arr2) =>
     arr1.length === arr2.length &&
@@ -526,7 +533,7 @@ const App = () => {
   }, [filteredDataChunks]);
 
   useEffect(() => {
-    const expectedTotal = yearlyTotals["2020"];
+    const expectedTotal = yearlyTotals[lastUpdatedYear];
 
     if (newYearFinishedLoading) {
       dispatch(ACTION_NEW_YEAR_FINISHED_LOADING_RESET());
@@ -536,7 +543,7 @@ const App = () => {
         dispatch(ACTION_FILTERED_DATA_CHANGED());
       }
     }
-  }, [newYearFinishedLoading, loadData, dispatch, totalCount]);
+  }, [newYearFinishedLoading, loadData, dispatch, totalCount, lastUpdatedYear]);
 
   useEffect(() => {
     if (!filteredDataChanged) {
@@ -547,7 +554,7 @@ const App = () => {
   }, [filteredDataChanged, mapPostsCompleted]);
 
   useEffect(() => {
-    const expectedTotal = yearlyTotals["2020"];
+    const expectedTotal = yearlyTotals[lastUpdatedYear];
 
     if (totalCount > 0 && totalCount === expectedTotal) {
       if (filteredDataChanged) {
@@ -564,6 +571,7 @@ const App = () => {
       }
     }
   }, [
+    lastUpdatedYear,
     loadData,
     mapPostsCompleted,
     currentFilters,
@@ -1443,12 +1451,12 @@ const App = () => {
         if (loadingYears.length === 0) {
           if (isMobileOrTablet) {
             if (isPortrait) {
-              changeLoadingYears([2020]);
-              dataFetch(2020, filteredDataChunks.length);
+              changeLoadingYears([Number(lastUpdatedYear)]);
+              dataFetch(Number(lastUpdatedYear), filteredDataChunks.length);
             }
           } else {
-            changeLoadingYears([2020]);
-            dataFetch(2020, filteredDataChunks.length);
+            changeLoadingYears([Number(lastUpdatedYear)]);
+            dataFetch(Number(lastUpdatedYear), filteredDataChunks.length);
           }
         }
       } else {
@@ -1459,6 +1467,7 @@ const App = () => {
       }
     }
   }, [
+    lastUpdatedYear,
     workerInstance,
     dataFetch,
     loadingYears,

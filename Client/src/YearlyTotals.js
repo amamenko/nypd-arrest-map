@@ -13,7 +13,8 @@ const yearlyTotals = {
   2017: 286223,
   2018: 246772,
   2019: 214616,
-  2020: 103375,
+  2020: 103376,
+  lastUpdatedDate: "November 5, 2020",
 };
 
 export default yearlyTotals;

@@ -10,8 +10,12 @@ const { StringDecoder } = require("string_decoder");
 const decoder = new StringDecoder("utf8");
 const path = require("path");
 const enforce = require("express-sslify");
-const request = require("request");
 const csv = require("csvtojson");
+const request = require("request");
+const puppeteer = require("puppeteer");
+const fs = require("fs");
+const dayjs = require("dayjs");
+const cron = require("node-cron");
 
 require("dotenv").config();
 
@@ -42,6 +46,7 @@ if (process.env.NODE_ENV === "production") {
 }
 
 const storage = new Storage({
+  projectId: process.env.PROJECT_ID,
   credentials: require("./nypd-arrest-map-details.js"),
 });
 
@@ -49,15 +54,150 @@ const wss = new WebSocket({ server });
 
 server.on("request", app);
 
-// csv()
-//   .fromStream(
-//     request.get(
-//       "https://data.cityofnewyork.us/api/views/uip8-fykc/rows.csv?accessType=DOWNLOAD"
-//     )
-//   )
-//   .subscribe((json) => {
-//     console.log(json);
-//   });
+const dataSourceURL =
+  "https://data.cityofnewyork.us/Public-Safety/NYPD-Arrest-Data-Year-to-Date-/uip8-fykc";
+const CSVSourceURL =
+  "https://data.cityofnewyork.us/api/views/uip8-fykc/rows.csv?accessType=DOWNLOAD";
+
+const getUpdatedPageData = async (storage) => {
+  const browser = await puppeteer.launch();
+  const page = await browser.newPage();
+  await page.goto(dataSourceURL, { waitUntil: "networkidle2" });
+
+  const updatedInfo = await page.evaluate(() =>
+    Array.from(
+      document.getElementsByClassName("metadata-pair"),
+      (item) => item.textContent
+    )
+  );
+
+  await browser.close();
+
+  if (updatedInfo) {
+    if (updatedInfo[0]) {
+      const updatedArr = updatedInfo[0].split(/(?=[A-Z])/);
+
+      const latestUpdatedDate = updatedArr[1];
+
+      if (yearlyTotals["lastUpdatedDate"] !== latestUpdatedDate) {
+        const updatedYear = dayjs(latestUpdatedDate, "MMMM D, YYYY").format(
+          "YYYY"
+        );
+
+        const JSONarr = [];
+
+        csv({
+          colParser: {
+            ARREST_KEY: "omit",
+            ARREST_DATE: "string",
+            PD_CD: "omit",
+            PD_DESC: "string",
+            KY_CD: "omit",
+            OFNS_DESC: "string",
+            LAW_CODE: "omit",
+            LAW_CAT_CD: "string",
+            ARREST_BORO: "string",
+            ARREST_PRECINCT: "omit",
+            JURISDICTION_CODE: "omit",
+            AGE_GROUP: "string",
+            PERP_SEX: "string",
+            PERP_RACE: "string",
+            X_COORD_CD: "omit",
+            Y_COORD_CD: "omit",
+            Latitude: (item) => {
+              return Number(Number.parseFloat(item).toFixed(6));
+            },
+            Longitude: (item) => {
+              return Number(Number.parseFloat(item).toFixed(6));
+            },
+            "New Georeferenced Column": "omit",
+          },
+        })
+          .fromStream(request.get(CSVSourceURL))
+          .subscribe((json) => JSONarr.push(json))
+          .on("done", async () => {
+            yearlyTotals["lastUpdatedDate"] = latestUpdatedDate;
+            yearlyTotals[updatedYear] = JSONarr.length;
+
+            // Updates server yearly totals object
+            fs.writeFileSync(
+              "YearlyTotalsNode.js",
+              "module.exports = " + JSON.stringify(yearlyTotals),
+              "utf-8"
+            );
+
+            // Updates client yearly totals object
+            fs.writeFileSync(
+              "./Client/src/YearlyTotals.js",
+              "const yearlyTotals = " +
+                JSON.stringify(yearlyTotals) +
+                "\n\nexport default yearlyTotals;",
+              "utf-8"
+            );
+
+            const uploadFileToGoogleCloudStorage = async () => {
+              await storage
+                .bucket(`${updatedYear}_nypd_arrest_data`)
+                .upload(`${updatedYear}.json`, {
+                  gzip: true,
+                  metadata: {
+                    cacheControl: "public, max-age=31536000",
+                  },
+                });
+
+              try {
+                // Remove Local JSON File
+                fs.unlinkSync(`${updatedYear}.json`);
+
+                // Push new data from NYC Open Data to github
+                require("simple-git")()
+                  .add("./*")
+                  .commit(
+                    `Updated local server and client yearly totals files with ${latestUpdatedDate} data`
+                  )
+                  .addRemote(
+                    "origin",
+                    "git@github.com:amamenko/nypd-arrest-map-full-stack.git"
+                  )
+                  .push(["-u", "origin", "master"])
+                  .push(["heroku", "master"]);
+              } catch (err) {
+                console.error(err);
+              }
+            };
+
+            // Creates temporary local JSON object containing new values
+            fs.writeFileSync(`${updatedYear}.json`, JSON.stringify(JSONarr));
+
+            try {
+              // Bucket exists
+              const [files] = await storage
+                .bucket(`${updatedYear}_nypd_arrest_data`)
+                .getFiles();
+
+              if (files) {
+                uploadFileToGoogleCloudStorage();
+              }
+            } catch {
+              // Bucket does not exist
+              const [newBucket] = await storage.createBucket(
+                `${updatedYear}_nypd_arrest_data`
+              );
+
+              if (newBucket) {
+                uploadFileToGoogleCloudStorage();
+              }
+            }
+          });
+      }
+    }
+  }
+};
+
+// Check for new data from NYC Open Data every hour
+cron.schedule("0 * * * *", () => {
+  getUpdatedPageData(storage);
+});
 
 wss.on("connection", (ws) => {
   console.log("Websocket successfully connected");

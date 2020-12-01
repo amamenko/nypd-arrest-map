@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { slide as Menu } from "react-burger-menu";
 import { BsFilterRight } from "react-icons/bs";
 import { FaCircle, FaPlus } from "react-icons/fa";
+import yearlyTotals from "../YearlyTotals";
 import Collapsible from "react-collapsible";
 import Tippy from "@tippyjs/react";
 import LaddaButton, { XL, EXPAND_LEFT } from "react-ladda";
@@ -498,7 +499,7 @@ const NavigationBar = (props) => {
             >
               <p style={{ color: "rgb(166, 166, 166)" }}>
                 Data Last Updated: <br />
-                November 5, 2020
+                {yearlyTotals["lastUpdatedDate"]}
               </p>
               <p>
                 Total Number of Arrests Shown: <br />
