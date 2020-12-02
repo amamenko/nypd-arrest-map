@@ -187,7 +187,12 @@ const NavigationBar = (props) => {
       const copyArr = categoryFilter.slice();
       copyArr.push(category);
 
-      dispatch(ACTION_CHANGE_CATEGORY_FILTER(copyArr));
+      // If all category options are selected, reset all fields
+      if (isSame(copyArr.sort(), ["F", "M", "V"].sort())) {
+        dispatch(ACTION_CHANGE_CATEGORY_FILTER([]));
+      } else {
+        dispatch(ACTION_CHANGE_CATEGORY_FILTER(copyArr));
+      }
     }
   };
 
@@ -202,7 +207,19 @@ const NavigationBar = (props) => {
       const copyArr = offenseFilter.slice();
       copyArr.push(offense);
 
-      dispatch(ACTION_CHANGE_OFFENSE_FILTER(copyArr));
+      const descUnique = offenseDescriptionUniqueValues
+        .sort()
+        .filter(
+          (desc) =>
+            desc && !(desc.includes("OTHER STATE LAWS") && desc.includes("("))
+        );
+
+      // If all offense description options are selected, reset all fields
+      if (isSame(copyArr.sort(), descUnique.sort())) {
+        dispatch(ACTION_CHANGE_OFFENSE_FILTER([]));
+      } else {
+        dispatch(ACTION_CHANGE_OFFENSE_FILTER(copyArr));
+      }
     }
   };
 
@@ -215,7 +232,19 @@ const NavigationBar = (props) => {
       const copyArr = ageFilter.slice();
       copyArr.push(age);
 
-      dispatch(ACTION_CHANGE_AGE_FILTER(copyArr));
+      const uniqueAge = ageGroupData.sort((a, b) => a.localeCompare(b));
+
+      // If all age options are selected, reset all fields
+      if (
+        isSame(
+          copyArr.sort((a, b) => a.localeCompare(b)),
+          uniqueAge
+        )
+      ) {
+        dispatch(ACTION_CHANGE_AGE_FILTER([]));
+      } else {
+        dispatch(ACTION_CHANGE_AGE_FILTER(copyArr));
+      }
     }
   };
 
@@ -228,7 +257,14 @@ const NavigationBar = (props) => {
       const copyArr = raceFilter.slice();
       copyArr.push(race);
 
-      dispatch(ACTION_CHANGE_RACE_FILTER(copyArr));
+      const uniqueRace = raceUniqueValues.sort();
+
+      // If all race options are selected, reset all fields
+      if (isSame(copyArr, uniqueRace)) {
+        dispatch(ACTION_CHANGE_RACE_FILTER([]));
+      } else {
+        dispatch(ACTION_CHANGE_RACE_FILTER(copyArr));
+      }
     }
   };
 
@@ -241,7 +277,12 @@ const NavigationBar = (props) => {
       const copyArr = sexFilter.slice();
       copyArr.push(sex);
 
-      dispatch(ACTION_CHANGE_SEX_FILTER(copyArr));
+      // If all sex options are selected, reset all fields
+      if (isSame(copyArr.sort(), ["F", "M"].sort())) {
+        dispatch(ACTION_CHANGE_SEX_FILTER([]));
+      } else {
+        dispatch(ACTION_CHANGE_SEX_FILTER(copyArr));
+      }
     }
   };
 
@@ -256,7 +297,14 @@ const NavigationBar = (props) => {
       const copyArr = boroughFilter.slice();
       copyArr.push(borough);
 
-      dispatch(ACTION_CHANGE_BOROUGH_FILTER(copyArr));
+      const uniqueBorough = boroughUniqueValues.sort();
+
+      // If all borough options are selected, reset all fields
+      if (isSame(copyArr, uniqueBorough)) {
+        dispatch(ACTION_CHANGE_BOROUGH_FILTER([]));
+      } else {
+        dispatch(ACTION_CHANGE_BOROUGH_FILTER(copyArr));
+      }
     }
   };
 
