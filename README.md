@@ -167,6 +167,7 @@ Project Link: [https://github.com/amamenko/nypd-arrest-map-full-stack](https://g
 * [Tippy.js for React](https://www.npmjs.com/package/@tippyjs/react)
 * [React Radio Buttons](https://www.npmjs.com/package/react-radio-buttons)
 * [React Ladda](https://www.npmjs.com/package/react-ladda)
+* [React Burger Menu](https://github.com/negomi/react-burger-menu)
 * [ReactJS Popup](https://www.npmjs.com/package/reactjs-popup)
 * [React Circular Progressbar](https://www.npmjs.com/package/react-circular-progressbar)
 * [React Spinners](https://www.npmjs.com/package/react-spinners)
