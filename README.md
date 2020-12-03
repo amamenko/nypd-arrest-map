@@ -160,6 +160,7 @@ Project Link: [https://github.com/amamenko/nypd-arrest-map-full-stack](https://g
 * [NYPD / NYC Open Data](https://opendata.cityofnewyork.us)
 * [deck.gl](https://deck.gl)
 * [Mapbox](https://www.mapbox.com)
+* [Heroku](https://www.heroku.com)
 * [React Icons](https://react-icons.github.io/react-icons)
 * [React Alice Carousel](https://www.npmjs.com/package/react-alice-carousel)
 * [React Google Charts](https://react-google-charts.com)
