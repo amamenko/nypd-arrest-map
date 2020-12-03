@@ -195,7 +195,7 @@ const getUpdatedPageData = async (storage) => {
 };
 
 // Check for new data from NYC Open Data every hour
-cron.schedule("0 * * * *", () => {
+cron.schedule("30 23 * * *", () => {
   getUpdatedPageData(storage);
 });
 
