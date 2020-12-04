@@ -87,7 +87,7 @@ You will need to have the following software installed:
    ```sh
    npm install
    ```
-6. Webpack will throw a `Conflict: Multiple assets emit to the same filename` error due to web workers creating multiple background threads and not emitting to dynamic
+6. Webpack will throw a `Conflict: Multiple assets emit to the same filename` warning due to web workers creating multiple background threads and not emitting to dynamic
 filenames. Edit the `webpack.config.js` file, specifically the `output` key - concerning the build folder - of the returned object with the following values:
 
   ```JS
