@@ -6,19 +6,19 @@
 <!-- PROJECT LOGO -->
 <br />
 <p align="center">
-  <a href="https://github.com/amamenko/nypd-arrest-map-full-stack">
+  <a href="https://github.com/amamenko/nypd-arrest-map">
     <img src="Client/public/android-chrome-192x192.png" alt="Logo" width="80" height="80" />
   </a>
 
   <h3 align="center">NYPD Arrest Map</h3>
 
   <p align="center">
-    Full-stack data visualization and analysis tool for year-to-date NYPD arrests 
+    Data visualization and analysis tool for year-to-date NYPD arrests 
     <br />
     <br />
     <a href="https://nypd-arrest-map.herokuapp.com">View Demo</a>
     ·
-    <a href="https://github.com/amamenko/nypd-arrest-map-full-stack/issues">Report Issue</a> 
+    <a href="https://github.com/amamenko/nypd-arrest-map/issues">Report Issue</a> 
   </p>
 </p>
 
@@ -81,7 +81,7 @@ You will need to have the following software installed:
 3. Create a new service account key JSON file.
 4. Clone the Github repository.
    ```sh
-   git clone https://github.com/amamenko/nypd-arrest-map-full-stack.git
+   git clone https://github.com/amamenko/nypd-arrest-map.git
    ```
 5. Install all NPM packages.
    ```sh
@@ -152,7 +152,7 @@ Distributed under the MIT License. See `LICENSE.txt` for more information.
 
 Avraham Mamenko - amamenko@hotmail.com
 
-Project Link: [https://github.com/amamenko/nypd-arrest-map-full-stack](https://github.com/amamenko/nypd-arrest-map-full-stack)
+Project Link: [https://github.com/amamenko/nypd-arrest-map](https://github.com/amamenko/nypd-arrest-map)
 
 
 <!-- ACKNOWLEDGEMENTS -->
@@ -187,7 +187,7 @@ Project Link: [https://github.com/amamenko/nypd-arrest-map-full-stack](https://g
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
 [license-shield]: https://img.shields.io/github/license/othneildrew/Best-README-Template.svg?style=for-the-badge
-[license-url]: https://github.com/amamenko/nypd-arrest-map-full-stack/blob/master/LICENSE.txt
+[license-url]: https://github.com/amamenko/nypd-arrest-map/blob/master/LICENSE.txt
 [linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
 [linkedin-url]: https://www.linkedin.com/in/avraham-mamenko-0599831b8
 
