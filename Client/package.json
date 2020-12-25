@@ -6,16 +6,16 @@
     "@luma.gl/webgl2-polyfill": "^7.3.2",
     "@testing-library/jest-dom": "^5.11.6",
     "@testing-library/react": "^11.2.2",
-    "@testing-library/user-event": "^12.2.2",
+    "@testing-library/user-event": "^12.6.0",
     "@tippyjs/react": "^4.2.0",
     "better-react-spinkit": "^2.0.4",
-    "dayjs": "^1.9.6",
-    "deck.gl": "^8.3.9",
+    "dayjs": "^1.9.7",
+    "deck.gl": "^8.3.11",
     "dotenv": "^8.2.0",
     "lodash.groupby": "^4.6.0",
-    "npm": "^6.14.9",
+    "npm": "^6.14.10",
     "react": "^17.0.1",
-    "react-alice-carousel": "^2.1.0",
+    "react-alice-carousel": "^2.2.0",
     "react-burger-menu": "^2.9.2",
     "react-circular-progressbar": "^2.0.3",
     "react-collapsible": "^2.8.1",
@@ -27,19 +27,19 @@
     "react-ladda": "^6.0.0",
     "react-loader-spinner": "^3.1.14",
     "react-loading-skeleton": "^2.1.1",
-    "react-map-gl": "^5.2.10",
+    "react-map-gl": "^5.2.11",
     "react-modal": "^3.12.1",
     "react-onclickoutside": "^6.9.0",
     "react-radio-buttons": "^1.2.2",
     "react-redux": "^7.2.2",
-    "react-responsive": "^8.1.1",
+    "react-responsive": "^8.2.0",
     "react-router-dom": "^5.2.0",
     "react-scripts": "^4.0.1",
     "react-spinners": "^0.9.0",
     "reactjs-popup": "^2.0.4",
     "redux": "^4.0.5",
     "redux-in-worker": "^0.7.0",
-    "worker-loader": "^3.0.5",
+    "worker-loader": "^3.0.7",
     "worker-plugin": "^5.0.0"
   },
   "scripts": {
@@ -66,6 +66,6 @@
     ]
   },
   "devDependencies": {
-    "prettier": "^2.1.1"
+    "prettier": "^2.2.1"
   }
 }
