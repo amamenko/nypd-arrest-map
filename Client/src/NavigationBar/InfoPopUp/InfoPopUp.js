@@ -75,7 +75,7 @@ const InfoPopUp = (props) => {
             </p>
             <div className="pop_up_icons_container">
               <a
-                href="https://github.com/amamenko/nypd-arrest-map-full-stack"
+                href="https://github.com/amamenko/nypd-arrest-map"
                 target="_blank"
                 rel="noopener noreferrer"
               >

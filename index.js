@@ -157,7 +157,7 @@ const getUpdatedPageData = async (storage) => {
                   )
                   .addRemote(
                     "origin",
-                    `https://${process.env.GITHUB_USERNAME}:${process.env.GITHUB_PASSWORD}@github.com/amamenko/nypd-arrest-map-full-stack.git`
+                    `https://${process.env.GITHUB_USERNAME}:${process.env.GITHUB_TOKEN}@github.com/amamenko/nypd-arrest-map.git`
                   )
                   .push(["-u", "origin", "master"])
                   .push(["heroku", "master"]);
