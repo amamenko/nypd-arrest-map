@@ -38,10 +38,10 @@ import ACTION_NEW_YEAR_FINISHED_LOADING_RESET from "./actions/newYearFinishedLoa
 import ACTION_NEW_YEAR_FINISHED_LOADING from "./actions/newYearFinishedLoading/ACTION_NEW_YEAR_FINISHED_LOADING";
 import ACTION_TRENDS_AVAILABLE from "./actions/trendsAvailable/ACTION_TRENDS_AVAILABLE";
 import ACTION_TRENDS_NOT_AVAILABLE from "./actions/trendsAvailable/ACTION_TRENDS_NOT_AVAILABLE";
+import ACTION_RESET_FILTERS_RESET from "./actions/resetFilters/ACTION_RESET_FILTERS_RESET";
 import Div100vh from "react-div-100vh";
 import { useMediaQuery } from "react-responsive";
 import { FcRotateToLandscape } from "react-icons/fc";
-import ACTION_RESET_FILTERS_RESET from "./actions/resetFilters/ACTION_RESET_FILTERS_RESET";
 
 dayjs.extend(customParseFormat);
 
@@ -779,6 +779,8 @@ const App = () => {
   }, [totalCount, loaderColor, mapError]);
 
   const token = process.env.REACT_APP_MAPBOX_TOKEN;
+
+  console.log(token);
 
   const showTooltip = useCallback(
     (object, x, y) => {
