@@ -159,8 +159,7 @@ const getUpdatedPageData = async (storage) => {
                     "origin",
                     `https://${process.env.GITHUB_USERNAME}:${process.env.GITHUB_TOKEN}@github.com/amamenko/nypd-arrest-map.git`
                   )
-                  .push(["-u", "origin", "master"])
-                  .push(["heroku", "master"]);
+                  .push(["-u", "origin", "master"]);
               } catch (err) {
                 console.error(err);
               }
