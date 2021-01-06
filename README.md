@@ -47,7 +47,7 @@ favor of the arrest's geocoordinates.
 <br />
 
 
-The NYPD Arrest Map is a full-stack application built with the React library (using Redux for state management) as well as the Express framework for Node.js. The majority of the functionality of the
+The NYPD Arrest Map is an application built with the React library (using Redux for state management) as well as the Express framework for Node.js. The majority of the functionality of the
 website can be broken down as follows:
 
 <strong>Server-side</strong>
