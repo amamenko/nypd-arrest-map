@@ -150,7 +150,7 @@ Distributed under the MIT License. See `LICENSE.txt` for more information.
 <!-- CONTACT -->
 ## Contact
 
-Avraham Mamenko - amamenko@hotmail.com
+Avraham (Avi) Mamenko - avimamenko@gmail.com
 
 Project Link: [https://github.com/amamenko/nypd-arrest-map](https://github.com/amamenko/nypd-arrest-map)
 
