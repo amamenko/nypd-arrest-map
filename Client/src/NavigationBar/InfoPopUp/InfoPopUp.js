@@ -88,7 +88,7 @@ const InfoPopUp = (props) => {
               >
                 <SiLinkedin color="#000" />
               </a>
-              <a href="mailto:amamenko@hotmail.com?subject=Comment/Question About NYPD Arrest Map">
+              <a href="mailto:avimamenko@gmail.com?subject=Comment/Question About NYPD Arrest Map">
                 <ImMail color="#000" />
               </a>
             </div>
