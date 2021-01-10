@@ -780,8 +780,6 @@ const App = () => {
 
   const token = process.env.REACT_APP_MAPBOX_TOKEN;
 
-  console.log(token);
-
   const showTooltip = useCallback(
     (object, x, y) => {
       const el = document.getElementsByClassName("deck-tooltip")[0];
