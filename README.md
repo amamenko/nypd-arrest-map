@@ -18,6 +18,8 @@
     <br />
     <a href="https://nypd-arrest-map.herokuapp.com">View Demo</a>
     ·
+    <a href="https://www.youtube.com/watch?v=eO54xtfrfPk">Watch Video Explanation</a>
+    ·
     <a href="https://github.com/amamenko/nypd-arrest-map/issues">Report Issue</a> 
   </p>
 </p>
