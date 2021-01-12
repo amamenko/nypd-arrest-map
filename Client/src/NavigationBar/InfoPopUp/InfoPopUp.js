@@ -82,7 +82,7 @@ const InfoPopUp = (props) => {
                 <SiGithub color="#000" />
               </a>
               <a
-                href="https://www.linkedin.com/in/avraham-mamenko-0599831b8/"
+                href="https://www.linkedin.com/in/avrahammamenko"
                 target="_blank"
                 rel="noopener noreferrer"
               >
