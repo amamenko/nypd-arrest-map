@@ -18,7 +18,7 @@
     <br />
     <a href="https://nypd-arrest-map.herokuapp.com">View Demo</a>
     ·
-    <a href="https://www.youtube.com/watch?v=eO54xtfrfPk">Watch Video Explanation</a>
+    <a href="https://www.youtube.com/watch?v=eO54xtfrfPk">Watch Video Demo</a>
     ·
     <a href="https://github.com/amamenko/nypd-arrest-map/issues">Report Issue</a> 
   </p>
@@ -85,11 +85,16 @@ You will need to have the following software installed:
    ```sh
    git clone https://github.com/amamenko/nypd-arrest-map.git
    ```
-5. Install all NPM packages.
+5. Install all server-side NPM packages.
    ```sh
    npm install
    ```
-6. Webpack will throw a `Conflict: Multiple assets emit to the same filename` warning due to web workers creating multiple background threads and not emitting to dynamic
+6. Install all client-side NPM packages.   
+   ```sh
+   cd Client
+   npm install
+   ```
+7. Webpack will throw a `Conflict: Multiple assets emit to the same filename` warning due to web workers creating multiple background threads and not emitting to dynamic
 filenames. Edit the `webpack.config.js` file, specifically the `output` key - concerning the build folder - of the returned object with the following values:
 
   ```JS
@@ -104,11 +109,11 @@ filenames. Edit the `webpack.config.js` file, specifically the `output` key - co
             : isEnvDevelopment && 'static/js/[name].chunk.js'
 ```  
    
-7. Enter your Mapbox API token as a client-side environment variable.
+8. Enter your Mapbox API token as a client-side environment variable.
    ```JS
    REACT_APP_MAPBOX_TOKEN=YOUR MAPBOX TOKEN
    ```
-8. Enter your Google Cloud Storage JSON information as server-side environment variables.
+9. Enter your Google Cloud Storage JSON information as server-side environment variables.
    ```JS
    PROJECT_ID=YOUR PROJECT ID
    PRIVATE_KEY_ID=YOUR PRIVATE KEY ID
@@ -120,10 +125,10 @@ filenames. Edit the `webpack.config.js` file, specifically the `output` key - co
    PROVIDER_CERT_URL=YOUR PROVIDER CERT URL
    CLIENT_CERT_URL=YOUR CLIENT CERT URL
    ```
-9. Build for production.
-   ```JS
-   npm run build
-   ```
+10. Build for production.
+     ```JS
+     npm run build
+     ```
    
 ## Known Issue
 iPhone 11 phones running iOS 14.1 have been found to experience "zoom breathing" when geomarkers are selected. The scatterplot layer will scale and zoom in for a moment before resetting itself.
