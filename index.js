@@ -206,7 +206,7 @@ wss.on("connection", (ws) => {
     console.log(decodedMessage);
     if (decodedMessage && decodedMessage !== ".") {
       if (yearlyTotals[decodedMessage]) {
-        const bucket = storage.bucket(`${decodedMessage}_nypd_arrest_data`);
+        const bucket = storage.bucket(`${decodedMessage}-nypd-arrest-data`);
 
         const stream = bucket.file(`${decodedMessage}.json`).createReadStream();
 
