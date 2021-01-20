@@ -137,7 +137,7 @@ const getUpdatedPageData = async (storage) => {
 
             const uploadFileToGoogleCloudStorage = async () => {
               await storage
-                .bucket(`${updatedYear}_nypd_arrest_data`)
+                .bucket(`${updatedYear}-nypd-arrest-data`)
                 .upload(`${updatedYear}.json`, {
                   gzip: true,
                   metadata: {
@@ -171,7 +171,7 @@ const getUpdatedPageData = async (storage) => {
             try {
               // Bucket exists
               const [files] = await storage
-                .bucket(`${updatedYear}_nypd_arrest_data`)
+                .bucket(`${updatedYear}-nypd-arrest-data`)
                 .getFiles();
 
               if (files) {
@@ -180,7 +180,7 @@ const getUpdatedPageData = async (storage) => {
             } catch {
               // Bucket does not exist
               const [newBucket] = await storage.createBucket(
-                `${updatedYear}_nypd_arrest_data`
+                `${updatedYear}-nypd-arrest-data`
               );
 
               if (newBucket) {
