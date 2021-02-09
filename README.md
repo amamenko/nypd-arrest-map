@@ -65,6 +65,10 @@ daily using [Puppeteer](https://github.com/puppeteer/puppeteer) and [node-cron](
 * Mounts [carousel](https://www.npmjs.com/package/react-alice-carousel) (only upon request, due to memory allocation issues) showing [Google Charts](https://www.npmjs.com/package/react-google-charts) of various natures (pie charts, bar charts, line charts) based on current filtered data.
 * When prompted, filters currently shown arrest geomarkers and graph data in background thread.
 
+## Deployment
+
+Server-side and client-side deployed to [Heroku](https://www.heroku.com/).
+
 ## Local Development
 
 To set up this project locally, you can follow the steps below.
