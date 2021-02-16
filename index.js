@@ -16,7 +16,6 @@ const puppeteer = require("puppeteer");
 const fs = require("fs");
 const dayjs = require("dayjs");
 const cron = require("node-cron");
-require("debug").enable("simple-git");
 
 require("dotenv").config();
 
@@ -195,12 +194,10 @@ const getUpdatedPageData = async (storage) => {
   }
 };
 
-getUpdatedPageData(storage);
-
-// // Check for new data from NYC Open Data every day at 11:30 PM
-// cron.schedule("30 23 * * *", () => {
-//   getUpdatedPageData(storage);
-// });
+// Check for new data from NYC Open Data every day at 11:30 PM
+cron.schedule("30 23 * * *", () => {
+  getUpdatedPageData(storage);
+});
 
 wss.on("connection", (ws) => {
   console.log("Websocket successfully connected");
