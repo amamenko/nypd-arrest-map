@@ -60,7 +60,10 @@ const CSVSourceURL =
   "https://data.cityofnewyork.us/api/views/uip8-fykc/rows.csv?accessType=DOWNLOAD";
 
 const getUpdatedPageData = async (storage) => {
-  const browser = await puppeteer.launch();
+  const browser = await puppeteer.launch({
+    headless: true,
+    args: ["--no-sandbox", "--disable-setuid-sandbox"],
+  });
   const page = await browser.newPage();
   await page.goto(dataSourceURL, { waitUntil: "networkidle2" });
 
