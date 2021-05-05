@@ -76,11 +76,15 @@ const getUpdatedPageData = async (storage) => {
 
   await browser.close();
 
+  console.log(updatedInfo);
+
   if (updatedInfo) {
     if (updatedInfo[0]) {
       const updatedArr = updatedInfo[0].split(/(?=[A-Z])/);
 
       const latestUpdatedDate = updatedArr[1];
+
+      console.log(latestUpdatedDate);
 
       if (yearlyTotals["lastUpdatedDate"] !== latestUpdatedDate) {
         const updatedYear = dayjs(latestUpdatedDate, "MMMM D, YYYY").format(
@@ -148,11 +152,17 @@ const getUpdatedPageData = async (storage) => {
                   },
                 });
 
+              console.log(
+                `Uploaded ${updatedYear}.json to Google Cloud Storage!`
+              );
+
               try {
                 // Remove Local JSON File
                 fs.unlinkSync(`${updatedYear}.json`);
 
-                // Push new data from NYC Open Data to github
+                console.log(`Pushing ${latestUpdatedDate} data to GitHub!`);
+
+                // Push new data from NYC Open Data to GitHub
                 require("simple-git")()
                   .removeRemote("origin")
                   .addRemote(
@@ -197,8 +207,8 @@ const getUpdatedPageData = async (storage) => {
   }
 };
 
-// Check for new data from NYC Open Data every day at 11:30 PM
-cron.schedule("30 23 * * *", () => {
+// Check for new data from NYC Open Data every day at 7:00 AM and 7:00 PM
+cron.schedule("0 7,19 * * *", () => {
   getUpdatedPageData(storage);
 });
 
