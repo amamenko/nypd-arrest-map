@@ -16,6 +16,8 @@ const puppeteer = require("puppeteer");
 const fs = require("fs");
 const dayjs = require("dayjs");
 const cron = require("node-cron");
+const simpleGit = require("simple-git");
+const git = simpleGit();
 
 require("dotenv").config();
 
@@ -163,15 +165,23 @@ const getUpdatedPageData = async (storage) => {
                 console.log(`Pushing ${latestUpdatedDate} data to GitHub!`);
 
                 // Push new data from NYC Open Data to GitHub
-                require("simple-git")()
+                await git
+                  .init()
                   .removeRemote("origin")
                   .addRemote(
                     "origin",
                     `https://${process.env.GITHUB_USERNAME}:${process.env.GITHUB_TOKEN}@github.com/amamenko/nypd-arrest-map.git`
                   )
-                  .add(".")
+                  .add(
+                    ["./Client/src/YearlyTotals.js", "YearlyTotalsNode.js"],
+                    () =>
+                      console.log(
+                        "Git successfully added new yearly total files"
+                      )
+                  )
                   .commit(
-                    `Updated local server and client yearly totals files with ${latestUpdatedDate} data`
+                    `Updated local server and client yearly totals files with ${latestUpdatedDate} data`,
+                    () => console.log("Committed changes on named files")
                   )
                   .push(["-u", "origin", "master"]);
               } catch (err) {
