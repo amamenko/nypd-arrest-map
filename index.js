@@ -217,8 +217,8 @@ const getUpdatedPageData = async (storage) => {
   }
 };
 
-// Check for new data from NYC Open Data every day at 8:00 AM and 8:00 PM
-cron.schedule("0 8,20 * * *", () => {
+// Check for new data from NYC Open Data every day at 11:30 PM
+cron.schedule("30 23 * * *", () => {
   getUpdatedPageData(storage);
 });
 
