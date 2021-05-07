@@ -6,11 +6,10 @@ import {
 import { GiHandcuffs } from "react-icons/gi";
 import "react-circular-progressbar/dist/styles.css";
 import Modal from "react-modal";
-import yearlyTotals from "./YearlyTotals";
 import { useSelector } from "react-redux";
 
 const SubsequentLoader = (props) => {
-  const { modalActive, changeModalActive } = props;
+  const { modalActive, changeModalActive, yearlyTotals } = props;
 
   const loadDataChunks = useSelector(
     (state) => state.loadDataChunksReducer.data
@@ -45,6 +44,7 @@ const SubsequentLoader = (props) => {
     changeModalActive,
     newProgress,
     filteredDataChunks.length,
+    yearlyTotals,
   ]);
 
   return (

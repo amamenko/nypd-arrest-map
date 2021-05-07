@@ -5,7 +5,6 @@ const server = require("http").createServer();
 const { Storage } = require("@google-cloud/storage");
 const compression = require("compression");
 const oboe = require("oboe");
-const yearlyTotals = require("./YearlyTotalsNode");
 const { StringDecoder } = require("string_decoder");
 const decoder = new StringDecoder("utf8");
 const path = require("path");
@@ -16,8 +15,7 @@ const puppeteer = require("puppeteer");
 const fs = require("fs");
 const dayjs = require("dayjs");
 const cron = require("node-cron");
-const simpleGit = require("simple-git");
-const git = simpleGit();
+const contentful = require("contentful-management");
 
 require("dotenv").config();
 
@@ -88,137 +86,174 @@ const getUpdatedPageData = async (storage) => {
 
       console.log(latestUpdatedDate);
 
-      if (yearlyTotals["lastUpdatedDate"] !== latestUpdatedDate) {
-        const updatedYear = dayjs(latestUpdatedDate, "MMMM D, YYYY").format(
-          "YYYY"
-        );
+      const arrestQuery = `
+        query {
+          arrestCollection {
+            items {
+              arrestData  
+            }
+          }
+        }
+      `;
 
-        const JSONarr = [];
+      axios({
+        url: `https://graphql.contentful.com/content/v1/spaces/${process.env.CONTENTFUL_SPACE_ID}`,
+        method: "post",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${process.env.CONTENTFUL_ACCESS_TOKEN}`,
+        },
+        data: {
+          query: arrestQuery,
+        },
+      })
+        .then((res) => res.data)
+        .then(async ({ data, errors }) => {
+          if (errors) {
+            console.error(errors);
+          }
 
-        csv({
-          colParser: {
-            ARREST_KEY: "omit",
-            ARREST_DATE: "string",
-            PD_CD: "omit",
-            PD_DESC: "string",
-            KY_CD: "omit",
-            OFNS_DESC: "string",
-            LAW_CODE: "omit",
-            LAW_CAT_CD: "string",
-            ARREST_BORO: "string",
-            ARREST_PRECINCT: "omit",
-            JURISDICTION_CODE: "omit",
-            AGE_GROUP: "string",
-            PERP_SEX: "string",
-            PERP_RACE: "string",
-            X_COORD_CD: "omit",
-            Y_COORD_CD: "omit",
-            Latitude: (item) => {
-              return Number(Number.parseFloat(item).toFixed(6));
-            },
-            Longitude: (item) => {
-              return Number(Number.parseFloat(item).toFixed(6));
-            },
-            "New Georeferenced Column": "omit",
-          },
-        })
-          .fromStream(request.get(CSVSourceURL))
-          .subscribe((json) => JSONarr.push(json))
-          .on("done", async () => {
-            yearlyTotals["lastUpdatedDate"] = latestUpdatedDate;
-            yearlyTotals[updatedYear] = JSONarr.length;
+          if (data) {
+            if (data.arrestCollection) {
+              if (data.arrestCollection.items) {
+                if (data.arrestCollection.items[0]) {
+                  if (data.arrestCollection.items[0].arrestData) {
+                    const yearlyTotals =
+                      data.arrestCollection.items[0].arrestData;
 
-            // Updates server yearly totals object
-            fs.writeFileSync(
-              "YearlyTotalsNode.js",
-              "module.exports = " + JSON.stringify(yearlyTotals),
-              "utf-8"
-            );
+                    if (yearlyTotals["lastUpdatedDate"] !== latestUpdatedDate) {
+                      const updatedYear = dayjs(
+                        latestUpdatedDate,
+                        "MMMM D, YYYY"
+                      ).format("YYYY");
 
-            // Updates client yearly totals object
-            fs.writeFileSync(
-              "./Client/src/YearlyTotals.js",
-              "const yearlyTotals = " +
-                JSON.stringify(yearlyTotals) +
-                "\n\nexport default yearlyTotals;",
-              "utf-8"
-            );
+                      const JSONarr = [];
 
-            const uploadFileToGoogleCloudStorage = async () => {
-              await storage
-                .bucket(`${updatedYear}-nypd-arrest-data`)
-                .upload(`${updatedYear}.json`, {
-                  gzip: true,
-                  metadata: {
-                    cacheControl: "public, max-age=31536000",
-                  },
-                });
+                      csv({
+                        colParser: {
+                          ARREST_KEY: "omit",
+                          ARREST_DATE: "string",
+                          PD_CD: "omit",
+                          PD_DESC: "string",
+                          KY_CD: "omit",
+                          OFNS_DESC: "string",
+                          LAW_CODE: "omit",
+                          LAW_CAT_CD: "string",
+                          ARREST_BORO: "string",
+                          ARREST_PRECINCT: "omit",
+                          JURISDICTION_CODE: "omit",
+                          AGE_GROUP: "string",
+                          PERP_SEX: "string",
+                          PERP_RACE: "string",
+                          X_COORD_CD: "omit",
+                          Y_COORD_CD: "omit",
+                          Latitude: (item) => {
+                            return Number(Number.parseFloat(item).toFixed(6));
+                          },
+                          Longitude: (item) => {
+                            return Number(Number.parseFloat(item).toFixed(6));
+                          },
+                          "New Georeferenced Column": "omit",
+                        },
+                      })
+                        .fromStream(request.get(CSVSourceURL))
+                        .subscribe((json) => JSONarr.push(json))
+                        .on("done", async () => {
+                          yearlyTotals["lastUpdatedDate"] = latestUpdatedDate;
+                          yearlyTotals[updatedYear] = JSONarr.length;
 
-              console.log(
-                `Uploaded ${updatedYear}.json to Google Cloud Storage!`
-              );
+                          const uploadFileToGoogleCloudStorage = async () => {
+                            await storage
+                              .bucket(`${updatedYear}-nypd-arrest-data`)
+                              .upload(`${updatedYear}.json`, {
+                                gzip: true,
+                                metadata: {
+                                  cacheControl: "public, max-age=31536000",
+                                },
+                              });
 
-              try {
-                // Remove Local JSON File
-                fs.unlinkSync(`${updatedYear}.json`);
+                            console.log(
+                              `Uploaded ${updatedYear}.json to Google Cloud Storage!`
+                            );
 
-                console.log(`Pushing ${latestUpdatedDate} data to GitHub!`);
+                            // Remove Local JSON File
+                            fs.unlinkSync(`${updatedYear}.json`);
 
-                // Push new data from NYC Open Data to GitHub
-                await git
-                  .init()
-                  .removeRemote("origin")
-                  .addRemote(
-                    "origin",
-                    `https://${process.env.GITHUB_USERNAME}:${process.env.GITHUB_TOKEN}@github.com/amamenko/nypd-arrest-map.git`
-                  )
-                  .add(
-                    ["./Client/src/YearlyTotals.js", "YearlyTotalsNode.js"],
-                    () =>
-                      console.log(
-                        "Git successfully added new yearly total files"
-                      )
-                  )
-                  .commit(
-                    `Updated local server and client yearly totals files with ${latestUpdatedDate} data`,
-                    () => console.log("Committed changes on named files")
-                  )
-                  .push(["-u", "origin", "master"]);
-              } catch (err) {
-                console.error(err);
-              }
-            };
+                            const contentfulClient = contentful.createClient({
+                              accessToken:
+                                process.env.CONTENTFUL_MANAGEMENT_TOKEN,
+                            });
 
-            // Creates temporary local JSON object containing new values
-            fs.writeFileSync(`${updatedYear}.json`, JSON.stringify(JSONarr));
+                            contentfulClient
+                              .getSpace(process.env.CONTENTFUL_SPACE_ID)
+                              .then((space) => {
+                                space
+                                  .getEnvironment("master")
+                                  .then((environment) => {
+                                    environment
+                                      .getEntry(process.env.CONTENTFUL_ENTRY_ID)
+                                      .then((entry) => {
+                                        entry.fields.arrestData = {
+                                          "en-US": yearlyTotals,
+                                        };
 
-            try {
-              // Bucket exists
-              const [files] = await storage
-                .bucket(`${updatedYear}-nypd-arrest-data`)
-                .getFiles();
+                                        entry.update().then(() => {
+                                          environment
+                                            .getEntry(
+                                              process.env.CONTENTFUL_ENTRY_ID
+                                            )
+                                            .then((updatedEntry) => {
+                                              updatedEntry.publish();
 
-              if (files) {
-                uploadFileToGoogleCloudStorage();
-              }
-            } catch {
-              // Bucket does not exist
-              const [newBucket] = await storage.createBucket(
-                `${updatedYear}-nypd-arrest-data`
-              );
+                                              console.log(
+                                                "Yearly totals list updated successfully and published on Contentful."
+                                              );
+                                            });
+                                        });
+                                      });
+                                  });
+                              });
+                          };
 
-              if (newBucket) {
-                uploadFileToGoogleCloudStorage();
+                          // Creates temporary local JSON object containing new values
+                          fs.writeFileSync(
+                            `${updatedYear}.json`,
+                            JSON.stringify(JSONarr)
+                          );
+
+                          try {
+                            // Bucket exists
+                            const [files] = await storage
+                              .bucket(`${updatedYear}-nypd-arrest-data`)
+                              .getFiles();
+
+                            if (files) {
+                              uploadFileToGoogleCloudStorage();
+                            }
+                          } catch {
+                            // Bucket does not exist
+                            const [newBucket] = await storage.createBucket(
+                              `${updatedYear}-nypd-arrest-data`
+                            );
+
+                            if (newBucket) {
+                              uploadFileToGoogleCloudStorage();
+                            }
+                          }
+                        });
+                    }
+                  }
+                }
               }
             }
-          });
-      }
+          }
+        });
     }
   }
 };
 
-// Check for new data from NYC Open Data every day at 11:30 PM
-cron.schedule("30 23 * * *", () => {
+// Check for new data from NYC Open Data every day at 10:00 PM
+cron.schedule("0 22 * * *", () => {
   getUpdatedPageData(storage);
 });
 

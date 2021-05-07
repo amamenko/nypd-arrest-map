@@ -2,7 +2,6 @@ import React, { useEffect, useRef, useState } from "react";
 import { slide as Menu } from "react-burger-menu";
 import { BsFilterRight } from "react-icons/bs";
 import { FaCircle, FaPlus } from "react-icons/fa";
-import yearlyTotals from "../YearlyTotals";
 import Collapsible from "react-collapsible";
 import Tippy from "@tippyjs/react";
 import LaddaButton, { XL, EXPAND_LEFT } from "react-ladda";
@@ -22,6 +21,7 @@ import ACTION_RESET_FILTERS from "../actions/resetFilters/ACTION_RESET_FILTERS";
 
 const NavigationBar = (props) => {
   const {
+    yearlyTotals,
     loadData,
     raceUniqueValues,
     boroughUniqueValues,

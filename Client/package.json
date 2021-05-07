@@ -8,6 +8,7 @@
     "@testing-library/react": "^11.2.2",
     "@testing-library/user-event": "^12.6.0",
     "@tippyjs/react": "^4.2.0",
+    "axios": "^0.21.1",
     "better-react-spinkit": "^2.0.4",
     "dayjs": "^1.9.7",
     "deck.gl": "^8.3.11",

@@ -4,15 +4,18 @@ import { StaticMap } from "react-map-gl";
 import { ScatterplotLayer } from "@deck.gl/layers";
 import "./App.css";
 import "./mapbox.css";
+import axios from "axios";
 import NavigationBar from "./NavigationBar/NavigationBar";
 import BottomInfoPanel from "./BottomInfoPanel/BottomInfoPanel";
 import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
-import yearlyTotals from "./YearlyTotals";
 import { useCountUp } from "react-countup";
 import InitialLoader from "./InitialLoader";
 import SubsequentLoader from "./SubsequentLoader";
 import Modal from "react-modal";
+import Div100vh from "react-div-100vh";
+import { useMediaQuery } from "react-responsive";
+import { FcRotateToLandscape } from "react-icons/fc";
 import { useDispatch, useSelector } from "react-redux";
 import ACTION_FILTERED_DATA_CHUNKS_ADD_TO_YEAR from "./actions/filteredDataChunks/ACTION_FILTERED_DATA_CHUNKS_ADD_TO_YEAR";
 import ACTION_FILTERED_DATA_CHUNKS_ADD_YEAR from "./actions/filteredDataChunks/ACTION_FILTERED_DATA_CHUNKS_ADD_YEAR";
@@ -39,9 +42,6 @@ import ACTION_NEW_YEAR_FINISHED_LOADING from "./actions/newYearFinishedLoading/A
 import ACTION_TRENDS_AVAILABLE from "./actions/trendsAvailable/ACTION_TRENDS_AVAILABLE";
 import ACTION_TRENDS_NOT_AVAILABLE from "./actions/trendsAvailable/ACTION_TRENDS_NOT_AVAILABLE";
 import ACTION_RESET_FILTERS_RESET from "./actions/resetFilters/ACTION_RESET_FILTERS_RESET";
-import Div100vh from "react-div-100vh";
-import { useMediaQuery } from "react-responsive";
-import { FcRotateToLandscape } from "react-icons/fc";
 
 dayjs.extend(customParseFormat);
 
@@ -99,6 +99,7 @@ const App = () => {
     (state) => state.sexTimelineColumnsReducer.columns
   );
 
+  const [yearlyTotals, changeYearlyTotals] = useState("");
   const [mapLoaded, changeMapLoaded] = useState(false);
   const [tooltipVisible, changeTooltipVisible] = useState(false);
   const [loaderColor, changeLoaderColor] = useState("rgb(93, 188, 210)");
@@ -220,7 +221,7 @@ const App = () => {
         update(newProgress);
       }
     }
-  }, [update, countUp, loadData, lastUpdatedYear]);
+  }, [update, countUp, loadData, lastUpdatedYear, yearlyTotals]);
 
   const isSame = (arr1, arr2) =>
     arr1.length === arr2.length &&
@@ -258,6 +259,48 @@ const App = () => {
   const [filteredTimelineRaceData, changeFilteredTimelineRaceData] = useState(
     []
   );
+
+  useEffect(() => {
+    const arrestQuery = `
+      query {
+        arrestCollection {
+          items {
+            arrestData  
+          }
+        }
+      }
+    `;
+
+    axios({
+      url: `https://graphql.contentful.com/content/v1/spaces/${process.env.REACT_APP_CONTENTFUL_SPACE_ID}`,
+      method: "post",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${process.env.REACT_APP_CONTENTFUL_ACCESS_TOKEN}`,
+      },
+      data: {
+        query: arrestQuery,
+      },
+    })
+      .then((res) => res.data)
+      .then(async ({ data, errors }) => {
+        if (errors) {
+          console.error(errors);
+        }
+
+        if (data) {
+          if (data.arrestCollection) {
+            if (data.arrestCollection.items) {
+              if (data.arrestCollection.items[0]) {
+                if (data.arrestCollection.items[0].arrestData) {
+                  changeYearlyTotals(data.arrestCollection.items[0].arrestData);
+                }
+              }
+            }
+          }
+        }
+      });
+  }, []);
 
   const postToTimelineGraphWorker = useCallback(
     (ageObj, raceObj, categoryObj, sexObj, boroughObj) => {
@@ -543,7 +586,14 @@ const App = () => {
         dispatch(ACTION_FILTERED_DATA_CHANGED());
       }
     }
-  }, [newYearFinishedLoading, loadData, dispatch, totalCount, lastUpdatedYear]);
+  }, [
+    newYearFinishedLoading,
+    loadData,
+    dispatch,
+    totalCount,
+    lastUpdatedYear,
+    yearlyTotals,
+  ]);
 
   useEffect(() => {
     if (!filteredDataChanged) {
@@ -571,6 +621,7 @@ const App = () => {
       }
     }
   }, [
+    yearlyTotals,
     lastUpdatedYear,
     loadData,
     mapPostsCompleted,
@@ -1543,6 +1594,7 @@ const App = () => {
         <SubsequentLoader
           modalActive={modalActive}
           changeModalActive={changeModalActive}
+          yearlyTotals={yearlyTotals}
         />
       ) : null}
       <Div100vh
@@ -1584,6 +1636,7 @@ const App = () => {
           isTablet={isTablet}
           currentFilters={currentFilters}
           isSame={isSame}
+          yearlyTotals={yearlyTotals}
         />
         <DeckGL
           initialViewState={{
