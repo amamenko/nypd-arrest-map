@@ -1498,16 +1498,20 @@ const App = () => {
 
   useEffect(() => {
     if (workerInstance) {
+      const numberYear = Number(lastUpdatedYear);
+      
       if (loadData.length === 0) {
         if (loadingYears.length === 0) {
-          if (isMobileOrTablet) {
-            if (isPortrait) {
-              changeLoadingYears([Number(lastUpdatedYear)]);
-              dataFetch(Number(lastUpdatedYear), filteredDataChunks.length);
+          if (numberYear) {
+            if (isMobileOrTablet) {
+              if (isPortrait) {
+                changeLoadingYears([numberYear]);
+                dataFetch(numberYear, filteredDataChunks.length);
+              }
+            } else {
+              changeLoadingYears([numberYear]);
+              dataFetch(numberYear, filteredDataChunks.length);
             }
-          } else {
-            changeLoadingYears([Number(lastUpdatedYear)]);
-            dataFetch(Number(lastUpdatedYear), filteredDataChunks.length);
           }
         }
       } else {
