@@ -15,6 +15,7 @@ const puppeteer = require("puppeteer");
 const fs = require("fs");
 const dayjs = require("dayjs");
 const cron = require("node-cron");
+const axios = require("axios");
 const contentful = require("contentful-management");
 
 require("dotenv").config();
@@ -252,8 +253,8 @@ const getUpdatedPageData = async (storage) => {
   }
 };
 
-// Check for new data from NYC Open Data every day at 10:00 PM
-cron.schedule("0 22 * * *", () => {
+// Check for new data from NYC Open Data every day at 10:30 PM
+cron.schedule("30 22 * * *", () => {
   getUpdatedPageData(storage);
 });
 
