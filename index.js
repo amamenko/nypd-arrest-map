@@ -265,6 +265,16 @@ wss.on("connection", (ws) => {
     const decodedMessage = decoder.write(Buffer.from(message));
     console.log(decodedMessage);
     if (decodedMessage && decodedMessage !== ".") {
+      const arrestQuery = `
+        query {
+          arrestCollection {
+            items {
+              arrestData  
+            }
+          }
+        }
+      `;
+
       axios({
         url: `https://graphql.contentful.com/content/v1/spaces/${process.env.CONTENTFUL_SPACE_ID}`,
         method: "post",
