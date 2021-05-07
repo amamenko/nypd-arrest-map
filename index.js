@@ -265,52 +265,87 @@ wss.on("connection", (ws) => {
     const decodedMessage = decoder.write(Buffer.from(message));
     console.log(decodedMessage);
     if (decodedMessage && decodedMessage !== ".") {
-      if (yearlyTotals[decodedMessage]) {
-        const bucket = storage.bucket(`${decodedMessage}-nypd-arrest-data`);
+      axios({
+        url: `https://graphql.contentful.com/content/v1/spaces/${process.env.CONTENTFUL_SPACE_ID}`,
+        method: "post",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${process.env.CONTENTFUL_ACCESS_TOKEN}`,
+        },
+        data: {
+          query: arrestQuery,
+        },
+      })
+        .then((res) => res.data)
+        .then(async ({ data, errors }) => {
+          if (errors) {
+            console.error(errors);
+          }
 
-        const stream = bucket.file(`${decodedMessage}.json`).createReadStream();
+          if (data) {
+            if (data.arrestCollection) {
+              if (data.arrestCollection.items) {
+                if (data.arrestCollection.items[0]) {
+                  if (data.arrestCollection.items[0].arrestData) {
+                    const yearlyTotals =
+                      data.arrestCollection.items[0].arrestData;
 
-        let chunkArr = [];
-        let totalLength = 0;
-        let firstMessage = true;
-        let lastMessage = false;
+                    if (yearlyTotals[decodedMessage]) {
+                      const bucket = storage.bucket(
+                        `${decodedMessage}-nypd-arrest-data`
+                      );
 
-        oboe(stream).node(
-          "{ARREST_DATE PD_DESC OFNS_DESC LAW_CAT_CD ARREST_BORO AGE_GROUP PERP_SEX PERP_RACE Latitude Longitude}",
-          (chunk) => {
-            chunkArr.push(chunk);
-            totalLength++;
+                      const stream = bucket
+                        .file(`${decodedMessage}.json`)
+                        .createReadStream();
 
-            if (
-              chunkArr.length === 30000 ||
-              totalLength === yearlyTotals[decodedMessage]
-            ) {
-              console.log(chunkArr.length);
+                      let chunkArr = [];
+                      let totalLength = 0;
+                      let firstMessage = true;
+                      let lastMessage = false;
 
-              if (totalLength === yearlyTotals[decodedMessage]) {
-                if (!lastMessage) {
-                  lastMessage = true;
+                      oboe(stream).node(
+                        "{ARREST_DATE PD_DESC OFNS_DESC LAW_CAT_CD ARREST_BORO AGE_GROUP PERP_SEX PERP_RACE Latitude Longitude}",
+                        (chunk) => {
+                          chunkArr.push(chunk);
+                          totalLength++;
+
+                          if (
+                            chunkArr.length === 30000 ||
+                            totalLength === yearlyTotals[decodedMessage]
+                          ) {
+                            console.log(chunkArr.length);
+
+                            if (totalLength === yearlyTotals[decodedMessage]) {
+                              if (!lastMessage) {
+                                lastMessage = true;
+                              }
+                            }
+
+                            const stringifiedJSON = JSON.stringify({
+                              chunkArr,
+                              firstMessage,
+                              lastMessage,
+                            });
+
+                            ws.send(stringifiedJSON);
+                            chunkArr = [];
+
+                            if (firstMessage) {
+                              firstMessage = false;
+                            }
+                          }
+
+                          return oboe.drop;
+                        }
+                      );
+                    }
+                  }
                 }
               }
-
-              const stringifiedJSON = JSON.stringify({
-                chunkArr,
-                firstMessage,
-                lastMessage,
-              });
-
-              ws.send(stringifiedJSON);
-              chunkArr = [];
-
-              if (firstMessage) {
-                firstMessage = false;
-              }
             }
-
-            return oboe.drop;
           }
-        );
-      }
+        });
     }
   });
 
