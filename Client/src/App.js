@@ -7,6 +7,7 @@ import "./mapbox.css";
 import axios from "axios";
 import NavigationBar from "./NavigationBar/NavigationBar";
 import BottomInfoPanel from "./BottomInfoPanel/BottomInfoPanel";
+import ApplyingFiltersPopUp from "./ApplyingFiltersPopUp/ApplyingFiltersPopUp";
 import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 import { useCountUp } from "react-countup";
@@ -36,7 +37,6 @@ import ACTION_CATEGORY_TIMELINE_COLUMNS from "./actions/timelineColumns/category
 import ACTION_SEX_TIMELINE_COLUMNS from "./actions/timelineColumns/sex/ACTION_SEX_TIMELINE_COLUMNS";
 import ACTION_RACE_TIMELINE_COLUMNS from "./actions/timelineColumns/race/ACTION_RACE_TIMELINE_COLUMNS";
 import ACTION_APPLYING_FILTERS_RESET from "./actions/applyingFilters/ACTION_APPLYING_FILTERS_RESET";
-import ApplyingFiltersPopUp from "./ApplyingFiltersPopUp/ApplyingFiltersPopUp";
 import ACTION_NEW_YEAR_FINISHED_LOADING_RESET from "./actions/newYearFinishedLoading/ACTION_NEW_YEAR_FINISHED_LOADING_RESET";
 import ACTION_NEW_YEAR_FINISHED_LOADING from "./actions/newYearFinishedLoading/ACTION_NEW_YEAR_FINISHED_LOADING";
 import ACTION_TRENDS_AVAILABLE from "./actions/trendsAvailable/ACTION_TRENDS_AVAILABLE";
@@ -1499,7 +1499,7 @@ const App = () => {
   useEffect(() => {
     if (workerInstance) {
       const numberYear = Number(lastUpdatedYear);
-      
+
       if (loadData.length === 0) {
         if (loadingYears.length === 0) {
           if (numberYear) {
