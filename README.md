@@ -52,7 +52,7 @@ website can be broken down as follows:
 - Scrapes the [NYC Open Data's NYPD Arrest Data (Year to Date)](https://data.cityofnewyork.us/Public-Safety/NYPD-Arrest-Data-Year-to-Date-/uip8-fykc) page
   daily using [Puppeteer](https://github.com/puppeteer/puppeteer) and [node-cron](https://www.npmjs.com/package/node-cron).
 - Compares the last updated date/data numbers to those stored in [Contentful](https://www.contentful.com).
-- Parses and formats the dataset if any updates are detected - modifying the Contentful stores accordingly.
+- Parses and formats the dataset if any updates are detected - modifying the Contentful data stores accordingly via Contentful's [Content Management API](https://www.contentful.com/developers/docs/references/content-management-api/).
 - Gzip-compresses and uploads the JSON dataset to a [Google Cloud Storage](https://cloud.google.com/storage) (GCS) bucket.
 - Upon request, uses [Oboe.js](http://oboejs.com) to stream the latest JSON data from GCS to the client in chunks by means of the [WebSocket API](https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API).
 
