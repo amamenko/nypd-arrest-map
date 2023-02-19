@@ -8,5 +8,6 @@ WORKDIR /usr/src/app
 COPY package*.json ./ 
 RUN npm ci --omit=dev
 COPY . .
+RUN chown -R node ./Client/node_modules
 RUN cd Client && npm install --legacy-peer-deps && npm run build
 CMD [ "node", "index.js" ]
