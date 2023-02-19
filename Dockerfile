@@ -9,5 +9,6 @@ COPY package*.json ./
 RUN npm ci --omit=dev
 COPY . .
 RUN cd Client && npm install --legacy-peer-deps && npm run build
+RUN cd ..
 COPY ./Client/build ./Client/build
 CMD [ "node", "index.js" ]
