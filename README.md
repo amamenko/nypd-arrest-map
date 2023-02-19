@@ -14,7 +14,7 @@
     Data visualization and analysis tool for year-to-date NYPD arrests 
     <br />
     <br />
-    <a href="https://nypd-arrest-map.herokuapp.com">View Demo</a>
+    <a href="https://nypd-arrest-map.onrender.com">View Demo</a>
     ·
     <a href="https://www.youtube.com/watch?v=eO54xtfrfPk">Watch Video Demo</a>
     ·
@@ -37,7 +37,7 @@ favor of the arrest's geocoordinates.
 ## About the Map
 
 <p align="center">
-<a href="https://nypd-arrest-map.herokuapp.com">
+<a href="https://nypd-arrest-map.onrender.com">
     <img  src="Client/images/ResponsiveDesignDemo.png" alt="NYPD Arrest Map Responsiveness Demo Screenshots" />
 </a>
 </span>
@@ -66,7 +66,7 @@ website can be broken down as follows:
 
 ## Deployment
 
-Server-side and client-side deployed to [Heroku](https://www.heroku.com/).
+Server-side and client-side initially deployed to [Heroku](https://www.heroku.com/), now deployed on [Render.com](https://render.com).
 
 ## Local Development
 
@@ -178,7 +178,7 @@ Project Link: [https://github.com/amamenko/nypd-arrest-map](https://github.com/a
 - [NYPD / NYC Open Data](https://opendata.cityofnewyork.us)
 - [deck.gl](https://deck.gl)
 - [Mapbox](https://www.mapbox.com)
-- [Heroku](https://www.heroku.com)
+- [Render.com](https://render.com)
 - [React Icons](https://react-icons.github.io/react-icons)
 - [React Alice Carousel](https://www.npmjs.com/package/react-alice-carousel)
 - [React Google Charts](https://react-google-charts.com)

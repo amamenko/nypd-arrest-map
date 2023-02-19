@@ -28,7 +28,7 @@ const cors = require("cors");
 const corsOptions = {
   origin:
     process.env.NODE_ENV === "production"
-      ? "https://nypd-arrest-map.herokuapp.com"
+      ? "https://nypd-arrest-map.onrender.com"
       : "http://localhost:3000",
   optionsSuccessStatus: 200,
 };
@@ -63,7 +63,16 @@ const CSVSourceURL =
 const getUpdatedPageData = async (storage) => {
   const browser = await puppeteer.launch({
     headless: true,
-    args: ["--no-sandbox", "--disable-setuid-sandbox"],
+    args: [
+      "--disable-setuid-sandbox",
+      "--single-process",
+      "--no-sandbox",
+      "--no-zygote",
+    ],
+    executablePath:
+      process.env.NODE_ENV === "production"
+        ? process.env.PUPPETEER_EXECUTABLE_PATH
+        : executablePath(),
   });
   const page = await browser.newPage();
   await page.goto(dataSourceURL, { waitUntil: "networkidle2" });
