@@ -25,11 +25,11 @@ import ACTION_INCREMENT_TOTAL_COUNT from "./actions/totalCount/ACTION_INCREMENT_
 import ACTION_ASSIGN_LOAD_DATA from "./actions/loadData/ACTION_ASSIGN_LOAD_DATA";
 import ACTION_FILTERED_DATA_CHANGED from "./actions/filteredData/ACTION_FILTERED_DATA_CHANGED";
 import ACTION_FILTERED_DATA_CHANGED_RESET from "./actions/filteredData/ACTION_FILTERED_DATA_CHANGED_RESET";
-import ACTION_TIMELINE_AGE_GROUP_GRAPH_DATA from "./actions/timelineGraphData/ageGroup/ACTION_TIMELINE_AGE_GROUP_GRAPH_DATA";
-import ACTION_TIMELINE_BOROUGH_GRAPH_DATA from "./actions/timelineGraphData/borough/ACTION_TIMELINE_BOROUGH_GRAPH_DATA";
-import ACTION_TIMELINE_CATEGORY_GRAPH_DATA from "./actions/timelineGraphData/category/ACTION_TIMELINE_CATEGORY_GRAPH_DATA";
-import ACTION_TIMELINE_GENDER_GRAPH_DATA from "./actions/timelineGraphData/gender/ACTION_TIMELINE_GENDER_GRAPH_DATA";
-import ACTION_TIMELINE_RACE_GRAPH_DATA from "./actions/timelineGraphData/race/ACTION_TIMELINE_RACE_GRAPH_DATA";
+// import ACTION_TIMELINE_AGE_GROUP_GRAPH_DATA from "./actions/timelineGraphData/ageGroup/ACTION_TIMELINE_AGE_GROUP_GRAPH_DATA";
+// import ACTION_TIMELINE_BOROUGH_GRAPH_DATA from "./actions/timelineGraphData/borough/ACTION_TIMELINE_BOROUGH_GRAPH_DATA";
+// import ACTION_TIMELINE_CATEGORY_GRAPH_DATA from "./actions/timelineGraphData/category/ACTION_TIMELINE_CATEGORY_GRAPH_DATA";
+// import ACTION_TIMELINE_GENDER_GRAPH_DATA from "./actions/timelineGraphData/gender/ACTION_TIMELINE_GENDER_GRAPH_DATA";
+// import ACTION_TIMELINE_RACE_GRAPH_DATA from "./actions/timelineGraphData/race/ACTION_TIMELINE_RACE_GRAPH_DATA";
 import setFilterAndTimelineGraphWorkers from "worker-loader!./setFilterAndTimelineGraphWorkers.js"; // eslint-disable-line import/no-webpack-loader-syntax
 import ACTION_AGE_TIMELINE_COLUMNS from "./actions/timelineColumns/age/ACTION_AGE_TIMELINE_COLUMNS";
 import ACTION_BOROUGH_TIMELINE_COLUMNS from "./actions/timelineColumns/borough/ACTION_BOROUGH_TIMELINE_COLUMNS";
@@ -109,10 +109,8 @@ const App = () => {
     year: null,
   });
   const [mapPostsCompleted, changeMapPostsCompleted] = useState(false);
-  const [
-    readyForTimelineColumnPosts,
-    changeReadyForTimelineColumnPosts,
-  ] = useState(false);
+  // const [readyForTimelineColumnPosts, changeReadyForTimelineColumnPosts] =
+  //   useState(false);
   const [graphOption, changeGraphOption] = useState("overview");
   const [footerMenuActive, changeFooterMenuActive] = useState(false);
 
@@ -238,23 +236,15 @@ const App = () => {
   const [filteredSexArr, changeFilteredSexArr] = useState([]);
   const [filteredRaceArr, changeFilteredRaceArr] = useState([]);
   const [filteredBoroughArr, changeFilteredBoroughArr] = useState([]);
-  const [
-    filteredOffenseDescriptionArr,
-    changeFilteredOffenseDescriptionArr,
-  ] = useState([]);
+  const [filteredOffenseDescriptionArr, changeFilteredOffenseDescriptionArr] =
+    useState([]);
   const [filteredUniqueCategory, changeFilteredUniqueCategory] = useState([]);
-  const [
-    filteredTimelineAgeGroupData,
-    changeFilteredTimelineAgeGroupData,
-  ] = useState([]);
-  const [
-    filteredTimelineBoroughData,
-    changeFilteredTimelineBoroughData,
-  ] = useState([]);
-  const [
-    filteredTimelineCategoryData,
-    changeFilteredTimelineCategoryData,
-  ] = useState([]);
+  const [filteredTimelineAgeGroupData, changeFilteredTimelineAgeGroupData] =
+    useState([]);
+  const [filteredTimelineBoroughData, changeFilteredTimelineBoroughData] =
+    useState([]);
+  const [filteredTimelineCategoryData, changeFilteredTimelineCategoryData] =
+    useState([]);
   const [filteredTimelineSexData, changeFilteredTimelineSexData] = useState([]);
   const [filteredTimelineRaceData, changeFilteredTimelineRaceData] = useState(
     []
@@ -302,47 +292,48 @@ const App = () => {
       });
   }, []);
 
-  const postToTimelineGraphWorker = useCallback(
-    (ageObj, raceObj, categoryObj, sexObj, boroughObj) => {
-      if (setFilterAndTimelineGraphWorkersInstance) {
-        // Send from main thread to web worker
-        setFilterAndTimelineGraphWorkersInstance.postMessage({
-          ageObj,
-          raceObj,
-          categoryObj,
-          sexObj,
-          boroughObj,
-        });
+  // const postToTimelineGraphWorker = useCallback(
+  //   (ageObj, raceObj, categoryObj, sexObj, boroughObj) => {
+  //     if (setFilterAndTimelineGraphWorkersInstance) {
+  //       // Send from main thread to web worker
+  //       setFilterAndTimelineGraphWorkersInstance.postMessage(
+  //         ageObj,
+  //         raceObj,
+  //         categoryObj,
+  //         sexObj,
+  //         boroughObj
+  //       );
+  //       applyingFiltersProgressRef.current += 25;
 
-        setFilterAndTimelineGraphWorkersInstance.onmessage = (receivedData) => {
-          applyingFiltersProgressRef.current += 25;
+  //       setFilterAndTimelineGraphWorkersInstance.onmessage = (receivedData) => {
+  //         applyingFiltersProgressRef.current += 25;
 
-          const ageGroupTimelineGraphData =
-            receivedData.data.ageGroupTimelineGraphData;
-          const raceTimelineGraphData = receivedData.data.raceTimelineGraphData;
-          const categoryTimelineGraphData =
-            receivedData.data.categoryTimelineGraphData;
-          const genderTimelineGraphData =
-            receivedData.data.genderTimelineGraphData;
-          const boroughTimelineGraphData =
-            receivedData.data.boroughTimelineGraphData;
+  //         const ageGroupTimelineGraphData =
+  //           receivedData.data.ageGroupTimelineGraphData;
+  //         const raceTimelineGraphData = receivedData.data.raceTimelineGraphData;
+  //         const categoryTimelineGraphData =
+  //           receivedData.data.categoryTimelineGraphData;
+  //         const genderTimelineGraphData =
+  //           receivedData.data.genderTimelineGraphData;
+  //         const boroughTimelineGraphData =
+  //           receivedData.data.boroughTimelineGraphData;
 
-          dispatch(
-            ACTION_TIMELINE_AGE_GROUP_GRAPH_DATA(ageGroupTimelineGraphData)
-          );
-          dispatch(
-            ACTION_TIMELINE_BOROUGH_GRAPH_DATA(boroughTimelineGraphData)
-          );
-          dispatch(
-            ACTION_TIMELINE_CATEGORY_GRAPH_DATA(categoryTimelineGraphData)
-          );
-          dispatch(ACTION_TIMELINE_GENDER_GRAPH_DATA(genderTimelineGraphData));
-          dispatch(ACTION_TIMELINE_RACE_GRAPH_DATA(raceTimelineGraphData));
-        };
-      }
-    },
-    [setFilterAndTimelineGraphWorkersInstance, dispatch]
-  );
+  //         dispatch(
+  //           ACTION_TIMELINE_AGE_GROUP_GRAPH_DATA(ageGroupTimelineGraphData)
+  //         );
+  //         dispatch(
+  //           ACTION_TIMELINE_BOROUGH_GRAPH_DATA(boroughTimelineGraphData)
+  //         );
+  //         dispatch(
+  //           ACTION_TIMELINE_CATEGORY_GRAPH_DATA(categoryTimelineGraphData)
+  //         );
+  //         dispatch(ACTION_TIMELINE_GENDER_GRAPH_DATA(genderTimelineGraphData));
+  //         dispatch(ACTION_TIMELINE_RACE_GRAPH_DATA(raceTimelineGraphData));
+  //       };
+  //     }
+  //   },
+  //   [setFilterAndTimelineGraphWorkersInstance, dispatch]
+  // );
 
   const postToFilteredWorker = useCallback(
     (
@@ -398,7 +389,7 @@ const App = () => {
           changeRaceUniqueValues(raceUniqueValues);
           changeBoroughUniqueValues(boroughUniqueValues);
           changeOffenseDescriptionUniqueValues(offenseDescriptionArr);
-          changeReadyForTimelineColumnPosts(true);
+          // changeReadyForTimelineColumnPosts(true);
         };
       }
     },
@@ -495,10 +486,8 @@ const App = () => {
     []
   );
   const [filteredSexUniqueValues, changeFilteredSexUniqueValues] = useState([]);
-  const [
-    filteredBoroughUniqueValues,
-    changeFilteredBoroughUniqueValues,
-  ] = useState([]);
+  const [filteredBoroughUniqueValues, changeFilteredBoroughUniqueValues] =
+    useState([]);
   const [
     filteredOffenseDescriptionUniqueValues,
     changeFilteredOffenseDescriptionUniqueValues,
@@ -506,41 +495,39 @@ const App = () => {
   const [ageGroupData, changeAgeGroupData] = useState([]);
   const [raceUniqueValues, changeRaceUniqueValues] = useState([]);
   const [boroughUniqueValues, changeBoroughUniqueValues] = useState([]);
-  const [
-    offenseDescriptionUniqueValues,
-    changeOffenseDescriptionUniqueValues,
-  ] = useState([]);
+  const [offenseDescriptionUniqueValues, changeOffenseDescriptionUniqueValues] =
+    useState([]);
 
-  useEffect(() => {
-    if (readyForTimelineColumnPosts) {
-      changeReadyForTimelineColumnPosts(false);
+  // useEffect(() => {
+  //   if (readyForTimelineColumnPosts) {
+  //     changeReadyForTimelineColumnPosts(false);
 
-      postToTimelineGraphWorker(
-        { unique: filteredAgeGroupData, data: filteredTimelineAgeGroupData },
-        { unique: filteredRaceUniqueValues, data: filteredTimelineRaceData },
-        { unique: filteredUniqueCategory, data: filteredTimelineCategoryData },
-        { unique: filteredSexUniqueValues, data: filteredTimelineSexData },
-        {
-          unique: filteredBoroughUniqueValues,
-          data: filteredTimelineBoroughData,
-        }
-      );
-    }
-  }, [
-    categoryTimelineGraphData.length,
-    filteredAgeGroupData,
-    filteredBoroughUniqueValues,
-    filteredRaceUniqueValues,
-    filteredSexUniqueValues,
-    filteredTimelineAgeGroupData,
-    filteredTimelineBoroughData,
-    filteredTimelineCategoryData,
-    filteredTimelineRaceData,
-    filteredTimelineSexData,
-    filteredUniqueCategory,
-    postToTimelineGraphWorker,
-    readyForTimelineColumnPosts,
-  ]);
+  //     postToTimelineGraphWorker(
+  //       { unique: filteredAgeGroupData, data: filteredTimelineAgeGroupData },
+  //       { unique: filteredRaceUniqueValues, data: filteredTimelineRaceData },
+  //       { unique: filteredUniqueCategory, data: filteredTimelineCategoryData },
+  //       { unique: filteredSexUniqueValues, data: filteredTimelineSexData },
+  //       {
+  //         unique: filteredBoroughUniqueValues,
+  //         data: filteredTimelineBoroughData,
+  //       }
+  //     );
+  //   }
+  // }, [
+  //   categoryTimelineGraphData.length,
+  //   filteredAgeGroupData,
+  //   filteredBoroughUniqueValues,
+  //   filteredRaceUniqueValues,
+  //   filteredSexUniqueValues,
+  //   filteredTimelineAgeGroupData,
+  //   filteredTimelineBoroughData,
+  //   filteredTimelineCategoryData,
+  //   filteredTimelineRaceData,
+  //   filteredTimelineSexData,
+  //   filteredUniqueCategory,
+  //   postToTimelineGraphWorker,
+  //   readyForTimelineColumnPosts,
+  // ]);
 
   const renderLayers = useCallback(() => {
     if (applyingFiltersProgressRef.current !== 0) {
@@ -1535,26 +1522,8 @@ const App = () => {
 
   useEffect(() => {
     if (totalCount > 90000) {
-      if (
-        ageTimelineColumns &&
-        boroughTimelineColumns &&
-        categoryTimelineColumns &&
-        raceTimelineColumns &&
-        sexTimelineColumns
-      ) {
-        if (ageTimelineColumns.length > 0) {
-          if (boroughTimelineColumns.length > 0) {
-            if (categoryTimelineColumns.length > 0) {
-              if (raceTimelineColumns.length > 0) {
-                if (sexTimelineColumns.length > 0) {
-                  if (!mapVisible) {
-                    changeMapVisible(true);
-                  }
-                }
-              }
-            }
-          }
-        }
+      if (!mapVisible) {
+        changeMapVisible(true);
       }
     }
   }, [
@@ -1581,12 +1550,7 @@ const App = () => {
           mode.
         </p>
       </div>
-      {layersRef.current.length === 0 ||
-      (ageTimelineColumns ? ageTimelineColumns.length === 0 : true) ||
-      (boroughTimelineColumns ? boroughTimelineColumns.length === 0 : true) ||
-      (categoryTimelineColumns ? categoryTimelineColumns.length === 0 : true) ||
-      (raceTimelineColumns ? raceTimelineColumns.length === 0 : true) ||
-      (sexTimelineColumns ? sexTimelineColumns.length === 0 : true) ? (
+      {layersRef.current.length === 0 || !mapVisible ? (
         <InitialLoader
           countUp={countUp}
           loaderColor={loaderColor}
@@ -1604,19 +1568,7 @@ const App = () => {
       <Div100vh
         className="nypd_arrest_map_container"
         style={{
-          opacity:
-            layersRef.current.length === 0 ||
-            (ageTimelineColumns ? ageTimelineColumns.length === 0 : true) ||
-            (boroughTimelineColumns
-              ? boroughTimelineColumns.length === 0
-              : true) ||
-            (categoryTimelineColumns
-              ? categoryTimelineColumns.length === 0
-              : true) ||
-            (raceTimelineColumns ? raceTimelineColumns.length === 0 : true) ||
-            (sexTimelineColumns ? sexTimelineColumns.length === 0 : true)
-              ? 0
-              : 1,
+          opacity: layersRef.current.length === 0 || !mapVisible ? 0 : 1,
         }}
       >
         <NavigationBar
@@ -1641,6 +1593,7 @@ const App = () => {
           currentFilters={currentFilters}
           isSame={isSame}
           yearlyTotals={yearlyTotals}
+          mapVisible={mapVisible}
         />
         <DeckGL
           initialViewState={{

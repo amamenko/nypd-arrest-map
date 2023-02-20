@@ -42,6 +42,7 @@ const NavigationBar = (props) => {
     isTablet,
     currentFilters,
     isSame,
+    mapVisible,
   } = props;
 
   const dispatch = useDispatch();
@@ -361,34 +362,21 @@ const NavigationBar = (props) => {
 
   useEffect(() => {
     if (isMobileOrTablet) {
-      if (
-        (ageTimelineColumns ? ageTimelineColumns.length > 0 : false) &&
-        (boroughTimelineColumns ? boroughTimelineColumns.length > 0 : false) &&
-        (categoryTimelineColumns
-          ? categoryTimelineColumns.length > 0
-          : false) &&
-        (raceTimelineColumns ? raceTimelineColumns.length > 0 : false) &&
-        (sexTimelineColumns ? sexTimelineColumns.length > 0 : false)
-      ) {
-        const tooltipHideDelay = setTimeout(() => {
-          if (tooltipVisible) {
-            changeTooltipVisible(false);
-          }
-        }, 4000);
-
-        return () => {
-          clearTimeout(tooltipHideDelay);
-        };
-      }
+      setTimeout(() => {
+        console.log("RUNNING");
+        const opacityTip = document.getElementById("overview_tooltip");
+        if (mapVisible && opacityTip) {
+          changeTooltipVisible(false);
+          opacityTip.style.setProperty("opacity", 1, "important");
+        }
+      }, 25000);
     }
   }, [
     isMobileOrTablet,
     tooltipVisible,
-    ageTimelineColumns,
-    boroughTimelineColumns,
-    categoryTimelineColumns,
-    raceTimelineColumns,
-    sexTimelineColumns,
+    mapVisible,
+    mapDetailsTip,
+    overviewTip,
   ]);
 
   useEffect(() => {
@@ -590,21 +578,11 @@ const NavigationBar = (props) => {
             ) : null}
           </div>
         }
-        visible={
-          layersRef.current.length > 0 &&
-          (ageTimelineColumns ? ageTimelineColumns.length > 0 : false) &&
-          (boroughTimelineColumns
-            ? boroughTimelineColumns.length > 0
-            : false) &&
-          (categoryTimelineColumns
-            ? categoryTimelineColumns.length > 0
-            : false) &&
-          (raceTimelineColumns ? raceTimelineColumns.length > 0 : false) &&
-          (sexTimelineColumns ? sexTimelineColumns.length > 0 : false)
-        }
+        visible={layersRef.current.length > 0 && mapVisible}
         allowHTML={true}
         reference={logoContainerRef.current}
         className="overview_tooltip"
+        id="overview_tooltip"
       />
       <Tippy
         content={
@@ -695,18 +673,7 @@ const NavigationBar = (props) => {
         }
         duration={[null, 500]}
         arrow={true}
-        visible={
-          tooltipVisible &&
-          (ageTimelineColumns ? ageTimelineColumns.length > 0 : false) &&
-          (boroughTimelineColumns
-            ? boroughTimelineColumns.length > 0
-            : false) &&
-          (categoryTimelineColumns
-            ? categoryTimelineColumns.length > 0
-            : false) &&
-          (raceTimelineColumns ? raceTimelineColumns.length > 0 : false) &&
-          (sexTimelineColumns ? sexTimelineColumns.length > 0 : false)
-        }
+        visible={tooltipVisible && mapVisible}
         reference={burgerMenu[0]}
         className="burger_tooltip"
         placement="bottom-end"
@@ -782,7 +749,8 @@ const NavigationBar = (props) => {
               : offenseDescriptionUniqueValues.sort().map((desc, i) => {
                   if (
                     desc &&
-                    !(desc.includes("OTHER STATE LAWS") && desc.includes("("))
+                    !desc.includes("OTHER STATE LAWS") &&
+                    !(desc.includes("null") && desc.includes("("))
                   ) {
                     return (
                       <p key={i}>
