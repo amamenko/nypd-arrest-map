@@ -460,7 +460,7 @@ const App = () => {
         timelineWorkerInstance.postMessage({ chunk });
 
         timelineWorkerInstance.onmessage = (receivedData) => {
-          applyingFiltersProgressRef.current += 25;
+          applyingFiltersProgressRef.current += 50;
 
           const parsedData = JSON.parse(receivedData.data);
 

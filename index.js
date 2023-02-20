@@ -378,4 +378,8 @@ if (process.env.NODE_ENV === "production") {
   });
 }
 
+app.get("/health", (req, res) => {
+  res.send("The NYPD arrest map is up and running!");
+});
+
 server.listen(port, () => console.log("Listening to port " + port));
