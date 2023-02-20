@@ -363,7 +363,6 @@ const NavigationBar = (props) => {
   useEffect(() => {
     if (isMobileOrTablet) {
       setTimeout(() => {
-        console.log("RUNNING");
         const opacityTip = document.getElementById("overview_tooltip");
         if (mapVisible && opacityTip) {
           changeTooltipVisible(false);
