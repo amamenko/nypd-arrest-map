@@ -20,6 +20,8 @@ const contentful = require("contentful-management");
 
 require("dotenv").config();
 
+const port = process.env.PORT || 4000;
+
 // compress responses
 app.use(compression());
 
@@ -34,16 +36,9 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions));
-const port = process.env.PORT || 4000;
 
 if (process.env.NODE_ENV === "production") {
   app.use(enforce.HTTPS({ trustProtoHeader: true }));
-
-  app.use(express.static("Client/build"));
-
-  app.get("*", (req, res) => {
-    res.sendFile(path.join(__dirname, "Client", "build", "index.html"));
-  });
 }
 
 const storage = new Storage({
@@ -370,5 +365,25 @@ wss.on("connection", (ws) => {
 
   ws.on("close", () => console.log("WebSocket closed"));
 });
+
+if (process.env.NODE_ENV === "production") {
+  app.use(express.static("Client/build"));
+
+  // Redirect to root in case no path match
+  app.use((req, res, next) => {
+    if (req.path !== "/") {
+      return res.redirect("/");
+    }
+    next();
+  });
+
+  app.get("/", (req, res) => {
+    res.sendFile(path.join(__dirname, "Client", "build", "index.html"));
+  });
+} else {
+  app.get("*", (req, res) => {
+    res.redirect("/");
+  });
+}
 
 server.listen(port, () => console.log("Listening to port " + port));
