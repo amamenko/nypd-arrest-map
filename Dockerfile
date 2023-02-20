@@ -2,8 +2,9 @@ FROM node:10 AS ui-build
 
 WORKDIR /usr/src/app
 COPY Client/ ./Client/
-RUN cd Client && npm install --legacy-peer-deps
-RUN REACT_APP_CONTENTFUL_ACCESS_TOKEN=$REACT_APP_CONTENTFUL_ACCESS_TOKEN \
+RUN cd Client && \
+    npm install --legacy-peer-deps && \
+    REACT_APP_CONTENTFUL_ACCESS_TOKEN=$REACT_APP_CONTENTFUL_ACCESS_TOKEN \
     REACT_APP_CONTENTFUL_SPACE_ID=$REACT_APP_CONTENTFUL_SPACE_ID \
     REACT_APP_MAPBOX_TOKEN=$REACT_APP_MAPBOX_TOKEN \
     npm run build
