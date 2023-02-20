@@ -369,14 +369,6 @@ wss.on("connection", (ws) => {
 if (process.env.NODE_ENV === "production") {
   app.use(express.static("Client/build"));
 
-  // Redirect to root in case no path match
-  app.use((req, res, next) => {
-    if (req.path !== "/") {
-      return res.redirect("/");
-    }
-    next();
-  });
-
   app.get("/", (req, res) => {
     res.sendFile(path.join(__dirname, "Client", "build", "index.html"));
   });
